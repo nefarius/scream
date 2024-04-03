@@ -24,6 +24,8 @@ Abstract:
 // BUGBUG set this to number of miniports
 #define MAX_MINIPORTS 3     // Number of maximum miniports.
 
+#define REG_OPTIONS_SUB_KEY L"\\Options"
+
 //-----------------------------------------------------------------------------
 // Externals
 //-----------------------------------------------------------------------------
@@ -118,7 +120,7 @@ Returns:
     RtlInitUnicodeString(&parametersPath, NULL);
 
     parametersPath.MaximumLength =
-        RegistryPath->Length + sizeof(L"\\Options") + sizeof(WCHAR);
+        RegistryPath->Length + sizeof(REG_OPTIONS_SUB_KEY) + sizeof(WCHAR);
 
     parametersPath.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, parametersPath.MaximumLength, SCREAM_POOLTAG);
     if (parametersPath.Buffer == NULL)
@@ -129,7 +131,7 @@ Returns:
     RtlZeroMemory(parametersPath.Buffer, parametersPath.MaximumLength);
 
     RtlAppendUnicodeToString(&parametersPath, RegistryPath->Buffer);
-    RtlAppendUnicodeToString(&parametersPath, L"\\Options");
+    RtlAppendUnicodeToString(&parametersPath, REG_OPTIONS_SUB_KEY);
 
     ntStatus = RtlQueryRegistryValues(
         RTL_REGISTRY_ABSOLUTE | RTL_REGISTRY_OPTIONAL,
