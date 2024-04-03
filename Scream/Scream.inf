@@ -1,10 +1,11 @@
 [Version]
-Signature="$CHICAGO$"
+Signature="$WINDOWS NT$"
 Class=MEDIA
 Provider=%SCR%
 ClassGUID={4d36e96c-e325-11ce-bfc1-08002be10318}
-DriverVer = 02/22/2007, 6.0.6000.1
+DriverVer=
 CatalogFile=scream.cat
+PnpLockdown=1
 
 [SourceDisksNames]
 222="Scream Driver Disk","",222
@@ -13,18 +14,12 @@ CatalogFile=scream.cat
 scream.sys=222
 
 [Manufacturer]
-%MfgName%=MicrosoftDS,NTAMD64,NTx86,NTARM,NTARM64
+%MfgName%=ScreamDevice,NTAMD64.10,NTARM64.10
 
-[MicrosoftDS.NTAMD64]
+[ScreamDevice.NTAMD64.10]
 %Scream.DeviceDesc%=Scream,*Scream
 
-[MicrosoftDS.NTx86]
-%Scream.DeviceDesc%=Scream,*Scream
-
-[MicrosoftDS.NTARM]
-%Scream.DeviceDesc%=Scream,*Scream
-
-[MicrosoftDS.NTARM64]
+[ScreamDevice.NTARM64.10]
 %Scream.DeviceDesc%=Scream,*Scream
 
 [DestinationDirs]

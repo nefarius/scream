@@ -588,7 +588,6 @@
     <ClInclude Include="minstream.h" />
     <ClInclude Include="mintopo.h" />
     <ClInclude Include="minwave.h" />
-    <ClInclude Include="netiodef.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="savedata.h" />
     <ClInclude Include="scream.h" />
