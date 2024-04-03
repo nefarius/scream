@@ -1,0 +1,16 @@
+.OPTION EXPLICIT
+.Set CabinetFileCountThreshold=0
+.Set FolderFileCountThreshold=0
+.Set FolderSizeThreshold=0
+.Set MaxCabinetSize=0
+.Set MaxDiskFileCount=0
+.Set MaxDiskSize=0
+.Set CompressionType=MSZIP
+.Set Cabinet=on
+.Set Compress=on
+; x64
+.Set CabinetNameTemplate=Scream_x64.cab
+.Set DestinationDir=Scream_x64
+x64\Win10\Scream.pdb
+x64\Win10\Scream\Scream.inf
+x64\Win10\Scream\Scream.sys
