@@ -25,7 +25,7 @@ DEFINE_GUIDSTRUCT("03F51379-5C7E-453D-847D-E4DA9D2F39C2", NAME_SCREAM);
 DEFINE_GUIDSTRUCT("8CA27A4B-23F2-4BDE-92B3-A13E563C8506", PID_SCREAM);
 #define SCREAM_PRODUCT DEFINE_GUIDNAMED(PID_SCREAM)
 
-// Pool tag used for MSVAD allocations
+// Pool tag used for Scream driver allocations
 #define SCREAM_POOLTAG               'ercS'
 
 // Debug module name
