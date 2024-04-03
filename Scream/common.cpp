@@ -190,7 +190,7 @@ Return Value:
     m_PowerState    = PowerDeviceD0;
 
     // Initialize HW.
-    m_pHW = new (NonPagedPool, MSVAD_POOLTAG)  CMSVADHW;
+    m_pHW = new (NonPagedPool, SCREAM_POOLTAG)  CMSVADHW;
     if (!m_pHW) {
         DPF(D_TERSE, ("Insufficient memory for MSVAD HW"));
         ntStatus = STATUS_INSUFFICIENT_RESOURCES;

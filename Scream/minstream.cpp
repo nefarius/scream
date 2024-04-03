@@ -67,11 +67,11 @@ Return Value:
 
     if (m_pTimer) {
         KeCancelTimer(m_pTimer);
-        ExFreePoolWithTag(m_pTimer, MSVAD_POOLTAG);
+        ExFreePoolWithTag(m_pTimer, SCREAM_POOLTAG);
     }
 
     if (m_pDpc) {
-        ExFreePoolWithTag( m_pDpc, MSVAD_POOLTAG );
+        ExFreePoolWithTag( m_pDpc, SCREAM_POOLTAG );
     }
 
     // Free the DMA buffer
@@ -180,7 +180,7 @@ Return Value:
     }
 
     if (NT_SUCCESS(ntStatus)) {
-        m_pDpc = (PRKDPC) ExAllocatePoolWithTag(NonPagedPool, sizeof(KDPC), MSVAD_POOLTAG);
+        m_pDpc = (PRKDPC) ExAllocatePoolWithTag(NonPagedPool, sizeof(KDPC), SCREAM_POOLTAG);
         if (!m_pDpc) {
             DPF(D_TERSE, ("[Could not allocate memory for DPC]"));
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
@@ -188,7 +188,7 @@ Return Value:
     }
 
     if (NT_SUCCESS(ntStatus)) {
-        m_pTimer = (PKTIMER) ExAllocatePoolWithTag(NonPagedPool, sizeof(KTIMER), MSVAD_POOLTAG);
+        m_pTimer = (PKTIMER) ExAllocatePoolWithTag(NonPagedPool, sizeof(KTIMER), SCREAM_POOLTAG);
         if (!m_pTimer) {
             DPF(D_TERSE, ("[Could not allocate memory for Timer]"));
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
@@ -543,7 +543,7 @@ Return Value:
     // Adjust this cap as needed...
     ASSERT (BufferSize <= DMA_BUFFER_SIZE);
 
-    m_pvDmaBuffer = (PVOID) ExAllocatePoolWithTag(NonPagedPool, BufferSize, MSVAD_POOLTAG);
+    m_pvDmaBuffer = (PVOID) ExAllocatePoolWithTag(NonPagedPool, BufferSize, SCREAM_POOLTAG);
     if (!m_pvDmaBuffer) {
         ntStatus = STATUS_INSUFFICIENT_RESOURCES;
     } else {
@@ -729,7 +729,7 @@ Return Value:
     DPF_ENTER(("[CMiniportWaveCyclicStream::FreeBuffer]"));
 
     if ( m_pvDmaBuffer ) {
-        ExFreePoolWithTag( m_pvDmaBuffer, MSVAD_POOLTAG );
+        ExFreePoolWithTag( m_pvDmaBuffer, SCREAM_POOLTAG );
         m_ulDmaBufferSize = 0;
     }
 } // FreeBuffer

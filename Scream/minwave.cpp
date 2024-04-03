@@ -351,7 +351,7 @@ Return Value:
     // NonPagedPool because of file saving.
     //
     if (NT_SUCCESS(ntStatus)) {
-        stream = new (NonPagedPool, MSVAD_POOLTAG) CMiniportWaveCyclicStream(OuterUnknown);
+        stream = new (NonPagedPool, SCREAM_POOLTAG) CMiniportWaveCyclicStream(OuterUnknown);
 
         if (stream) {
             stream->AddRef();

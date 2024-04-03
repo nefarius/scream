@@ -92,7 +92,7 @@ CIVSHMEMSaveData::CIVSHMEMSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendO
     
     if (g_UseIVSHMEM) {
         // allocate work item for this stream
-        m_pWorkItem = (PIVSHMEM_SAVEWORKER_PARAM)ExAllocatePoolWithTag(NonPagedPool, sizeof(IVSHMEM_SAVEWORKER_PARAM), MSVAD_POOLTAG);
+        m_pWorkItem = (PIVSHMEM_SAVEWORKER_PARAM)ExAllocatePoolWithTag(NonPagedPool, sizeof(IVSHMEM_SAVEWORKER_PARAM), SCREAM_POOLTAG);
         if (m_pWorkItem) {
             m_pWorkItem->WorkItem = IoAllocateWorkItem(GetDeviceObject());
             KeInitializeEvent(&(m_pWorkItem->EventDone), NotificationEvent, TRUE);
@@ -200,7 +200,7 @@ CIVSHMEMSaveData::~CIVSHMEMSaveData() {
         }
 
         if (m_pBuffer) {
-            ExFreePoolWithTag(m_pBuffer, MSVAD_POOLTAG);
+            ExFreePoolWithTag(m_pBuffer, SCREAM_POOLTAG);
         }
     }
 } // CIVSHMEMSaveData
@@ -212,7 +212,7 @@ void CIVSHMEMSaveData::DestroyWorkItems(void) {
     DPF_ENTER(("[CIVSHMEMSaveData::DestroyWorkItems]"));
 
     if (m_pWorkItem) {
-        ExFreePoolWithTag(m_pWorkItem, MSVAD_POOLTAG);
+        ExFreePoolWithTag(m_pWorkItem, SCREAM_POOLTAG);
         m_pWorkItem = NULL;
     }
 
@@ -280,7 +280,7 @@ NTSTATUS CIVSHMEMSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample,
 
     // Allocate memory for data buffer.
     if (NT_SUCCESS(ntStatus)) {
-        m_pBuffer = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, m_ivshmem.bufferSize, MSVAD_POOLTAG);
+        m_pBuffer = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, m_ivshmem.bufferSize, SCREAM_POOLTAG);
         if (!m_pBuffer) {
             DPF(D_TERSE, ("[Could not allocate memory for sending data]"));
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;

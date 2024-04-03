@@ -30,7 +30,7 @@ DEFINE_GUIDSTRUCT("5B722BF8-F0AB-47ee-B9C8-8D61D31375A1", PID_MSVAD);
 #define PID_MSVAD DEFINE_GUIDNAMED(PID_MSVAD)
 
 // Pool tag used for MSVAD allocations
-#define MSVAD_POOLTAG               'DVSM'
+#define SCREAM_POOLTAG               'ercS'
 
 // Debug module name
 #define STR_MODULENAME              "Scream: "

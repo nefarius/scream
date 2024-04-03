@@ -55,7 +55,7 @@ CSaveData::CSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fW
         WSK_CLIENT_NPI   wskClientNpi;
 
         // allocate work item for this stream
-        m_pWorkItem = (PSAVEWORKER_PARAM)ExAllocatePoolWithTag(NonPagedPool, sizeof(SAVEWORKER_PARAM), MSVAD_POOLTAG);
+        m_pWorkItem = (PSAVEWORKER_PARAM)ExAllocatePoolWithTag(NonPagedPool, sizeof(SAVEWORKER_PARAM), SCREAM_POOLTAG);
         if (m_pWorkItem) {
             m_pWorkItem->WorkItem = IoAllocateWorkItem(GetDeviceObject());
             KeInitializeEvent(&(m_pWorkItem->EventDone), NotificationEvent, TRUE);
@@ -106,7 +106,7 @@ CSaveData::~CSaveData() {
         IoFreeIrp(m_irp);
 
         if (m_pBuffer) {
-            ExFreePoolWithTag(m_pBuffer, MSVAD_POOLTAG);
+            ExFreePoolWithTag(m_pBuffer, SCREAM_POOLTAG);
             IoFreeMdl(m_pMdl);
         }
     }
@@ -119,7 +119,7 @@ void CSaveData::DestroyWorkItems(void) {
     DPF_ENTER(("[CSaveData::DestroyWorkItems]"));
 
     if (m_pWorkItem) {
-        ExFreePoolWithTag(m_pWorkItem, MSVAD_POOLTAG);
+        ExFreePoolWithTag(m_pWorkItem, SCREAM_POOLTAG);
         m_pWorkItem = NULL;
     }
 
@@ -168,7 +168,7 @@ NTSTATUS CSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD n
 
     // Allocate memory for data buffer.
     if (NT_SUCCESS(ntStatus)) {
-        m_pBuffer = (PBYTE) ExAllocatePoolWithTag(NonPagedPool, BUFFER_SIZE, MSVAD_POOLTAG);
+        m_pBuffer = (PBYTE) ExAllocatePoolWithTag(NonPagedPool, BUFFER_SIZE, SCREAM_POOLTAG);
         if (!m_pBuffer) {
             DPF(D_TERSE, ("[Could not allocate memory for sending data]"));
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;

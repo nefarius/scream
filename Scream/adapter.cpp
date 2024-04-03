@@ -120,7 +120,7 @@ Returns:
     parametersPath.MaximumLength =
         RegistryPath->Length + sizeof(L"\\Options") + sizeof(WCHAR);
 
-    parametersPath.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, parametersPath.MaximumLength, MSVAD_POOLTAG);
+    parametersPath.Buffer = (PWCH)ExAllocatePoolWithTag(NonPagedPool, parametersPath.MaximumLength, SCREAM_POOLTAG);
     if (parametersPath.Buffer == NULL)
     {
         return STATUS_INSUFFICIENT_RESOURCES;
@@ -188,7 +188,7 @@ Returns:
 	}
 
     if ((unicastIPv4.Length > 0) && RtlUnicodeStringToAnsiSize(&unicastIPv4)) {
-        g_UnicastIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, RtlUnicodeStringToAnsiSize(&unicastIPv4) + 1, MSVAD_POOLTAG));
+        g_UnicastIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, RtlUnicodeStringToAnsiSize(&unicastIPv4) + 1, SCREAM_POOLTAG));
         if (g_UnicastIPv4) {
             ANSI_STRING asString;
             asString.Length = 0;
@@ -210,7 +210,7 @@ Returns:
     }
 
     if (g_UnicastIPv4 == NULL) {
-        g_UnicastIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, 16, MSVAD_POOLTAG));
+        g_UnicastIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, 16, SCREAM_POOLTAG));
         if (g_UnicastIPv4) {
             RtlCopyMemory(g_UnicastIPv4, "239.255.77.77", 13);
             g_UnicastIPv4[13] = '\0';
@@ -222,7 +222,7 @@ Returns:
 
 // same as above for source IP
 	if ((unicastSrcIPv4.Length > 0) && RtlUnicodeStringToAnsiSize(&unicastSrcIPv4)) {
-		g_UnicastSrcIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, RtlUnicodeStringToAnsiSize(&unicastSrcIPv4) + 1, MSVAD_POOLTAG));
+		g_UnicastSrcIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, RtlUnicodeStringToAnsiSize(&unicastSrcIPv4) + 1, SCREAM_POOLTAG));
 		if (g_UnicastSrcIPv4) {
 			ANSI_STRING asString;
 			asString.Length = 0;
@@ -244,7 +244,7 @@ Returns:
 	}
 
 	if (g_UnicastSrcIPv4 == NULL) {
-		g_UnicastSrcIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, 16, MSVAD_POOLTAG));
+		g_UnicastSrcIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, 16, SCREAM_POOLTAG));
 		if (g_UnicastSrcIPv4) {
 			RtlCopyMemory(g_UnicastSrcIPv4, "0.0.0.0", 7);
 			g_UnicastSrcIPv4[7] = '\0';
