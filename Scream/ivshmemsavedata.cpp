@@ -123,7 +123,7 @@ CIVSHMEMSaveData::CIVSHMEMSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendO
             for (PWSTR symbolicLink = symbolicLinkList;
                 symbolicLink[0] != NULL && symbolicLink[1] != NULL;
                 symbolicLink += wcslen(symbolicLink) + 1) {
-                RtlInitUnicodeString(&objName, symbolicLink),
+                RtlInitUnicodeString(&objName, symbolicLink);
 
                 ntStatus = IoGetDeviceObjectPointer(
                     &objName,
