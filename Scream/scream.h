@@ -12,22 +12,18 @@
 //=============================================================================
 
 // Name Guid
-// {49C58C39-D5EB-42C1-ABCD-EB75422ACF38}
-#define STATIC_NAME_MSVAD_SIMPLE 0x49C58C39, 0xD5EB, 0x42C1, 0xab, 0xcd, 0xeb, 0x75, 0x42, 0x2a, 0xcf, 0x38
-DEFINE_GUIDSTRUCT("49C58C39-D5EB-42C1-ABCD-EB75422ACF38", NAME_MSVAD_SIMPLE);
-#define NAME_MSVAD_SIMPLE DEFINE_GUIDNAMED(NAME_MSVAD_SIMPLE)
+DEFINE_GUIDSTRUCT("03F51379-5C7E-453D-847D-E4DA9D2F39C2", NAME_SCREAM);
+#define SCREAM_NAME DEFINE_GUIDNAMED(NAME_SCREAM)
 
 // Version number. Revision numbers are specified for each sample.
-#define MSVAD_VERSION               1
+#define SCREAM_VERSION               1
 
 // Revision number.
-#define MSVAD_REVISION              0
+#define SCREAM_REVISION              0
 
 // Product Id
-// {5B722BF8-F0AB-47ee-B9C8-8D61D31375A1}
-#define STATIC_PID_MSVAD 0x5b722bf8, 0xf0ab, 0x47ee, 0xb9, 0xc8, 0x8d, 0x61, 0xd3, 0x13, 0x75, 0xa1
-DEFINE_GUIDSTRUCT("5B722BF8-F0AB-47ee-B9C8-8D61D31375A1", PID_MSVAD);
-#define PID_MSVAD DEFINE_GUIDNAMED(PID_MSVAD)
+DEFINE_GUIDSTRUCT("8CA27A4B-23F2-4BDE-92B3-A13E563C8506", PID_SCREAM);
+#define SCREAM_PRODUCT DEFINE_GUIDNAMED(PID_SCREAM)
 
 // Pool tag used for MSVAD allocations
 #define SCREAM_POOLTAG               'ercS'
