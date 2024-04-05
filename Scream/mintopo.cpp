@@ -29,7 +29,7 @@ PHYSICALCONNECTIONTABLE TopologyPhysicalConnections =
 #pragma code_seg("PAGE")
 
 //=============================================================================
-NTSTATUS CreateMiniportTopologyMSVAD (
+NTSTATUS CreateMiniportTopologyScream (
     OUT PUNKNOWN* Unknown,
     IN  REFCLSID,
     IN  PUNKNOWN  UnknownOuter OPTIONAL,
@@ -54,7 +54,7 @@ Return Value:
     ASSERT(Unknown);
 
     STD_CREATE_BODY(CMiniportTopology, Unknown, UnknownOuter, PoolType);
-} // CreateMiniportTopologyMSVAD
+} // CreateMiniportTopologyScream
 
 //=============================================================================
 CMiniportTopology::CMiniportTopology(PUNKNOWN outer) : CUnknown(outer)

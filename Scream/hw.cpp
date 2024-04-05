@@ -19,7 +19,7 @@ Abstract:
 
 //=============================================================================
 #pragma code_seg("PAGE")
-CMSVADHW::CMSVADHW() : m_ulMux(0), m_bDevSpecific(FALSE), m_iDevSpecific(0), m_uiDevSpecific(0)
+CVirtualAudioDevice::CVirtualAudioDevice() : m_ulMux(0), m_bDevSpecific(FALSE), m_iDevSpecific(0), m_uiDevSpecific(0)
 /*++
 Routine Description:
   Constructor for MSVADHW. 
@@ -37,7 +37,7 @@ Return Value:
 #pragma code_seg()
 
 //=============================================================================
-BOOL CMSVADHW::bGetDevSpecific()
+BOOL CVirtualAudioDevice::bGetDevSpecific()
 /*++
 Routine Description:
   Gets the HW (!) Device Specific info
@@ -53,7 +53,7 @@ Return Value:
 } // bGetDevSpecific
 
 //=============================================================================
-void CMSVADHW::bSetDevSpecific(IN BOOL bDevSpecific)
+void CVirtualAudioDevice::bSetDevSpecific(IN BOOL bDevSpecific)
 /*++
 Routine Description:
   Sets the HW (!) Device Specific info
@@ -69,7 +69,7 @@ Return Value:
 } // bSetDevSpecific
 
 //=============================================================================
-INT CMSVADHW::iGetDevSpecific()
+INT CVirtualAudioDevice::iGetDevSpecific()
 /*++
 Routine Description:
   Gets the HW (!) Device Specific info
@@ -85,7 +85,7 @@ Return Value:
 } // iGetDevSpecific
 
 //=============================================================================
-void CMSVADHW::iSetDevSpecific(IN INT iDevSpecific)
+void CVirtualAudioDevice::iSetDevSpecific(IN INT iDevSpecific)
 /*++
 Routine Description:
   Sets the HW (!) Device Specific info
@@ -101,7 +101,7 @@ Return Value:
 } // iSetDevSpecific
 
 //=============================================================================
-UINT CMSVADHW::uiGetDevSpecific()
+UINT CVirtualAudioDevice::uiGetDevSpecific()
 /*++
 Routine Description:
   Gets the HW (!) Device Specific info
@@ -117,7 +117,7 @@ Return Value:
 } // uiGetDevSpecific
 
 //=============================================================================
-void CMSVADHW::uiSetDevSpecific(IN UINT uiDevSpecific)
+void CVirtualAudioDevice::uiSetDevSpecific(IN UINT uiDevSpecific)
 /*++
 Routine Description:
   Sets the HW (!) Device Specific info
@@ -134,7 +134,7 @@ Return Value:
 
 
 //=============================================================================
-BOOL CMSVADHW::GetMixerMute(IN ULONG ulNode)
+BOOL CVirtualAudioDevice::GetMixerMute(IN ULONG ulNode)
 /*++
 Routine Description:
   Gets the HW (!) mute levels for MSVAD
@@ -154,7 +154,7 @@ Return Value:
 } // GetMixerMute
 
 //=============================================================================
-ULONG CMSVADHW::GetMixerMux()
+ULONG CVirtualAudioDevice::GetMixerMux()
 /*++
 Routine Description:
   Return the current mux selection
@@ -169,7 +169,7 @@ Return Value:
 } // GetMixerMux
 
 //=============================================================================
-LONG CMSVADHW::GetMixerVolume(   
+LONG CVirtualAudioDevice::GetMixerVolume(   
     IN  ULONG ulNode,
     IN  LONG  lChannel
 )
@@ -196,7 +196,7 @@ Return Value:
 
 //=============================================================================
 #pragma code_seg("PAGE")
-void CMSVADHW::MixerReset()
+void CVirtualAudioDevice::MixerReset()
 /*++
 Routine Description:
   Resets the mixer registers.
@@ -218,7 +218,7 @@ Return Value:
 #pragma code_seg()
 
 //=============================================================================
-void CMSVADHW::SetMixerMute(
+void CVirtualAudioDevice::SetMixerMute(
     IN  ULONG                   ulNode,
     IN  BOOL                    fMute
 )
@@ -240,7 +240,7 @@ Return Value:
 } // SetMixerMute
 
 //=============================================================================
-void CMSVADHW::SetMixerMux(
+void CVirtualAudioDevice::SetMixerMux(
     IN  ULONG                   ulNode
 )
 /*++
@@ -258,7 +258,7 @@ Return Value:
 } // SetMixMux
 
 //=============================================================================
-void CMSVADHW::SetMixerVolume(   
+void CVirtualAudioDevice::SetMixerVolume(   
     IN  ULONG                   ulNode,
     IN  LONG                    lChannel,
     IN  LONG                    lVolume

@@ -39,7 +39,7 @@ private:
     PSERVICEGROUP           m_pServiceGroupWave;
     PDEVICE_OBJECT          m_pDeviceObject;      
     DEVICE_POWER_STATE      m_PowerState;        
-    PCMSVADHW               m_pHW;          // Virtual MSVAD HW object
+    PCVirtualAudioDevice    m_pHW;          // Virtual MSVAD HW object
 
 public:
     //=====================================================================
@@ -195,7 +195,7 @@ Return Value:
     m_PowerState = PowerDeviceD0;
 
     // Initialize HW.
-    m_pHW = new(NonPagedPool, SCREAM_POOLTAG) CMSVADHW;
+    m_pHW = new(NonPagedPool, SCREAM_POOLTAG) CVirtualAudioDevice;
     if (!m_pHW) {
         DPF(D_TERSE, ("Insufficient memory for MSVAD HW"));
         ntStatus = STATUS_INSUFFICIENT_RESOURCES;

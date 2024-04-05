@@ -30,8 +30,8 @@ Abstract:
 //-----------------------------------------------------------------------------
 // Externals
 //-----------------------------------------------------------------------------
-NTSTATUS CreateMiniportWaveCyclicMSVAD(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
-NTSTATUS CreateMiniportTopologyMSVAD(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
+NTSTATUS CreateMiniportWaveCyclicScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
+NTSTATUS CreateMiniportTopologyScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
 
 PCHAR g_UnicastSrcIPv4;
 DWORD g_UnicastSrcPort;
@@ -557,7 +557,7 @@ Return Value:
             L"Topology",
             CLSID_PortTopology,
             CLSID_PortTopology,
-            CreateMiniportTopologyMSVAD,
+            CreateMiniportTopologyScream,
             pAdapterCommon,
             NULL,
             IID_IPortTopology,
@@ -574,7 +574,7 @@ Return Value:
             L"Wave",
             CLSID_PortWaveCyclic,
             CLSID_PortWaveCyclic,
-            CreateMiniportWaveCyclicMSVAD,
+            CreateMiniportWaveCyclicScream,
             pAdapterCommon,
             NULL,
             IID_IPortWaveCyclic,

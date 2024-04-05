@@ -28,7 +28,7 @@ Abstract:
 // This class represents virtual MSVAD HW. An array representing volume
 // registers and mute registers.
 
-class CMSVADHW {
+class CVirtualAudioDevice {
 protected:
     BOOL  m_MuteControls[MAX_TOPOLOGY_NODES];
     LONG  m_VolumeControls[MAX_TOPOLOGY_NODES];
@@ -38,7 +38,7 @@ protected:
     UINT  m_uiDevSpecific;
 
 public:
-    CMSVADHW();
+    CVirtualAudioDevice();
     
     void MixerReset();
     BOOL bGetDevSpecific();
@@ -57,6 +57,6 @@ public:
     LONG  GetMixerVolume(IN ULONG ulNode, IN LONG lChannel);
     void  SetMixerVolume(IN ULONG ulNode, IN LONG lChannel, IN LONG lVolume);
 };
-typedef CMSVADHW* PCMSVADHW;
+typedef CVirtualAudioDevice* PCVirtualAudioDevice;
 
 #endif

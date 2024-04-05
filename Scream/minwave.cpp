@@ -28,7 +28,7 @@ Abstract:
 //=============================================================================
 
 //=============================================================================
-NTSTATUS CreateMiniportWaveCyclicMSVAD( 
+NTSTATUS CreateMiniportWaveCyclicScream( 
     OUT PUNKNOWN *              Unknown,
     IN  REFCLSID,
     IN  PUNKNOWN                UnknownOuter OPTIONAL,
