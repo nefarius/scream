@@ -292,9 +292,7 @@ Return Value:
 --*/
 {
     NTSTATUS ntStatus;
-
-    DPF(D_TERSE, ("[DriverEntry]"));
-
+    
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/single-binary-opt-in-pool-nx-optin
     ExInitializeDriverRuntime(DrvRtPoolNxOptIn);
 
@@ -302,6 +300,8 @@ Return Value:
     // Initialize WPP Tracing
     //
     WPP_INIT_TRACING(DriverObject, RegistryPathName);
+
+    FuncEntry(TRACE_ADAPTER);
 
     EventRegisterScream_Audio_Streaming_Driver();
 
@@ -321,6 +321,8 @@ Return Value:
     else {
         EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"PcInitializeAdapterDriver", ntStatus);
     }
+
+    FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // DriverEntry
