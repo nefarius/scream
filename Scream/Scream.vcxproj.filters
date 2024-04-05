@@ -95,4 +95,9 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <MessageCompile Include="scream.man">
+      <Filter>Resource Files</Filter>
+    </MessageCompile>
+  </ItemGroup>
 </Project>

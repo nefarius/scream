@@ -6,6 +6,7 @@
 #include <stdunk.h>
 #include <ksdebug.h>
 #include "kshelper.h"
+#include <screamETW.h>
 
 //=============================================================================
 // Defines

@@ -263,7 +263,7 @@ Returns:
     return STATUS_SUCCESS;
 }
 
-
+DRIVER_UNLOAD ScreamDriverUnload;
 
 //=============================================================================
 #pragma code_seg("INIT")
@@ -297,16 +297,39 @@ Return Value:
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/single-binary-opt-in-pool-nx-optin
     ExInitializeDriverRuntime(DrvRtPoolNxOptIn);
 
+    EventRegisterScream_Audio_Streaming_Driver();
+
     GetRegistrySettings(RegistryPathName);
+
+    DriverObject->DriverUnload = ScreamDriverUnload;
 
     // Tell the class driver to initialize the driver.
     ntStatus = PcInitializeAdapterDriver(DriverObject, RegistryPathName, (PDRIVER_ADD_DEVICE)AddDevice);
-    
+
+    EventWriteStartEvent(NULL, DriverObject, ntStatus);
+
+    if (!NT_SUCCESS(ntStatus)) {
+        EventUnregisterScream_Audio_Streaming_Driver();
+    }
+    else {
+        EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"PcInitializeAdapterDriver", ntStatus);
+    }
+
     return ntStatus;
 } // DriverEntry
 #pragma code_seg()
 
 #pragma code_seg("PAGE")
+_Use_decl_annotations_
+VOID
+ScreamDriverUnload(
+    struct _DRIVER_OBJECT* DriverObject
+) {
+    EventWriteUnloadEvent(NULL, DriverObject);
+
+    EventUnregisterScream_Audio_Streaming_Driver();
+}
+
 //=============================================================================
 NTSTATUS AddDevice ( 
     IN  PDRIVER_OBJECT          DriverObject,

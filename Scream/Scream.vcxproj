@@ -615,6 +615,19 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="scream.rc" />
+    <ResourceCompile Include="$(IntDir)screamETW.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <MessageCompile Include="scream.man">
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Win10|Win32'">true</GenerateKernelModeLoggingMacros>
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Win10|ARM64'">true</GenerateKernelModeLoggingMacros>
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Win10|ARM'">true</GenerateKernelModeLoggingMacros>
+      <GenerateKernelModeLoggingMacros Condition="'$(Configuration)|$(Platform)'=='Win10|x64'">true</GenerateKernelModeLoggingMacros>
+      <GeneratedFilesBaseName Condition="'$(Configuration)|$(Platform)'=='Win10|Win32'">%(Filename)ETW</GeneratedFilesBaseName>
+      <GeneratedFilesBaseName Condition="'$(Configuration)|$(Platform)'=='Win10|ARM64'">%(Filename)ETW</GeneratedFilesBaseName>
+      <GeneratedFilesBaseName Condition="'$(Configuration)|$(Platform)'=='Win10|ARM'">%(Filename)ETW</GeneratedFilesBaseName>
+      <GeneratedFilesBaseName Condition="'$(Configuration)|$(Platform)'=='Win10|x64'">%(Filename)ETW</GeneratedFilesBaseName>
+    </MessageCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
