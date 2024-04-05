@@ -549,7 +549,7 @@ Return Value:
         }
     }
 
-    // install MSVAD topology miniport.
+    // install topology miniport.
     if (NT_SUCCESS(ntStatus)) {
         ntStatus = InstallSubdevice(
             DeviceObject,
@@ -566,7 +566,7 @@ Return Value:
         );
     }
 
-    // install MSVAD wavecyclic miniport.
+    // install wavecyclic miniport.
     if (NT_SUCCESS(ntStatus)) {
         ntStatus = InstallSubdevice(
             DeviceObject,

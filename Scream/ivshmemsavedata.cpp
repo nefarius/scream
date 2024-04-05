@@ -6,6 +6,7 @@
 
 #include "scream.h"
 #include "ivshmemsavedata.h"
+#include "ivshmemsavedata.tmh"
 
 //=============================================================================
 // Defines

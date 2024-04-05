@@ -15,6 +15,7 @@ Abstract:
 #include "hw.h"
 #include "savedata.h"
 #include "ivshmemsavedata.h"
+#include "common.tmh"
 
 //-----------------------------------------------------------------------------
 // Externals

@@ -11,6 +11,7 @@ Abstract:
 --*/
 #include "scream.h"
 #include "hw.h"
+#include "hw.tmh"
 
 //=============================================================================
 // CMSVADHW

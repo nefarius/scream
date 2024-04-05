@@ -16,6 +16,7 @@ Abstract:
 #include "minstream.h"
 #include "wavtable.h"
 #include <stdlib.h>
+#include "minstream.tmh"
 
 #define SILENCE_SAMPLE_LEVEL 5
 

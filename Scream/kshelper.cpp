@@ -9,6 +9,8 @@ Abstract:
 --*/
 
 #include "kshelper.h"
+#include "Trace.h"
+#include "kshelper.tmh"
 
 #pragma code_seg("PAGE")
 

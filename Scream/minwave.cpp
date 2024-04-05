@@ -19,6 +19,7 @@ Abstract:
 #include "minstream.h"
 #include "minwave.h"
 #include "wavtable.h"
+#include "minwave.tmh"
 
 // #pragma code_seg("PAGE")
 

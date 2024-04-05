@@ -15,6 +15,7 @@ Abstract:
 #include "minwave.h"
 #include "mintopo.h"
 #include "toptable.h"
+#include "mintopo.tmh"
 
 
 PHYSICALCONNECTIONTABLE TopologyPhysicalConnections =

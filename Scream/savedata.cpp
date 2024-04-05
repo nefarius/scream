@@ -2,6 +2,7 @@
 
 #include "scream.h"
 #include "savedata.h"
+#include "savedata.tmh"
 
 //=============================================================================
 // Defines
