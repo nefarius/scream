@@ -264,7 +264,7 @@ Returns:
     return STATUS_SUCCESS;
 }
 
-DRIVER_UNLOAD ScreamDriverUnload;
+static DRIVER_UNLOAD ScreamDriverUnload;
 
 //=============================================================================
 #pragma code_seg("INIT")
@@ -330,6 +330,7 @@ Return Value:
 
 #pragma code_seg("PAGE")
 _Use_decl_annotations_
+static
 VOID
 ScreamDriverUnload(
     struct _DRIVER_OBJECT* DriverObject
