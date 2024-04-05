@@ -31,12 +31,16 @@ const WSK_CLIENT_DISPATCH WskClientDispatch = {
 //=============================================================================
 // IRP completion routine used for synchronously waiting for completion
 NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP Irp, __in PVOID Context) {
+    FuncEntry(TRACE_SAVEDATA);
+
     PKEVENT compEvent = (PKEVENT)Context;
 
     UNREFERENCED_PARAMETER(Reserved);
     UNREFERENCED_PARAMETER(Irp);
 
     KeSetEvent(compEvent, 2, FALSE);
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
@@ -48,10 +52,10 @@ NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP 
 
 //=============================================================================
 CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
+    FuncEntry(TRACE_SAVEDATA);
+
     PAGED_CODE();
-
-    DPF_ENTER(("[CSaveData::CSaveData]"));
-
+    
     if (!g_UseIVSHMEM) {
         WSK_CLIENT_NPI wskClientNpi;
 
@@ -65,7 +69,7 @@ CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSen
         // get us an IRP
         m_irp = IoAllocateIrp(1, FALSE);
 
-        // initialize io completion sychronization event
+        // initialize io completion synchronization event
         KeInitializeEvent(&m_syncEvent, SynchronizationEvent, FALSE);
 
         // Register with WSK.
@@ -73,13 +77,15 @@ CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSen
         wskClientNpi.Dispatch = &WskClientDispatch;
         WskRegister(&wskClientNpi, &m_wskRegistration);
     }
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // CSaveData
 
 //=============================================================================
 CSaveData::~CSaveData() {
-    PAGED_CODE();
+    FuncEntry(TRACE_SAVEDATA);
 
-    DPF_ENTER(("[CSaveData::~CSaveData]"));
+    PAGED_CODE();
 
     if (!g_UseIVSHMEM) {
         // frees the work item
@@ -111,43 +117,57 @@ CSaveData::~CSaveData() {
             IoFreeMdl(m_pMdl);
         }
     }
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // CSaveData
 
 //=============================================================================
 void CSaveData::DestroyWorkItems(void) {
-    PAGED_CODE();
-    
-    DPF_ENTER(("[CSaveData::DestroyWorkItems]"));
+    FuncEntry(TRACE_SAVEDATA);
 
+    PAGED_CODE();
+        
     if (m_pWorkItem) {
         ExFreePoolWithTag(m_pWorkItem, SCREAM_POOLTAG);
         m_pWorkItem = NULL;
     }
 
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // DestroyWorkItems
 
 //=============================================================================
 void CSaveData::Disable(BOOL fDisable) {
+    FuncEntry(TRACE_SAVEDATA);
+
     PAGED_CODE();
 
     m_fWriteDisabled = fDisable;
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // Disable
 
 //=============================================================================
 NTSTATUS CSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
+    FuncEntry(TRACE_SAVEDATA);
+
     PAGED_CODE();
 
     ASSERT(DeviceObject);
-
-    NTSTATUS ntStatus = STATUS_SUCCESS;
     
     m_pDeviceObject = DeviceObject;
-    return ntStatus;
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
+
+    return STATUS_SUCCESS;
 }
 
 //=============================================================================
 PDEVICE_OBJECT CSaveData::GetDeviceObject(void) {
+    FuncEntry(TRACE_SAVEDATA);
+
     PAGED_CODE();
+
+    FuncExit(TRACE_SAVEDATA, "devObj=0x%p", m_pDeviceObject);
 
     return m_pDeviceObject;
 }
@@ -155,11 +175,15 @@ PDEVICE_OBJECT CSaveData::GetDeviceObject(void) {
 #pragma code_seg("PAGE")
 //=============================================================================
 NTSTATUS CSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
+    FuncEntryArguments(
+        TRACE_SAVEDATA, 
+        "nSamplesPerSec=%lu,wBitsPerSample=%d,nChannels=%d,dwChannelMask=%lu",
+        nSamplesPerSec, wBitsPerSample, nChannels, dwChannelMask
+    );
+
     PAGED_CODE();
 
     NTSTATUS          ntStatus = STATUS_SUCCESS;
-
-    DPF_ENTER(("[CSaveData::Initialize]"));
     
     // Only multiples of 44100 and 48000 are supported
     m_bSamplingFreqMarker  = (BYTE)((nSamplesPerSec % 44100) ? (0 + (nSamplesPerSec / 48000)) : (128 + (nSamplesPerSec / 44100)));
@@ -171,7 +195,7 @@ NTSTATUS CSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD n
     if (NT_SUCCESS(ntStatus)) {
         m_pBuffer = (PBYTE) ExAllocatePoolWithTag(NonPagedPool, BUFFER_SIZE, SCREAM_POOLTAG);
         if (!m_pBuffer) {
-            DPF(D_TERSE, ("[Could not allocate memory for sending data]"));
+            TraceError(TRACE_SAVEDATA, "Could not allocate memory for sending data");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }
@@ -180,40 +204,44 @@ NTSTATUS CSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD n
     if (NT_SUCCESS(ntStatus)) {
         m_pMdl = IoAllocateMdl(m_pBuffer, BUFFER_SIZE, FALSE, FALSE, NULL);
         if (m_pMdl == NULL) {
-            DPF(D_TERSE, ("[Failed to allocate MDL]"));
+            TraceError(TRACE_SAVEDATA, "Failed to allocate MDL");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         } else {
             MmBuildMdlForNonPagedPool(m_pMdl);
         }
     }
 
+    FuncExit(TRACE_SAVEDATA, "ntStatus=%!STATUS!", ntStatus);
+
     return ntStatus;
 } // Initialize
 
 //=============================================================================
-IO_WORKITEM_ROUTINE SendDataWorkerCallback;
+VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
+    FuncEntry(TRACE_SAVEDATA);
 
-VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN  PVOID  Context) {
     UNREFERENCED_PARAMETER(pDeviceObject);
 
     PAGED_CODE();
 
     ASSERT(Context);
 
-    PSAVEWORKER_PARAM pParam = (PSAVEWORKER_PARAM) Context;
-    PCSaveData        pSaveData;
+    const PSAVEWORKER_PARAM pParam = (PSAVEWORKER_PARAM) Context;
 
     ASSERT(pParam->pSaveData);
 
     if (pParam->WorkItem) {
-        pSaveData = pParam->pSaveData;
+        const PCSaveData pSaveData = pParam->pSaveData;
         pSaveData->SendData();
     }
 
     KeSetEvent(&(pParam->EventDone), 0, FALSE);
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // SendDataWorkerCallback
 
 // Prototype for the control socket IoCompletion routine
+static
 NTSTATUS
 ControlSocketComplete(
 	PDEVICE_OBJECT DeviceObject,
@@ -222,42 +250,56 @@ ControlSocketComplete(
 );
 
 // Function to set socket options
-NTSTATUS SetSockOpt (PWSK_SOCKET Socket, ULONG level, ULONG option_name, ULONG option_value)
-{
-	PWSK_PROVIDER_BASIC_DISPATCH Dispatch;
-	PIRP		Irp;
-	//ULONG		SocketOptionState;
-	NTSTATUS	Status;
+NTSTATUS SetSockOpt(PWSK_SOCKET Socket, ULONG level, ULONG option_name, ULONG option_value) {
+    FuncEntry(TRACE_SAVEDATA);
 
-	Dispatch = (PWSK_PROVIDER_BASIC_DISPATCH)(Socket->Dispatch);
+    PWSK_PROVIDER_BASIC_DISPATCH Dispatch;
+    PIRP Irp;
+    //ULONG		SocketOptionState;
+    NTSTATUS ntStatus;
 
-	// Allocate an IRP
-	Irp = IoAllocateIrp(1, FALSE);
+    Dispatch = (PWSK_PROVIDER_BASIC_DISPATCH)(Socket->Dispatch);
 
-	// Check result
-	if (!Irp)
-	{
-		// Return error
-		return STATUS_INSUFFICIENT_RESOURCES;
-	}
+    // Allocate an IRP
+    Irp = IoAllocateIrp(1, FALSE);
 
-	// Set the completion routine for the IRP
-	IoSetCompletionRoutine(
-		Irp,
-		ControlSocketComplete,
-		Socket,  // Use the socket object for the context
-		TRUE,
-		TRUE,
-		TRUE
-	);
+    // Check result
+    if (!Irp) {
+        // Return error
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
 
-	// Initiate the control operation on the socket
-	Status = Dispatch->WskControlSocket(Socket, WskSetOption, option_name, level, sizeof(ULONG), &option_value, 0, NULL, NULL, Irp);
+    // Set the completion routine for the IRP
+    IoSetCompletionRoutine(
+        Irp,
+        ControlSocketComplete,
+        Socket,  // Use the socket object for the context
+        TRUE,
+        TRUE,
+        TRUE
+    );
 
-	return Status;
+    // Initiate the control operation on the socket
+    ntStatus = Dispatch->WskControlSocket(
+        Socket,
+        WskSetOption,
+        option_name,
+        level,
+        sizeof(ULONG),
+        &option_value,
+        0,
+        NULL,
+        NULL,
+        Irp
+    );
+
+    FuncExit(TRACE_SAVEDATA, "ntStatus=%!STATUS!", ntStatus);
+
+    return ntStatus;
 }
 
 // Control socket IoCompletion routine
+static
 NTSTATUS
 ControlSocketComplete(
 	PDEVICE_OBJECT DeviceObject,
@@ -265,28 +307,15 @@ ControlSocketComplete(
 	PVOID Context
 )
 {
+    FuncEntry(TRACE_SAVEDATA);
+
 	UNREFERENCED_PARAMETER(DeviceObject);
-
-	PWSK_SOCKET Socket;
-
-	// Check the result of the control operation
-	if (Irp->IoStatus.Status == STATUS_SUCCESS)
-	{
-		// Get the socket object from the context
-		Socket = (PWSK_SOCKET)Context;
-
-		// Perform the next operation on the socket
-	}
-
-	// Error status
-	else
-	{
-		// Handle error
-		//		DPF(D_TERSE, ("WskSetOtion returns: %x", Irp->IoStatus.Status));
-	}
+	UNREFERENCED_PARAMETER(Context);
 
 	// Free the IRP
 	IoFreeIrp(Irp);
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 
 	// Always return STATUS_MORE_PROCESSING_REQUIRED to
 	// terminate the completion processing of the IRP.
@@ -298,18 +327,19 @@ ControlSocketComplete(
 //=============================================================================
 _IRQL_requires_max_(PASSIVE_LEVEL)
 void CSaveData::CreateSocket(void) {
+    FuncEntry(TRACE_SAVEDATA);
+
     NTSTATUS status;
     WSK_PROVIDER_NPI pronpi;
     LPCTSTR terminator;
     SOCKADDR_IN locaddr4 = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastSrcPort), 0, 0 };
     SOCKADDR_IN sockaddr = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastPort), 0, 0 };
-
-    DPF_ENTER(("[CSaveData::CreateSocket]"));
-
+    
     // capture WSK provider
     status = WskCaptureProviderNPI(&m_wskRegistration, WSK_INFINITE_WAIT, &pronpi);
     if (!NT_SUCCESS(status)) {
-        DPF(D_TERSE, ("Failed to capture provider NPI: 0x%X\n", status));
+        TraceError(TRACE_SAVEDATA, "WskCaptureProviderNPI failed with status %!STATUS!", status);
+        FuncExitNoReturn(TRACE_SAVEDATA);
         return;
     }
 
@@ -337,7 +367,7 @@ void CSaveData::CreateSocket(void) {
     DPF(D_TERSE, ("WskSocket: %x", m_irp->IoStatus.Status));
 
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
-        DPF(D_TERSE, ("Failed to create socket: %x", m_irp->IoStatus.Status));
+        TraceError(TRACE_SAVEDATA, "Socket creation failed with status %!STATUS!", m_irp->IoStatus.Status);
 
         if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
@@ -349,6 +379,7 @@ void CSaveData::CreateSocket(void) {
         // release the provider again, as we are finished with it
         WskReleaseProviderNPI(&m_wskRegistration);
 
+        FuncExitNoReturn(TRACE_SAVEDATA);
         return;
     }
 
@@ -377,7 +408,7 @@ void CSaveData::CreateSocket(void) {
     DPF(D_TERSE, ("WskBind: %x", m_irp->IoStatus.Status));
 
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
-        DPF(D_TERSE, ("Failed to bind socket: %x", m_irp->IoStatus.Status));
+        TraceError(TRACE_SAVEDATA, "Socket bind failed with status %!STATUS!", m_irp->IoStatus.Status);
         if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
             IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
@@ -385,23 +416,28 @@ void CSaveData::CreateSocket(void) {
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
         }
 
+        FuncExitNoReturn(TRACE_SAVEDATA);
         return;
     }
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 }
 
 //=============================================================================
 _IRQL_requires_max_(PASSIVE_LEVEL)
 void CSaveData::SendData() {
+    FuncEntry(TRACE_SAVEDATA);
+
     WSK_BUF wskbuf;
 
     ULONG storeOffset;
-    
+
     if (!m_socket) {
         CreateSocket();
     }
-    
+
     if (m_socket) {
-        while (1) {
+        while (TRUE) {
             // Read latest storeOffset. There might be new data.
             storeOffset = m_ulOffset;
 
@@ -419,26 +455,31 @@ void CSaveData::SendData() {
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
             DPF(D_TERSE, ("WskSendTo: %x", m_irp->IoStatus.Status));
 
-            m_ulSendOffset += CHUNK_SIZE; if (m_ulSendOffset >= BUFFER_SIZE) m_ulSendOffset = 0;
+            m_ulSendOffset += CHUNK_SIZE;
+            if (m_ulSendOffset >= BUFFER_SIZE) m_ulSendOffset = 0;
         }
     }
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 }
 
 #pragma code_seg("PAGE")
 //=============================================================================
 void CSaveData::WaitAllWorkItems(void) {
+    FuncEntry(TRACE_SAVEDATA);
+
     PAGED_CODE();
 
-    DPF_ENTER(("[CSaveData::WaitAllWorkItems]"));
-
-    DPF(D_VERBOSE, ("[Waiting for WorkItem]"));
     KeWaitForSingleObject(&(m_pWorkItem->EventDone), Executive, KernelMode, FALSE, NULL);
-    
+
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // WaitAllWorkItems
 
 #pragma code_seg()
 //=============================================================================
 void CSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
+    FuncEntryArguments(TRACE_SAVEDATA, "ulByteCount=%ul", ulByteCount);
+
     ASSERT(pBuffer);
 
     LARGE_INTEGER timeOut = { 0 };
@@ -446,21 +487,19 @@ void CSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     ULONG offset;
     ULONG toWrite;
     ULONG w;
-    
-    if (m_fWriteDisabled) {
-        return;
-    }
 
-    DPF_ENTER(("[CSaveData::WriteData ulByteCount=%lu]", ulByteCount));
+    if (m_fWriteDisabled) {
+        goto exit;
+    }
 
     // Undersized (paranoia)
     if (0 == ulByteCount) {
-        return;
+        goto exit;
     }
 
     // Oversized (paranoia)
     if (ulByteCount > (CHUNK_SIZE * NUM_CHUNKS / 2)) {
-        return;
+        goto exit;
     }
 
     // Append to ring buffer. Don't write intermediate states to m_ulOffset,
@@ -477,26 +516,30 @@ void CSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
         }
         else {
             // Start a new chunk
-            m_pBuffer[offset]     = m_bSamplingFreqMarker;
+            m_pBuffer[offset] = m_bSamplingFreqMarker;
             m_pBuffer[offset + 1] = m_bBitsPerSampleMarker;
             m_pBuffer[offset + 2] = m_bChannels;
-            m_pBuffer[offset + 3] = (BYTE)(m_wChannelMask    & 0xFF);
-            m_pBuffer[offset + 4] = (BYTE)(m_wChannelMask>>8 & 0xFF);
+            m_pBuffer[offset + 3] = (BYTE)(m_wChannelMask & 0xFF);
+            m_pBuffer[offset + 4] = (BYTE)(m_wChannelMask >> 8 & 0xFF);
             offset += HEADER_SIZE;
             w = ((BUFFER_SIZE - offset) < toWrite) ? (BUFFER_SIZE - offset) : toWrite;
             w = (w > PCM_PAYLOAD_SIZE) ? PCM_PAYLOAD_SIZE : w;
             RtlCopyMemory(&(m_pBuffer[offset]), &(pBuffer[ulByteCount - toWrite]), w);
         }
         toWrite -= w;
-        offset += w;  if (offset >= BUFFER_SIZE) offset = 0;
+        offset += w;
+        if (offset >= BUFFER_SIZE) offset = 0;
     }
     m_ulOffset = offset;
 
     // If I/O worker was done, relaunch it
     ntStatus = KeWaitForSingleObject(&(m_pWorkItem->EventDone), Executive, KernelMode, FALSE, &timeOut);
     if (STATUS_SUCCESS == ntStatus) {
-            m_pWorkItem->pSaveData = this;
-            KeResetEvent(&(m_pWorkItem->EventDone));
-            IoQueueWorkItem(m_pWorkItem->WorkItem, SendDataWorkerCallback, CriticalWorkQueue, (PVOID)m_pWorkItem);
+        m_pWorkItem->pSaveData = this;
+        KeResetEvent(&(m_pWorkItem->EventDone));
+        IoQueueWorkItem(m_pWorkItem->WorkItem, SendDataWorkerCallback, CriticalWorkQueue, (PVOID)m_pWorkItem);
     }
+
+exit:
+    FuncExitNoReturn(TRACE_SAVEDATA);
 } // WriteData
