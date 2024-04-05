@@ -127,7 +127,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[CAdapterCommon::~CAdapterCommon]"));
+    FuncEntry(TRACE_COMMON);
 
     if (m_pHW) {
         delete m_pHW;
@@ -147,6 +147,8 @@ Return Value:
     if (m_pServiceGroupWave) {
         m_pServiceGroupWave->Release();
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // ~CAdapterCommon  
 
 //=============================================================================
@@ -162,7 +164,7 @@ Return Value:
 --*/
 {
     PAGED_CODE();
-    
+
     return m_pDeviceObject;
 } // GetDeviceObject
 
@@ -179,6 +181,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     PAGED_CODE();
 
     ASSERT(DeviceObject);
@@ -188,14 +192,15 @@ Return Value:
     DPF_ENTER(("[CAdapterCommon::Init]"));
 
     m_pDeviceObject = DeviceObject;
-    m_PowerState    = PowerDeviceD0;
+    m_PowerState = PowerDeviceD0;
 
     // Initialize HW.
-    m_pHW = new (NonPagedPool, SCREAM_POOLTAG)  CMSVADHW;
+    m_pHW = new(NonPagedPool, SCREAM_POOLTAG) CMSVADHW;
     if (!m_pHW) {
         DPF(D_TERSE, ("Insufficient memory for MSVAD HW"));
         ntStatus = STATUS_INSUFFICIENT_RESOURCES;
-    } else {
+    }
+    else {
         m_pHW->MixerReset();
     }
 
@@ -205,6 +210,8 @@ Return Value:
     else {
         CSaveData::SetDeviceObject(DeviceObject); //device object is needed by CSaveData
     }
+
+    FuncExit(TRACE_COMMON, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // Init
@@ -221,11 +228,15 @@ Return Value:
   void
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     PAGED_CODE();
     
     if (m_pHW) {
         m_pHW->MixerReset();
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // MixerReset
 
 //=============================================================================
@@ -268,8 +279,8 @@ Return Value:
 } // NonDelegatingQueryInterface
 
 //=============================================================================
-STDMETHODIMP_(void) CAdapterCommon::SetWaveServiceGroup( 
-    IN PSERVICEGROUP            ServiceGroup 
+STDMETHODIMP_(void) CAdapterCommon::SetWaveServiceGroup(
+    IN PSERVICEGROUP ServiceGroup
 )
 /*++
 Routine Description:
@@ -280,9 +291,9 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     PAGED_CODE();
-    
-    DPF_ENTER(("[CAdapterCommon::SetWaveServiceGroup]"));
     
     if (m_pServiceGroupWave) {
         m_pServiceGroupWave->Release();
@@ -293,6 +304,8 @@ Return Value:
     if (m_pServiceGroupWave) {
         m_pServiceGroupWave->AddRef();
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // SetWaveServiceGroup
 
 //=============================================================================
@@ -348,9 +361,13 @@ Return Value:
   N/A.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     if (m_pHW) {
         m_pHW->bSetDevSpecific(bDevSpecific);
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // DevSpecificWrite
 
 //=============================================================================
@@ -388,9 +405,13 @@ Return Value:
   N/A.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     if (m_pHW) {
         m_pHW->iSetDevSpecific(iDevSpecific);
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // iDevSpecificWrite
 
 //=============================================================================
@@ -428,9 +449,13 @@ Return Value:
   N/A.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     if (m_pHW) {
         m_pHW->uiSetDevSpecific(uiDevSpecific);
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // uiDevSpecificWrite
 
 //=============================================================================
@@ -472,9 +497,13 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     if (m_pHW) {
         m_pHW->SetMixerMute(Index, Value);
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // MixerMuteWrite
 
 //=============================================================================
@@ -514,9 +543,13 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     if (m_pHW) {
         m_pHW->SetMixerMux(Index);
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // MixerMuxWrite
 
 //=============================================================================
@@ -562,9 +595,13 @@ Return Value:
   void
 --*/
 {
+    FuncEntry(TRACE_COMMON);
+
     if (m_pHW) {
         m_pHW->SetMixerVolume(Index, Channel, Value);
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // MixerVolumeWrite
 
 //=============================================================================
@@ -581,7 +618,7 @@ Return Value:
   void
 --*/
 {
-    DPF_ENTER(("[CAdapterCommon::PowerChangeState]"));
+    FuncEntry(TRACE_COMMON);
 
     // is this actually a state change??
     if (NewState.DeviceState != m_PowerState) {
@@ -600,6 +637,8 @@ Return Value:
                 break;
         }
     }
+
+    FuncExitNoReturn(TRACE_COMMON);
 } // PowerStateChange
 
 //=============================================================================
