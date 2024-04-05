@@ -191,6 +191,8 @@ Return Value:
 
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     // PAGED_CODE();
 
     ASSERT(OutFilterDescriptor);
@@ -198,6 +200,8 @@ Return Value:
     DPF_ENTER(("[CMiniportWaveCyclic::GetDescription]"));
 
     *OutFilterDescriptor = m_FilterDescriptor;
+
+    FuncExitNoReturn(TRACE_MINWAVE);
 
     return (STATUS_SUCCESS);
 
