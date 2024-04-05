@@ -64,7 +64,7 @@ Arguments:
 Return Value:
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclic::CMiniportWaveCyclic]"));
+    FuncEntry(TRACE_MINWAVE);
 
     // Initialize members.
     m_AdapterCommon        = NULL;
@@ -88,6 +88,7 @@ Return Value:
     m_MinSampleRatePcm     = 0;
     m_MaxSampleRatePcm     = 0;
 
+    FuncExitNoReturn(TRACE_MINWAVE);
 } // CMiniportWaveCyclic
 
 //=============================================================================
@@ -102,9 +103,9 @@ Return Value:
   NT status code.
 --*/
 {
-    // PAGED_CODE();
+    FuncEntry(TRACE_MINWAVE);
 
-    DPF_ENTER(("[CMiniportWaveCyclic::~CMiniportWaveCyclic]"));
+    // PAGED_CODE();
     
     if (m_Port) {
         m_Port->Release();
@@ -117,6 +118,8 @@ Return Value:
     if (m_AdapterCommon) {
         m_AdapterCommon->Release();
     }
+
+    FuncExitNoReturn(TRACE_MINWAVE);
 } // ~CMiniportWaveCyclic
 
 
@@ -223,12 +226,12 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     UNREFERENCED_PARAMETER(ResourceList_);
 
     ASSERT(UnknownAdapter_);
     ASSERT(Port_);
-
-    DPF_ENTER(("[CMiniportWaveCyclic::Init]"));
 
     m_MaxOutputStreams      = MAX_OUTPUT_STREAMS;
     m_MaxInputStreams       = MAX_INPUT_STREAMS;
@@ -287,19 +290,21 @@ Return Value:
         m_Port = NULL;
     }
 
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
+
     return ntStatus;
 } // Init
 
 //=============================================================================
-STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::NewStream( 
-    OUT PMINIPORTWAVECYCLICSTREAM * OutStream,
-    IN  PUNKNOWN                OuterUnknown,
-    IN  POOL_TYPE               PoolType,
-    IN  ULONG                   Pin,
-    IN  BOOLEAN                 Capture,
-    IN  PKSDATAFORMAT           DataFormat,
-    OUT PDMACHANNEL *           OutDmaChannel,
-    OUT PSERVICEGROUP *         OutServiceGroup 
+STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::NewStream(
+    OUT PMINIPORTWAVECYCLICSTREAM* OutStream,
+    IN PUNKNOWN OuterUnknown,
+    IN POOL_TYPE PoolType,
+    IN ULONG Pin,
+    IN BOOLEAN Capture,
+    IN PKSDATAFORMAT DataFormat,
+    OUT PDMACHANNEL* OutDmaChannel,
+    OUT PSERVICEGROUP* OutServiceGroup
 )
 /*++
 Routine Description:
@@ -321,6 +326,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     UNREFERENCED_PARAMETER(PoolType);
 
     // PAGED_CODE();
@@ -330,10 +337,8 @@ Return Value:
     ASSERT(OutDmaChannel);
     ASSERT(OutServiceGroup);
 
-    DPF_ENTER(("[CMiniportWaveCyclic::NewStream]"));
-
-    NTSTATUS                    ntStatus = STATUS_SUCCESS;
-    PCMiniportWaveCyclicStream  stream = NULL;
+    NTSTATUS ntStatus = STATUS_SUCCESS;
+    PCMiniportWaveCyclicStream stream = NULL;
 
     // Check if we have enough streams.
     if (Capture) {
@@ -341,7 +346,8 @@ Return Value:
             DPF(D_TERSE, ("[Only one capture stream supported]"));
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
-    } else {
+    }
+    else {
         if (m_fRenderAllocated) {
             DPF(D_TERSE, ("[Only one render stream supported]"));
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
@@ -352,13 +358,14 @@ Return Value:
     // NonPagedPool because of file saving.
     //
     if (NT_SUCCESS(ntStatus)) {
-        stream = new (NonPagedPool, SCREAM_POOLTAG) CMiniportWaveCyclicStream(OuterUnknown);
+        stream = new(NonPagedPool, SCREAM_POOLTAG) CMiniportWaveCyclicStream(OuterUnknown);
 
         if (stream) {
             stream->AddRef();
 
             ntStatus = stream->Init(this, Pin, Capture, DataFormat);
-        } else {
+        }
+        else {
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }
@@ -366,13 +373,14 @@ Return Value:
     if (NT_SUCCESS(ntStatus)) {
         if (Capture) {
             m_fCaptureAllocated = TRUE;
-        } else {
+        }
+        else {
             m_fRenderAllocated = TRUE;
         }
 
         *OutStream = PMINIPORTWAVECYCLICSTREAM(stream);
         (*OutStream)->AddRef();
-        
+
         *OutDmaChannel = PDMACHANNEL(stream);
         (*OutDmaChannel)->AddRef();
 
@@ -389,7 +397,9 @@ Return Value:
     if (stream) {
         stream->Release();
     }
-    
+
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
+
     return ntStatus;
 } // NewStream
 
@@ -449,9 +459,9 @@ Return Value:
   NT status code.
 --*/
 {
-    // PAGED_CODE();
+    FuncEntry(TRACE_MINWAVE);
 
-    DPF_ENTER(("[PropertyHandlerComponentId]"));
+    // PAGED_CODE();
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
@@ -478,6 +488,8 @@ Return Value:
             ntStatus = STATUS_INVALID_PARAMETER;
         }
     }
+
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // PropertyHandlerComponentId
