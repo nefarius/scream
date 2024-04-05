@@ -47,7 +47,7 @@ IO_WORKITEM_ROUTINE SendDataWorkerCallback;
 
 class CSaveData {
 protected:
-    WSK_REGISTRATION            m_wskSampleRegistration;
+    WSK_REGISTRATION            m_wskRegistration;
     PWSK_SOCKET                 m_socket;
     PIRP                        m_irp;
     KEVENT                      m_syncEvent;
@@ -87,6 +87,7 @@ public:
 private:
     static NTSTATUS             InitializeWorkItem(IN PDEVICE_OBJECT DeviceObject);
 
+    _IRQL_requires_max_(PASSIVE_LEVEL)
     void                        CreateSocket(void);
     _IRQL_requires_max_(PASSIVE_LEVEL)
     void                        SendData();

@@ -29,13 +29,13 @@ const WSK_CLIENT_DISPATCH WskSampleClientDispatch = {
 // Helper Functions
 //=============================================================================
 // IRP completion routine used for synchronously waiting for completion
-NTSTATUS WskSampleSyncIrpCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP Irp, __in PVOID Context) {    
+NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP Irp, __in PVOID Context) {
     PKEVENT compEvent = (PKEVENT)Context;
-    
+
     UNREFERENCED_PARAMETER(Reserved);
     UNREFERENCED_PARAMETER(Irp);
-    
-    KeSetEvent(compEvent, 2, FALSE);    
+
+    KeSetEvent(compEvent, 2, FALSE);
 
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
@@ -46,13 +46,13 @@ NTSTATUS WskSampleSyncIrpCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PI
 //=============================================================================
 
 //=============================================================================
-CSaveData::CSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE), m_socket(NULL) {
+CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
     PAGED_CODE();
 
     DPF_ENTER(("[CSaveData::CSaveData]"));
-    
+
     if (!g_UseIVSHMEM) {
-        WSK_CLIENT_NPI   wskClientNpi;
+        WSK_CLIENT_NPI wskClientNpi;
 
         // allocate work item for this stream
         m_pWorkItem = (PSAVEWORKER_PARAM)ExAllocatePoolWithTag(NonPagedPool, sizeof(SAVEWORKER_PARAM), SCREAM_POOLTAG);
@@ -70,7 +70,7 @@ CSaveData::CSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fW
         // Register with WSK.
         wskClientNpi.ClientContext = NULL;
         wskClientNpi.Dispatch = &WskSampleClientDispatch;
-        WskRegister(&wskClientNpi, &m_wskSampleRegistration);
+        WskRegister(&wskClientNpi, &m_wskRegistration);
     }
 } // CSaveData
 
@@ -90,7 +90,7 @@ CSaveData::~CSaveData() {
         // close socket
         if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
-            IoSetCompletionRoutine(m_irp, WskSampleSyncIrpCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
+            IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
             ((PWSK_PROVIDER_BASIC_DISPATCH)m_socket->Dispatch)->WskCloseSocket(m_socket, m_irp);
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
         }
@@ -100,7 +100,7 @@ CSaveData::~CSaveData() {
         // that if the worker thread has not started yet, then when it eventually
         // starts, its WskCaptureProviderNPI call will fail and the work queue
         // will be flushed and cleaned up properly.
-        WskDeregister(&m_wskSampleRegistration);
+        WskDeregister(&m_wskRegistration);
 
         // free irp
         IoFreeIrp(m_irp);
@@ -292,21 +292,22 @@ ControlSocketComplete(
 	return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
-
 #pragma code_seg()
+
 //=============================================================================
+_IRQL_requires_max_(PASSIVE_LEVEL)
 void CSaveData::CreateSocket(void) {
-    NTSTATUS            status;
-    WSK_PROVIDER_NPI    pronpi;
-    LPCTSTR             terminator;
-    SOCKADDR_IN         locaddr4 = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastSrcPort), 0, 0 };
-    SOCKADDR_IN         sockaddr = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastPort), 0, 0 };
-    
+    NTSTATUS status;
+    WSK_PROVIDER_NPI pronpi;
+    LPCTSTR terminator;
+    SOCKADDR_IN locaddr4 = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastSrcPort), 0, 0 };
+    SOCKADDR_IN sockaddr = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastPort), 0, 0 };
+
     DPF_ENTER(("[CSaveData::CreateSocket]"));
-    
+
     // capture WSK provider
-    status = WskCaptureProviderNPI(&m_wskSampleRegistration, WSK_INFINITE_WAIT, &pronpi);
-    if(!NT_SUCCESS(status)){
+    status = WskCaptureProviderNPI(&m_wskRegistration, WSK_INFINITE_WAIT, &pronpi);
+    if (!NT_SUCCESS(status)) {
         DPF(D_TERSE, ("Failed to capture provider NPI: 0x%X\n", status));
         return;
     }
@@ -314,10 +315,10 @@ void CSaveData::CreateSocket(void) {
     RtlIpv4StringToAddress(g_UnicastSrcIPv4, true, &terminator, &(locaddr4.sin_addr));
     RtlIpv4StringToAddress(g_UnicastIPv4, true, &terminator, &(sockaddr.sin_addr));
     RtlCopyMemory(&m_sServerAddr, &sockaddr, sizeof(SOCKADDR_IN));
-    
+
     // create socket
     IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
-    IoSetCompletionRoutine(m_irp, WskSampleSyncIrpCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);    
+    IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
     pronpi.Dispatch->WskSocket(
         pronpi.Client,
         m_sServerAddr.ss_family,
@@ -331,58 +332,58 @@ void CSaveData::CreateSocket(void) {
         NULL, // SecurityDescriptor
         m_irp);
     KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
-    
+
     DPF(D_TERSE, ("WskSocket: %x", m_irp->IoStatus.Status));
-    
+
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
         DPF(D_TERSE, ("Failed to create socket: %x", m_irp->IoStatus.Status));
-        
-        if(m_socket) {
+
+        if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
-            IoSetCompletionRoutine(m_irp, WskSampleSyncIrpCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
+            IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
             ((PWSK_PROVIDER_BASIC_DISPATCH)m_socket->Dispatch)->WskCloseSocket(m_socket, m_irp);
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
         }
-        
+
         // release the provider again, as we are finished with it
-        WskReleaseProviderNPI(&m_wskSampleRegistration);
-        
+        WskReleaseProviderNPI(&m_wskRegistration);
+
         return;
     }
-    
+
     // save the socket
     m_socket = (PWSK_SOCKET)m_irp->IoStatus.Information;
-    
+
     // release the provider again, as we are finished with it
-    WskReleaseProviderNPI(&m_wskSampleRegistration);
+    WskReleaseProviderNPI(&m_wskRegistration);
 
     // bind the socket
     IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
-    IoSetCompletionRoutine(m_irp, WskSampleSyncIrpCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
+    IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
 
     status = SetSockOpt(m_socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
     if (g_TTL) {
-	// should check for unicasst and set IP_TTL
-	status = SetSockOpt(m_socket, IPPROTO_IP, IP_MULTICAST_TTL, g_TTL);
+        // should check for unicasst and set IP_TTL
+        status = SetSockOpt(m_socket, IPPROTO_IP, IP_MULTICAST_TTL, g_TTL);
     }
-	
+
 // if (g_DSCP) status = SetSockOpt(m_socket, IPPROTO_IP, IP_TOS, (g_DSCP << 2) & 0xff);  // no support in kernel - raw socket and IP_HDRINCL?
 
     status = ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskBind(m_socket, (PSOCKADDR)(&locaddr4), 0, m_irp);
     KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
-    
+
     DPF(D_TERSE, ("WskBind: %x", m_irp->IoStatus.Status));
-    
+
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
         DPF(D_TERSE, ("Failed to bind socket: %x", m_irp->IoStatus.Status));
-        if(m_socket) {
+        if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
-            IoSetCompletionRoutine(m_irp, WskSampleSyncIrpCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
+            IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
             ((PWSK_PROVIDER_BASIC_DISPATCH)m_socket->Dispatch)->WskCloseSocket(m_socket, m_irp);
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
         }
-        
+
         return;
     }
 }
@@ -412,7 +413,7 @@ void CSaveData::SendData() {
             wskbuf.Length = CHUNK_SIZE;
             wskbuf.Offset = m_ulSendOffset;
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
-            IoSetCompletionRoutine(m_irp, WskSampleSyncIrpCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
+            IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
             ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskSendTo(m_socket, &wskbuf, 0, (PSOCKADDR)&m_sServerAddr, 0, NULL, m_irp);
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
             DPF(D_TERSE, ("WskSendTo: %x", m_irp->IoStatus.Status));
