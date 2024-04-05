@@ -319,7 +319,7 @@ Return Value:
         EventUnregisterScream_Audio_Streaming_Driver();
     }
     else {
-        EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"PcInitializeAdapterDriver", ntStatus);
+        EventWriteStartEvent(NULL, DriverObject, ntStatus);
     }
 
     FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);

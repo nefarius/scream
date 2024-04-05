@@ -421,7 +421,9 @@ void CSaveData::CreateSocket(void) {
     FuncExitNoReturn(TRACE_SAVEDATA);
 }
 
-//=============================================================================
+//
+// Sends network packets until the ring buffer runs dry
+// 
 _IRQL_requires_max_(PASSIVE_LEVEL)
 void CSaveData::SendData() {
     FuncEntry(TRACE_SAVEDATA);
@@ -451,7 +453,11 @@ void CSaveData::SendData() {
             IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
             ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskSendTo(m_socket, &wskbuf, 0, (PSOCKADDR)&m_sServerAddr, 0, NULL, m_irp);
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
-            DPF(D_TERSE, ("WskSendTo: %x", m_irp->IoStatus.Status));
+            
+            if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
+                TraceError(TRACE_SAVEDATA, "WskSendTo failed with status %!STATUS!", m_irp->IoStatus.Status);
+                EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"WskSendTo", m_irp->IoStatus.Status);
+            }
 
             m_ulSendOffset += CHUNK_SIZE;
             if (m_ulSendOffset >= BUFFER_SIZE) m_ulSendOffset = 0;
