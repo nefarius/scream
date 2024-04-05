@@ -484,7 +484,7 @@ Return Value:
 
 //=============================================================================
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerProposedFormat(
-    IN PPCPROPERTY_REQUEST      PropertyRequest
+    IN PPCPROPERTY_REQUEST PropertyRequest
 )
 /*++
 Routine Description:
@@ -499,29 +499,34 @@ Return Value:
 {
     // PAGED_CODE();
 
-    DPF_ENTER(("[PropertyHandlerProposedFormat]"));
+    FuncEntry(TRACE_MINWAVE);
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
         ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_SET, VT_ILLEGAL);
-    } else {
+    }
+    else {
         ULONG cbMinSize = sizeof(KSDATAFORMAT_WAVEFORMATEX);
 
         if (PropertyRequest->ValueSize == 0) {
             PropertyRequest->ValueSize = cbMinSize;
             ntStatus = STATUS_BUFFER_OVERFLOW;
-        } else if (PropertyRequest->ValueSize < cbMinSize) {
+        }
+        else if (PropertyRequest->ValueSize < cbMinSize) {
             ntStatus = STATUS_BUFFER_TOO_SMALL;
-        } else {
+        }
+        else {
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
                 KSDATAFORMAT_WAVEFORMATEX* pKsFormat = (KSDATAFORMAT_WAVEFORMATEX*)PropertyRequest->Value;
                 ntStatus = STATUS_NO_MATCH;
-                if ((pKsFormat->DataFormat.MajorFormat == KSDATAFORMAT_TYPE_AUDIO) && (pKsFormat->DataFormat.SubFormat == KSDATAFORMAT_SUBTYPE_PCM) && (pKsFormat->DataFormat.Specifier == KSDATAFORMAT_SPECIFIER_WAVEFORMATEX)) {
+                if ((pKsFormat->DataFormat.MajorFormat == KSDATAFORMAT_TYPE_AUDIO) && (pKsFormat->DataFormat.SubFormat == KSDATAFORMAT_SUBTYPE_PCM) && (
+                    pKsFormat->DataFormat.Specifier == KSDATAFORMAT_SPECIFIER_WAVEFORMATEX)) {
                     WAVEFORMATEX* pWfx = (WAVEFORMATEX*)&pKsFormat->WaveFormatEx;
                     // We support from 1 to 8 channels at freq >= 44100, sampling size >= 16bits
-                    if ( ((pWfx->wBitsPerSample == 16) || (pWfx->wBitsPerSample == 24) || (pWfx->wBitsPerSample == 32)) &&
-                         ((pWfx->nSamplesPerSec == 44100) || (pWfx->nSamplesPerSec == 48000) || (pWfx->nSamplesPerSec == 88200) || (pWfx->nSamplesPerSec == 96000) || (pWfx->nSamplesPerSec == 192000)) ) {
+                    if (((pWfx->wBitsPerSample == 16) || (pWfx->wBitsPerSample == 24) || (pWfx->wBitsPerSample == 32)) &&
+                        ((pWfx->nSamplesPerSec == 44100) || (pWfx->nSamplesPerSec == 48000) || (pWfx->nSamplesPerSec == 88200) || (pWfx->nSamplesPerSec ==
+                            96000) || (pWfx->nSamplesPerSec == 192000))) {
                         if ((pWfx->wFormatTag == WAVE_FORMAT_PCM) && (pWfx->cbSize == 0)) {
                             if ((pWfx->nChannels >= 1) && (pWfx->nChannels <= 8)) {
                                 ntStatus = STATUS_SUCCESS;
@@ -532,24 +537,28 @@ Return Value:
                             // The channel mask can be greater than 0x07FF, but only in exotic configurations.
                             // It's important that the number of channels is even, to fit in PCM_PAYLOAD_SIZE. Mono is an exception.
                             // This restriction doesn't apply if IVSHMEM is used, because the packet size is dynamic there.
-                            if ((pWfx->nChannels >= 1) && (pWfx->nChannels <= 8) && (pWfxT->dwChannelMask <= 0x07FF) && (g_UseIVSHMEM || pWfx->nChannels == 1 || pWfx->nChannels % 2 == 0)) {
+                            if ((pWfx->nChannels >= 1) && (pWfx->nChannels <= 8) && (pWfxT->dwChannelMask <= 0x07FF) && (g_UseIVSHMEM || pWfx->nChannels ==
+                                1 || pWfx->nChannels % 2 == 0)) {
                                 ntStatus = STATUS_SUCCESS;
                             }
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 ntStatus = STATUS_INVALID_PARAMETER;
             }
         }
     }
+
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // PropertyHandlerProposedFormat
 
 //=============================================================================
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerCpuResources(
-    IN  PPCPROPERTY_REQUEST     PropertyRequest
+    IN PPCPROPERTY_REQUEST PropertyRequest
 )
 /*++
 Routine Description:
@@ -562,6 +571,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     // PAGED_CODE();
 
     ASSERT(PropertyRequest);
@@ -572,13 +583,16 @@ Return Value:
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
         ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_GET | KSPROPERTY_TYPE_BASICSUPPORT, VT_I4);
-    } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
+    }
+    else if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
         ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(LONG), 0);
         if (NT_SUCCESS(ntStatus)) {
             *(PLONG(PropertyRequest->Value)) = KSAUDIO_CPU_RESOURCES_HOST_CPU;
             PropertyRequest->ValueSize = sizeof(LONG);
         }
-    } 
+    }
+
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // PropertyHandlerCpuResources
@@ -598,6 +612,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     // PAGED_CODE();
 
     ASSERT(PropertyRequest);
@@ -606,14 +622,16 @@ Return Value:
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
     switch (PropertyRequest->PropertyItem->Id) {
-        case KSPROPERTY_AUDIO_CPU_RESOURCES:
-            ntStatus = PropertyHandlerCpuResources(PropertyRequest);
-            break;
+    case KSPROPERTY_AUDIO_CPU_RESOURCES:
+        ntStatus = PropertyHandlerCpuResources(PropertyRequest);
+        break;
 
-        default:
-            DPF(D_TERSE, ("[PropertyHandlerGeneric: Invalid Device Request]"));
-            ntStatus = STATUS_INVALID_DEVICE_REQUEST;
+    default:
+        DPF(D_TERSE, ("[PropertyHandlerGeneric: Invalid Device Request]"));
+        ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     }
+
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // PropertyHandlerGeneric
@@ -641,6 +659,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     UNREFERENCED_PARAMETER(Dpc);
     UNREFERENCED_PARAMETER(SA1);
     UNREFERENCED_PARAMETER(SA2);
@@ -650,12 +670,14 @@ Return Value:
     if (pMiniport && pMiniport->m_Port) {
         pMiniport->m_Port->Notify(pMiniport->m_ServiceGroup);
     }
+
+    FuncExitNoReturn(TRACE_MINWAVE);
 } // TimerNotify
 
 
 //=============================================================================
-NTSTATUS PropertyHandler_WaveFilter( 
-    IN PPCPROPERTY_REQUEST      PropertyRequest 
+NTSTATUS PropertyHandler_WaveFilter(
+    IN PPCPROPERTY_REQUEST PropertyRequest
 )
 /*++
 Routine Description:
@@ -668,23 +690,27 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINWAVE);
+
     // PAGED_CODE();
 
-    NTSTATUS                    ntStatus = STATUS_INVALID_DEVICE_REQUEST;
-    PCMiniportWaveCyclic        pWave = (PCMiniportWaveCyclic) PropertyRequest->MajorTarget;
+    NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
+    PCMiniportWaveCyclic pWave = (PCMiniportWaveCyclic)PropertyRequest->MajorTarget;
 
     switch (PropertyRequest->PropertyItem->Id) {
-        case KSPROPERTY_GENERAL_COMPONENTID:
-            ntStatus = pWave->PropertyHandlerComponentId(PropertyRequest);
-            break;
+    case KSPROPERTY_GENERAL_COMPONENTID:
+        ntStatus = pWave->PropertyHandlerComponentId(PropertyRequest);
+        break;
 
-        case KSPROPERTY_PIN_PROPOSEDATAFORMAT:
-            ntStatus = pWave->PropertyHandlerProposedFormat(PropertyRequest);
-            break;
-        
-        default:
-            DPF(D_TERSE, ("[PropertyHandler_WaveFilter: Invalid Device Request]"));
+    case KSPROPERTY_PIN_PROPOSEDATAFORMAT:
+        ntStatus = pWave->PropertyHandlerProposedFormat(PropertyRequest);
+        break;
+
+    default:
+        DPF(D_TERSE, ("[PropertyHandler_WaveFilter: Invalid Device Request]"));
     }
+
+    FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // PropertyHandler_WaveFilter
