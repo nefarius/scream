@@ -88,6 +88,7 @@ private:
     static NTSTATUS             InitializeWorkItem(IN PDEVICE_OBJECT DeviceObject);
 
     void                        CreateSocket(void);
+    _IRQL_requires_max_(PASSIVE_LEVEL)
     void                        SendData();
     friend VOID                 SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context);
 };

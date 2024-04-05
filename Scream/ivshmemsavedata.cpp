@@ -20,6 +20,9 @@
 
 //=============================================================================
 BOOLEAN CIVSHMEMSaveData::RequestMMAP() {
+
+    PAGED_CODE();
+
 	if (!m_ivshmem.devObj) {
 		return FALSE;
 	}
@@ -55,6 +58,9 @@ BOOLEAN CIVSHMEMSaveData::RequestMMAP() {
 
 //=============================================================================
 void CIVSHMEMSaveData::ReleaseMMAP() {
+
+    PAGED_CODE();
+
 	if (!m_ivshmem.devObj) {
 		return;
 	}

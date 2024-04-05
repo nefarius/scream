@@ -388,6 +388,7 @@ void CSaveData::CreateSocket(void) {
 }
 
 //=============================================================================
+_IRQL_requires_max_(PASSIVE_LEVEL)
 void CSaveData::SendData() {
     WSK_BUF wskbuf;
 
