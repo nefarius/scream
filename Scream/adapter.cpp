@@ -376,8 +376,6 @@ Return Value:
 
     NTSTATUS ntStatus;
 
-    DPF(D_TERSE, ("[AddDevice]"));
-
     // disable prefast warning 28152 because 
     // DO_DEVICE_INITIALIZING is cleared in PcAddAdapterDevice
 #pragma warning(disable:28152)
