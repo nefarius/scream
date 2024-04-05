@@ -17,6 +17,7 @@ Abstract:
 
 #include "scream.h"
 #include "common.h"
+#include "adapter.tmh"
 
 //-----------------------------------------------------------------------------
 // Defines                                                                    
@@ -297,6 +298,11 @@ Return Value:
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/single-binary-opt-in-pool-nx-optin
     ExInitializeDriverRuntime(DrvRtPoolNxOptIn);
 
+    //
+    // Initialize WPP Tracing
+    //
+    WPP_INIT_TRACING(DriverObject, RegistryPathName);
+
     EventRegisterScream_Audio_Streaming_Driver();
 
     GetRegistrySettings(RegistryPathName);
@@ -309,6 +315,7 @@ Return Value:
     EventWriteStartEvent(NULL, DriverObject, ntStatus);
 
     if (!NT_SUCCESS(ntStatus)) {
+        WPP_CLEANUP(DriverObject);
         EventUnregisterScream_Audio_Streaming_Driver();
     }
     else {
@@ -328,6 +335,8 @@ ScreamDriverUnload(
     EventWriteUnloadEvent(NULL, DriverObject);
 
     EventUnregisterScream_Audio_Streaming_Driver();
+
+    WPP_CLEANUP(DriverObject);
 }
 
 //=============================================================================

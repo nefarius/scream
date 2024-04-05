@@ -499,7 +499,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win10|x64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\netio.lib;$(DDK_LIB_PATH)\stdunk.lib</AdditionalDependencies>
+      <AdditionalDependencies>wpprecorder.lib;%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\netio.lib;$(DDK_LIB_PATH)\stdunk.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -533,7 +533,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win10|ARM'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\netio.lib;$(DDK_LIB_PATH)\stdunk.lib</AdditionalDependencies>
+      <AdditionalDependencies>wpprecorder.lib;%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\netio.lib;$(DDK_LIB_PATH)\stdunk.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -546,7 +546,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win10|ARM64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\netio.lib;$(DDK_LIB_PATH)\stdunk.lib</AdditionalDependencies>
+      <AdditionalDependencies>wpprecorder.lib;%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\netio.lib;$(DDK_LIB_PATH)\stdunk.lib</AdditionalDependencies>
     </Link>
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -569,7 +569,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win10|Win32'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)ntoskrnl.lib;$(DDK_LIB_PATH)hal.lib;$(DDK_LIB_PATH)wmilib.lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22000.0\km\x86\*.lib</AdditionalDependencies>
+      <AdditionalDependencies>wpprecorder.lib;%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)ntoskrnl.lib;$(DDK_LIB_PATH)hal.lib;$(DDK_LIB_PATH)wmilib.lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22000.0\km\x86\*.lib</AdditionalDependencies>
     </Link>
     <DriverSign>
       <AdditionalOptions>/fd SHA256 %(AdditionalOptions)</AdditionalOptions>
@@ -611,6 +611,7 @@
     <ClInclude Include="savedata.h" />
     <ClInclude Include="scream.h" />
     <ClInclude Include="toptable.h" />
+    <ClInclude Include="Trace.h" />
     <ClInclude Include="wavtable.h" />
   </ItemGroup>
   <ItemGroup>
