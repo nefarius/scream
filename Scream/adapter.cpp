@@ -369,6 +369,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_ADAPTER);
+
     PAGED_CODE();
 
     NTSTATUS ntStatus;
@@ -380,7 +382,15 @@ Return Value:
 #pragma warning(disable:28152)
 
     // Tell the class driver to add the device.
-    ntStatus = PcAddAdapterDevice(DriverObject, PhysicalDeviceObject, PCPFNSTARTDEVICE(StartDevice), MAX_MINIPORTS, 0);
+    ntStatus = PcAddAdapterDevice(
+        DriverObject, 
+        PhysicalDeviceObject, 
+        PCPFNSTARTDEVICE(StartDevice), 
+        MAX_MINIPORTS,
+        0
+    );
+
+    FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // AddDevice
@@ -427,6 +437,8 @@ Return Value:
     NT status code.
 --*/
 {
+    FuncEntryArguments(TRACE_ADAPTER, "name=%ws", Name);
+
     PAGED_CODE();
 
     ASSERT(DeviceObject);
@@ -434,10 +446,8 @@ Return Value:
     ASSERT(Name);
 
     NTSTATUS ntStatus;
-    PPORT    port = NULL;
+    PPORT port = NULL;
     PUNKNOWN miniport = NULL;
-     
-    DPF_ENTER(("[InstallSubDevice %S]", Name));
 
     // Create the port driver object
     ntStatus = PcNewPort(&port, PortClassId);
@@ -445,9 +455,10 @@ Return Value:
     // Create the miniport object
     if (NT_SUCCESS(ntStatus)) {
         if (MiniportCreate) {
-            ntStatus = MiniportCreate(&miniport, MiniportClassId, NULL, NonPagedPool  );
-        } else {
-            ntStatus = PcNewMiniport((PMINIPORT *) &miniport, MiniportClassId);
+            ntStatus = MiniportCreate(&miniport, MiniportClassId, NULL, NonPagedPool);
+        }
+        else {
+            ntStatus = PcNewMiniport((PMINIPORT*)&miniport, MiniportClassId);
         }
     }
 
@@ -468,17 +479,19 @@ Return Value:
     // Deposit the port interfaces if it's needed.
     if (NT_SUCCESS(ntStatus)) {
         if (OutPortUnknown) {
-            ntStatus = port->QueryInterface(IID_IUnknown, (PVOID *)OutPortUnknown);
+            ntStatus = port->QueryInterface(IID_IUnknown, (PVOID*)OutPortUnknown);
         }
 
         if (OutPortInterface) {
-            ntStatus = port->QueryInterface(PortInterfaceId, (PVOID *) OutPortInterface);
+            ntStatus = port->QueryInterface(PortInterfaceId, (PVOID*)OutPortInterface);
         }
     }
 
     if (port) {
         port->Release();
     }
+
+    FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // InstallSubDevice
@@ -506,26 +519,26 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_ADAPTER);
+
     UNREFERENCED_PARAMETER(ResourceList);
 
     PAGED_CODE();
-    
+
     ASSERT(DeviceObject);
     ASSERT(Irp);
     ASSERT(ResourceList);
 
-    NTSTATUS       ntStatus        = STATUS_SUCCESS;
-    PUNKNOWN       unknownTopology = NULL;
-    PUNKNOWN       unknownWave     = NULL;
-    PADAPTERCOMMON pAdapterCommon  = NULL;
-    PUNKNOWN       pUnknownCommon  = NULL;
-
-    DPF_ENTER(("[StartDevice]"));
+    NTSTATUS ntStatus = STATUS_SUCCESS;
+    PUNKNOWN unknownTopology = NULL;
+    PUNKNOWN unknownWave = NULL;
+    PADAPTERCOMMON pAdapterCommon = NULL;
+    PUNKNOWN pUnknownCommon = NULL;
 
     // create a new adapter common object
     ntStatus = NewAdapterCommon(&pUnknownCommon, IID_IAdapterCommon, NULL, NonPagedPool);
     if (NT_SUCCESS(ntStatus)) {
-        ntStatus = pUnknownCommon->QueryInterface(IID_IAdapterCommon, (PVOID *) &pAdapterCommon);
+        ntStatus = pUnknownCommon->QueryInterface(IID_IAdapterCommon, (PVOID*)&pAdapterCommon);
         if (NT_SUCCESS(ntStatus)) {
             ntStatus = pAdapterCommon->Init(DeviceObject);
             if (NT_SUCCESS(ntStatus)) {
@@ -537,12 +550,36 @@ Return Value:
 
     // install MSVAD topology miniport.
     if (NT_SUCCESS(ntStatus)) {
-        ntStatus = InstallSubdevice(DeviceObject, Irp, L"Topology", CLSID_PortTopology, CLSID_PortTopology, CreateMiniportTopologyMSVAD, pAdapterCommon, NULL, IID_IPortTopology, NULL, &unknownTopology);
+        ntStatus = InstallSubdevice(
+            DeviceObject,
+            Irp,
+            L"Topology",
+            CLSID_PortTopology,
+            CLSID_PortTopology,
+            CreateMiniportTopologyMSVAD,
+            pAdapterCommon,
+            NULL,
+            IID_IPortTopology,
+            NULL,
+            &unknownTopology
+        );
     }
 
     // install MSVAD wavecyclic miniport.
     if (NT_SUCCESS(ntStatus)) {
-        ntStatus = InstallSubdevice(DeviceObject, Irp, L"Wave", CLSID_PortWaveCyclic, CLSID_PortWaveCyclic, CreateMiniportWaveCyclicMSVAD, pAdapterCommon, NULL, IID_IPortWaveCyclic, pAdapterCommon->WavePortDriverDest(), &unknownWave);
+        ntStatus = InstallSubdevice(
+            DeviceObject,
+            Irp,
+            L"Wave",
+            CLSID_PortWaveCyclic,
+            CLSID_PortWaveCyclic,
+            CreateMiniportWaveCyclicMSVAD,
+            pAdapterCommon,
+            NULL,
+            IID_IPortWaveCyclic,
+            pAdapterCommon->WavePortDriverDest(),
+            &unknownWave
+        );
     }
 
     if (unknownTopology && unknownWave) {
@@ -550,12 +587,24 @@ Return Value:
         // This will connect bridge pins of wavecyclic and topology
         // miniports.
         if ((TopologyPhysicalConnections.ulTopologyOut != (ULONG)-1) && (TopologyPhysicalConnections.ulWaveIn != (ULONG)-1)) {
-            ntStatus = PcRegisterPhysicalConnection(DeviceObject, unknownTopology, TopologyPhysicalConnections.ulTopologyOut, unknownWave, TopologyPhysicalConnections.ulWaveIn);
+            ntStatus = PcRegisterPhysicalConnection(
+                DeviceObject,
+                unknownTopology,
+                TopologyPhysicalConnections.ulTopologyOut,
+                unknownWave,
+                TopologyPhysicalConnections.ulWaveIn
+            );
         }
 
         if (NT_SUCCESS(ntStatus)) {
             if ((TopologyPhysicalConnections.ulWaveOut != (ULONG)-1) && (TopologyPhysicalConnections.ulTopologyIn != (ULONG)-1)) {
-                ntStatus = PcRegisterPhysicalConnection(DeviceObject, unknownWave, TopologyPhysicalConnections.ulWaveOut, unknownTopology, TopologyPhysicalConnections.ulTopologyIn);
+                ntStatus = PcRegisterPhysicalConnection(
+                    DeviceObject,
+                    unknownWave,
+                    TopologyPhysicalConnections.ulWaveOut,
+                    unknownTopology,
+                    TopologyPhysicalConnections.ulTopologyIn
+                );
             }
         }
     }
@@ -569,7 +618,7 @@ Return Value:
     if (pUnknownCommon) {
         pUnknownCommon->Release();
     }
-    
+
     if (unknownTopology) {
         unknownTopology->Release();
     }
@@ -577,6 +626,8 @@ Return Value:
     if (unknownWave) {
         unknownWave->Release();
     }
+
+    FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } // StartDevice
