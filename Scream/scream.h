@@ -1,11 +1,11 @@
-#ifndef _MSVAD_H_
-#define _MSVAD_H_
+#pragma once
 
 #include <portcls.h>
 #pragma warning(disable:4595)
 #include <stdunk.h>
 #include <ksdebug.h>
 #include "kshelper.h"
+#include "Trace.h"
 
 //=============================================================================
 // Defines
@@ -134,5 +134,3 @@ extern DWORD g_DSCP;
 extern DWORD g_TTL;
 extern DWORD g_ScreamVersion;
 extern DWORD g_silenceThreshold;
-
-#endif
