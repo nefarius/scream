@@ -19,7 +19,7 @@
 //=============================================================================
 
 // Client-level callback table
-const WSK_CLIENT_DISPATCH WskSampleClientDispatch = {
+const WSK_CLIENT_DISPATCH WskClientDispatch = {
     MAKE_WSK_VERSION(1, 0), // This sample uses WSK version 1.0
     0, // Reserved
     NULL // WskClientEvent callback is not required in WSK version 1.0
@@ -69,7 +69,7 @@ CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSen
 
         // Register with WSK.
         wskClientNpi.ClientContext = NULL;
-        wskClientNpi.Dispatch = &WskSampleClientDispatch;
+        wskClientNpi.Dispatch = &WskClientDispatch;
         WskRegister(&wskClientNpi, &m_wskRegistration);
     }
 } // CSaveData
