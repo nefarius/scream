@@ -363,9 +363,7 @@ void CSaveData::CreateSocket(void) {
         NULL, // SecurityDescriptor
         m_irp);
     KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
-
-    DPF(D_TERSE, ("WskSocket: %x", m_irp->IoStatus.Status));
-
+    
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
         TraceError(TRACE_SAVEDATA, "Socket creation failed with status %!STATUS!", m_irp->IoStatus.Status);
 
@@ -474,8 +472,8 @@ void CSaveData::WaitAllWorkItems(void) {
 
     FuncExitNoReturn(TRACE_SAVEDATA);
 } // WaitAllWorkItems
-
 #pragma code_seg()
+
 //=============================================================================
 void CSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     FuncEntryArguments(TRACE_SAVEDATA, "ulByteCount=%ul", ulByteCount);
