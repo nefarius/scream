@@ -482,7 +482,7 @@ void CSaveData::WaitAllWorkItems(void) {
 
 //=============================================================================
 void CSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
-    FuncEntryArguments(TRACE_SAVEDATA, "ulByteCount=%ul", ulByteCount);
+    FuncEntryArguments(TRACE_SAVEDATA, "ulByteCount=%lu", ulByteCount);
 
     ASSERT(pBuffer);
 
