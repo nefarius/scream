@@ -33,6 +33,11 @@ Abstract:
 NTSTATUS CreateMiniportWaveCyclicScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
 NTSTATUS CreateMiniportTopologyScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
 
+//
+// Free and occupied port numbers
+// 
+LONG G_Slots[8] = {0}; // 256 usable bits
+
 PCHAR g_UnicastSrcIPv4;
 DWORD g_UnicastSrcPort;
 

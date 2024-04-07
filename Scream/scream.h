@@ -127,6 +127,47 @@ extern NTSTATUS PropertyHandler_Wave(IN PPCPROPERTY_REQUEST PropertyRequest);
 // Handles the GeneralComponentId request.
 extern NTSTATUS PropertyHandler_WaveFilter(IN PPCPROPERTY_REQUEST PropertyRequest);
 
+//
+// Free and occupied port numbers
+// 
+extern LONG G_Slots[8]; // 256 usable bits
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+FORCEINLINE
+LONG
+G_SLOTS_SET(
+    _In_ UINT32 SlotIndex
+)
+{
+    const UINT32 bits = sizeof(G_Slots);
+
+    return InterlockedOr(&G_Slots[SlotIndex / bits], 1 << (SlotIndex % bits));
+}
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+FORCEINLINE
+LONG
+G_SLOTS_CLEAR(
+    _In_ UINT32 SlotIndex
+)
+{
+    const UINT32 bits = sizeof(G_Slots);
+
+    return InterlockedAnd(&G_Slots[SlotIndex / bits], ~(1 << (SlotIndex % bits)));
+}
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+FORCEINLINE
+BOOLEAN
+G_SLOTS_TEST(
+    _In_ UINT32 SlotIndex
+)
+{
+    const UINT32 bits = sizeof(G_Slots);
+
+    return (BOOLEAN)(G_Slots[SlotIndex / bits] & (1 << (SlotIndex % bits)));
+}
+
 extern PCHAR g_UnicastIPv4;
 extern DWORD g_UnicastPort;
 extern UINT8 g_UseIVSHMEM;

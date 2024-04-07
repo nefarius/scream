@@ -92,6 +92,8 @@ private:
     _IRQL_requires_max_(PASSIVE_LEVEL)
     void                        SendData();
     friend VOID                 SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context);
+    _IRQL_requires_max_(PASSIVE_LEVEL)
+    NTSTATUS QueryRegistryDeviceSettings(ULONG DeviceIndex);
 };
 typedef CSaveData *PCSaveData;
 

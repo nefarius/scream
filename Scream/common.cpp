@@ -188,16 +188,14 @@ Return Value:
     ASSERT(DeviceObject);
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
-
-    DPF_ENTER(("[CAdapterCommon::Init]"));
-
+    
     m_pDeviceObject = DeviceObject;
     m_PowerState = PowerDeviceD0;
 
     // Initialize HW.
     m_pHW = new(NonPagedPool, SCREAM_POOLTAG) CVirtualAudioDevice;
     if (!m_pHW) {
-        DPF(D_TERSE, ("Insufficient memory for MSVAD HW"));
+        TraceError(TRACE_COMMON, "Failed to allocate memory for CVirtualAudioDevice");
         ntStatus = STATUS_INSUFFICIENT_RESOURCES;
     }
     else {

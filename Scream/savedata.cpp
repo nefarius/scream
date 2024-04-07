@@ -1,6 +1,7 @@
 #pragma warning (disable : 4127)
 
 #include "scream.h"
+#include <ntstrsafe.h>
 #include "savedata.h"
 #include "savedata.tmh"
 
@@ -465,6 +466,47 @@ void CSaveData::SendData() {
     }
 
     FuncExitNoReturn(TRACE_SAVEDATA);
+}
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+NTSTATUS CSaveData::QueryRegistryDeviceSettings(ULONG DeviceIndex) {
+    FuncEntry(TRACE_SAVEDATA);
+
+    NTSTATUS ntStatus = STATUS_UNSUCCESSFUL;
+    OBJECT_ATTRIBUTES objectAttributes;
+    HANDLE hKey = NULL;
+    NTSTATUS status;
+
+    DECLARE_UNICODE_STRING_SIZE(keyPath, 128);
+
+    status = RtlUnicodeStringPrintf(
+        &keyPath,
+        L"\\Registry\\Machine\\SOFTWARE\\Nefarius Software Solutions e.U.\\Scream Audio Streaming Driver\\Device\\%04d",
+        DeviceIndex
+    );
+    if (!NT_SUCCESS(status)) {
+        TraceError(TRACE_SAVEDATA, "RtlUnicodeStringPrintf failed with status %!STATUS!", status);
+        goto exit;
+    }
+
+    InitializeObjectAttributes(&objectAttributes, &keyPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+
+    status = ZwOpenKey(&hKey, KEY_READ, &objectAttributes);
+    if (!NT_SUCCESS(status)) {
+        TraceError(TRACE_SAVEDATA, "ZwOpenKey failed with status %!STATUS!", status);
+        goto exit;
+    }
+
+    // TODO: implement me
+
+exit:
+    if (hKey) {
+        ZwClose(hKey);
+    }
+
+    FuncExit(TRACE_SAVEDATA, "ntStatus=%!STATUS!", ntStatus);
+
+    return ntStatus;
 }
 
 #pragma code_seg("PAGE")
