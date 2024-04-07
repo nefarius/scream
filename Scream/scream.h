@@ -131,6 +131,7 @@ extern NTSTATUS PropertyHandler_WaveFilter(IN PPCPROPERTY_REQUEST PropertyReques
 // Free and occupied port numbers
 // 
 extern LONG G_Slots[8]; // 256 usable bits
+#define MAX_DEVICES 255
 
 _IRQL_requires_max_(DISPATCH_LEVEL)
 FORCEINLINE

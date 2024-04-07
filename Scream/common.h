@@ -48,6 +48,12 @@ DECLARE_INTERFACE_(IAdapterCommon, IUnknown) {
     STDMETHOD_(LONG,            MixerVolumeRead)     (THIS_ IN ULONG Index, IN LONG Channel) PURE;
     STDMETHOD_(VOID,            MixerVolumeWrite)    (THIS_ IN ULONG Index, IN LONG Channel, IN LONG Value) PURE;
     STDMETHOD_(VOID,            MixerReset)          (THIS) PURE;
+
+    //
+    // Additional helpers to support multiple devices/adapters
+    // 
+    STDMETHOD_(VOID,            SetDeviceIndex)     (THIS_ IN UINT32 DeviceIndex) PURE;
+    STDMETHOD_(UINT32,          GetDeviceIndex)     (THIS_) PURE;
 };
 typedef IAdapterCommon *PADAPTERCOMMON;
 

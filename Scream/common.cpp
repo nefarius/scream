@@ -37,7 +37,8 @@ class CAdapterCommon : public IAdapterCommon, public IAdapterPowerManagement, pu
 private:
     PPORTWAVECYCLIC         m_pPortWave;    // Port interface
     PSERVICEGROUP           m_pServiceGroupWave;
-    PDEVICE_OBJECT          m_pDeviceObject;      
+    PDEVICE_OBJECT          m_pDeviceObject;
+    UINT32                  m_DeviceIndex;
     DEVICE_POWER_STATE      m_PowerState;        
     PCVirtualAudioDevice    m_pHW;          // Virtual MSVAD HW object
 
@@ -75,6 +76,9 @@ public:
     STDMETHODIMP_(void)     MixerReset(void);
     STDMETHODIMP_(LONG)     MixerVolumeRead(IN ULONG Index, IN LONG Channel);
     STDMETHODIMP_(void)     MixerVolumeWrite(IN ULONG Index, IN LONG Channel, IN LONG Value);
+
+    STDMETHODIMP_(void)     SetDeviceIndex(IN UINT32 DeviceIndex);
+    STDMETHODIMP_(UINT32)   GetDeviceIndex(void);
 
     //=====================================================================
     // friends
@@ -602,6 +606,14 @@ Return Value:
     FuncExitNoReturn(TRACE_COMMON);
 } // MixerVolumeWrite
 
+STDMETHODIMP_(void) CAdapterCommon::SetDeviceIndex(UINT32 DeviceIndex) {
+    m_DeviceIndex = DeviceIndex;
+}
+
+STDMETHODIMP_(UINT32) CAdapterCommon::GetDeviceIndex() {
+    return m_DeviceIndex;
+}
+
 //=============================================================================
 STDMETHODIMP_(void) CAdapterCommon::PowerChangeState( 
     IN  POWER_STATE             NewState 
@@ -622,17 +634,17 @@ Return Value:
     if (NewState.DeviceState != m_PowerState) {
         // switch on new state
         switch (NewState.DeviceState) {
-            case PowerDeviceD0:
-            case PowerDeviceD1:
-            case PowerDeviceD2:
-            case PowerDeviceD3:
-                m_PowerState = NewState.DeviceState;
-                DPF(D_VERBOSE, ("Entering D%d", ULONG(m_PowerState) - ULONG(PowerDeviceD0)));
-                break;
-    
-            default:
-                DPF(D_VERBOSE, ("Unknown Device Power State"));
-                break;
+        case PowerDeviceD0:
+        case PowerDeviceD1:
+        case PowerDeviceD2:
+        case PowerDeviceD3:
+            m_PowerState = NewState.DeviceState;
+            TraceVerbose(TRACE_COMMON, "Entering D%d", ULONG(m_PowerState) - ULONG(PowerDeviceD0));
+            break;
+
+        default:
+            TraceWarning(TRACE_COMMON, "Unknown Device Power State");
+            break;
         }
     }
 
