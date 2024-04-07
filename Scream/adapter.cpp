@@ -33,10 +33,6 @@ Abstract:
 NTSTATUS CreateMiniportWaveCyclicScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
 NTSTATUS CreateMiniportTopologyScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
 
-//
-// Free and occupied port numbers
-// 
-LONG G_Slots[8] = {0}; // 256 usable bits
 
 PCHAR g_UnicastSrcIPv4;
 DWORD g_UnicastSrcPort;
@@ -539,37 +535,6 @@ Return Value:
     PADAPTERCOMMON pAdapterCommon = NULL;
     PUNKNOWN pUnknownCommon = NULL;
 
-    UINT32 slotIndex;
-
-    //
-    // Get next free slot
-    // 
-    for (slotIndex = 1; slotIndex <= MAX_DEVICES; slotIndex++) {
-        if (!G_SLOTS_TEST(slotIndex)) {
-            G_SLOTS_SET(slotIndex);
-            ntStatus = STATUS_SUCCESS;
-
-            TraceVerbose(
-                TRACE_ADAPTER,
-                "Claimed device slot: %d",
-                slotIndex
-            );
-
-            break;
-        }
-    }
-
-    //
-    // We've reached the maximum allowed without any success
-    // 
-    if (slotIndex > MAX_DEVICES) {
-        ntStatus = STATUS_NO_MORE_ENTRIES;
-    }
-
-    if (!NT_SUCCESS(ntStatus)) {
-        goto exit;
-    }
-
     // create a new adapter common object
     ntStatus = NewAdapterCommon(&pUnknownCommon, IID_IAdapterCommon, NULL, NonPagedPool);
     if (NT_SUCCESS(ntStatus)) {
@@ -577,7 +542,6 @@ Return Value:
         if (NT_SUCCESS(ntStatus)) {
             ntStatus = pAdapterCommon->Init(DeviceObject);
             if (NT_SUCCESS(ntStatus)) {
-                pAdapterCommon->SetDeviceIndex(slotIndex);
                 // register with PortCls for power-management services
                 ntStatus = PcRegisterAdapterPowerManagement(PUNKNOWN(pAdapterCommon), DeviceObject);
             }

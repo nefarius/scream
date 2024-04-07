@@ -52,7 +52,6 @@ DECLARE_INTERFACE_(IAdapterCommon, IUnknown) {
     //
     // Additional helpers to support multiple devices/adapters
     // 
-    STDMETHOD_(VOID,            SetDeviceIndex)     (THIS_ IN UINT32 DeviceIndex) PURE;
     STDMETHOD_(UINT32,          GetDeviceIndex)     (THIS_) PURE;
 };
 typedef IAdapterCommon *PADAPTERCOMMON;

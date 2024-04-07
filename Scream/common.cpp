@@ -38,9 +38,16 @@ private:
     PPORTWAVECYCLIC         m_pPortWave;    // Port interface
     PSERVICEGROUP           m_pServiceGroupWave;
     PDEVICE_OBJECT          m_pDeviceObject;
-    UINT32                  m_DeviceIndex;
+    UINT32                  m_SlotIndex;
     DEVICE_POWER_STATE      m_PowerState;        
     PCVirtualAudioDevice    m_pHW;          // Virtual MSVAD HW object
+    //
+    // Holds information about occupied device slots
+    // 
+    static LONG m_Slots[8]; // 256 usable bits
+    static LONG SetSlot(UINT32 SlotIndex);
+    static BOOLEAN TestSlot(UINT32 SlotIndex);
+    static LONG ClearSlot(UINT32 SlotIndex);
 
 public:
     //=====================================================================
@@ -77,13 +84,14 @@ public:
     STDMETHODIMP_(LONG)     MixerVolumeRead(IN ULONG Index, IN LONG Channel);
     STDMETHODIMP_(void)     MixerVolumeWrite(IN ULONG Index, IN LONG Channel, IN LONG Value);
 
-    STDMETHODIMP_(void)     SetDeviceIndex(IN UINT32 DeviceIndex);
     STDMETHODIMP_(UINT32)   GetDeviceIndex(void);
 
     //=====================================================================
     // friends
     friend NTSTATUS NewAdapterCommon(OUT PADAPTERCOMMON* OutAdapterCommon, IN PRESOURCELIST ResourceList);
 };
+
+LONG CAdapterCommon::m_Slots[8] = {0};
 
 //-----------------------------------------------------------------------------
 // Functions
@@ -152,7 +160,7 @@ Return Value:
         m_pServiceGroupWave->Release();
     }
 
-    G_SLOTS_CLEAR(m_DeviceIndex);
+    ClearSlot(m_SlotIndex);
 
     FuncExitNoReturn(TRACE_COMMON);
 } // ~CAdapterCommon  
@@ -194,6 +202,37 @@ Return Value:
     ASSERT(DeviceObject);
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
+
+    UINT32 slotIndex;
+
+    //
+    // Get next free slot
+    // 
+    for (slotIndex = 1; slotIndex <= MAX_DEVICES; slotIndex++) {
+        if (!TestSlot(slotIndex)) {
+            SetSlot(slotIndex);
+            ntStatus = STATUS_SUCCESS;
+
+            TraceVerbose(
+                TRACE_COMMON,
+                "Claimed device slot: %d",
+                slotIndex
+            );
+
+            break;
+        }
+    }
+
+    //
+    // We've reached the maximum allowed without any success
+    // 
+    if (slotIndex > MAX_DEVICES) {
+        ntStatus = STATUS_NO_MORE_ENTRIES;
+    }
+
+    if (!NT_SUCCESS(ntStatus)) {
+        goto exit;
+    }
     
     m_pDeviceObject = DeviceObject;
     m_PowerState = PowerDeviceD0;
@@ -215,6 +254,7 @@ Return Value:
         CSaveData::SetDeviceObject(DeviceObject); //device object is needed by CSaveData
     }
 
+    exit:
     FuncExit(TRACE_COMMON, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
@@ -242,6 +282,23 @@ Return Value:
 
     FuncExitNoReturn(TRACE_COMMON);
 } // MixerReset
+
+LONG CAdapterCommon::SetSlot(UINT32 SlotIndex) {
+    const UINT32 bits = sizeof(m_Slots);
+
+    return InterlockedOr(&m_Slots[SlotIndex / bits], 1 << (SlotIndex % bits));
+}
+BOOLEAN CAdapterCommon::TestSlot(UINT32 SlotIndex) {
+    const UINT32 bits = sizeof(m_Slots);
+
+    return (BOOLEAN)(m_Slots[SlotIndex / bits] & (1 << (SlotIndex % bits)));
+}
+
+LONG CAdapterCommon::ClearSlot(UINT32 SlotIndex) {
+    const UINT32 bits = sizeof(m_Slots);
+
+    return InterlockedAnd(&m_Slots[SlotIndex / bits], ~(1 << (SlotIndex % bits)));
+}
 
 //=============================================================================
 STDMETHODIMP CAdapterCommon::NonDelegatingQueryInterface( 
@@ -608,12 +665,8 @@ Return Value:
     FuncExitNoReturn(TRACE_COMMON);
 } // MixerVolumeWrite
 
-STDMETHODIMP_(void) CAdapterCommon::SetDeviceIndex(UINT32 DeviceIndex) {
-    m_DeviceIndex = DeviceIndex;
-}
-
 STDMETHODIMP_(UINT32) CAdapterCommon::GetDeviceIndex() {
-    return m_DeviceIndex;
+    return m_SlotIndex;
 }
 
 //=============================================================================
