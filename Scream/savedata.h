@@ -56,7 +56,8 @@ protected:
     ULONG                       m_ulOffset;
     ULONG                       m_ulSendOffset;
     PMDL                        m_pMdl;
-    
+
+    // TODO: convert to member variable
     static PDEVICE_OBJECT       m_pDeviceObject;
     static PSAVEWORKER_PARAM    m_pWorkItem;
 
@@ -78,13 +79,15 @@ public:
     
     static void                 DestroyWorkItems(void);
     void                        WaitAllWorkItems(void);
-    
+
+    // TODO: convert to member function
     static NTSTATUS             SetDeviceObject(IN PDEVICE_OBJECT DeviceObject);
     static PDEVICE_OBJECT       GetDeviceObject(void);
     
     void                        WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount);
 
 private:
+    // TODO: convert to member function
     static NTSTATUS             InitializeWorkItem(IN PDEVICE_OBJECT DeviceObject);
 
     _IRQL_requires_max_(PASSIVE_LEVEL)

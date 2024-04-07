@@ -27,6 +27,8 @@ Abstract:
 //=============================================================================
 CMiniportWaveCyclicStream::CMiniportWaveCyclicStream(PUNKNOWN other) : CUnknown(other)
 {
+    FuncEntry(TRACE_MINSTREAM);
+
     // PAGED_CODE();
 
     m_pMiniport = NULL;
@@ -48,6 +50,8 @@ CMiniportWaveCyclicStream::CMiniportWaveCyclicStream(PUNKNOWN other) : CUnknown(
     m_ulDmaMovementRate = 0;
     m_ullDmaTimeStamp = 0;
     m_silenceState = 0;
+
+    FuncExitNoReturn(TRACE_MINSTREAM);
 }
 
 //=============================================================================
@@ -62,6 +66,8 @@ Return Value:
   NT status code.
 --*/
 {
+    FuncEntry(TRACE_MINSTREAM);
+
     // PAGED_CODE();
 
     DPF_ENTER(("[CMiniportWaveCyclicStream::~CMiniportWaveCyclicStream]"));
@@ -85,6 +91,8 @@ Return Value:
             m_pMiniport->m_fRenderAllocated = FALSE;
         }
     }
+
+    FuncExitNoReturn(TRACE_MINSTREAM);
 } // ~CMiniportWaveCyclicStream
 
 //=============================================================================

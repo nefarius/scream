@@ -152,6 +152,8 @@ Return Value:
         m_pServiceGroupWave->Release();
     }
 
+    G_SLOTS_CLEAR(m_DeviceIndex);
+
     FuncExitNoReturn(TRACE_COMMON);
 } // ~CAdapterCommon  
 
