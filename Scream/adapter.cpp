@@ -59,6 +59,8 @@ NTSTATUS StartDevice(IN PDEVICE_OBJECT, IN PIRP, IN PRESOURCELIST);
 //-----------------------------------------------------------------------------
 
 #pragma code_seg("INIT")
+
+[[deprecated("Move to per-device registry querying")]]
 __drv_requiresIRQL(PASSIVE_LEVEL)
 NTSTATUS
 GetRegistrySettings(
