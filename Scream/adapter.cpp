@@ -86,6 +86,8 @@ Returns:
 --*/
 
 {
+    FuncEntry(TRACE_ADAPTER);
+
     NTSTATUS            ntStatus;
     UNICODE_STRING      parametersPath;
 
@@ -194,6 +196,7 @@ Returns:
 	}
 
     if ((unicastIPv4.Length > 0) && RtlUnicodeStringToAnsiSize(&unicastIPv4)) {
+        TraceVerbose(TRACE_ADAPTER, "!!! unicastIPv4.Length = %d", unicastIPv4.Length);
         g_UnicastIPv4 = (PCHAR)(ExAllocatePoolWithTag(NonPagedPool, RtlUnicodeStringToAnsiSize(&unicastIPv4) + 1, SCREAM_POOLTAG));
         if (g_UnicastIPv4) {
             ANSI_STRING asString;
@@ -262,7 +265,17 @@ Returns:
 
     g_UseIVSHMEM = (UINT8)useIVSHMEM;
 
+    if (unicastIPv4.Buffer) {
+        ExFreePool(unicastIPv4.Buffer);
+    }
+
+    if (unicastSrcIPv4.Buffer) {
+        ExFreePool(unicastSrcIPv4.Buffer);
+    }
+
     ExFreePool(parametersPath.Buffer);
+
+    FuncExitNoReturn(TRACE_ADAPTER);
 
     return STATUS_SUCCESS;
 }

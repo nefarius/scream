@@ -326,7 +326,11 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
         m_SlotIndex
     );
     if (!NT_SUCCESS(ntStatus)) {
-        TraceError(TRACE_COMMON, "RtlUnicodeStringPrintf failed with status %!STATUS!", ntStatus);
+        TraceError(
+            TRACE_COMMON, 
+            "RtlUnicodeStringPrintf failed with status %!STATUS!",
+            ntStatus
+        );
         EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringPrintf", ntStatus);
         goto exit;
     }
@@ -368,17 +372,73 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
     );
 
     if (!NT_SUCCESS(ntStatus)) {
-        TraceWarning(TRACE_COMMON, "RtlQueryRegistryValues failed with status %!STATUS!", ntStatus);
+        TraceWarning(
+            TRACE_COMMON, 
+            "RtlQueryRegistryValues failed with status %!STATUS!",
+            ntStatus
+        );
         EventWriteQueryRegistrySettingsFailed(NULL, keyPath.Buffer);
         // continue using defaults
     }
 
     m_Settings.SourceAddress.sin_family = AF_INET;
     m_Settings.DestinationAddress.sin_family = AF_INET;    
+    
+    //
+    // Source address value found
+    // 
+    if (sourceIPv4.Length > 0 && sourceIPv4.Buffer) {
+        // this value is _not_ guaranteed to be NULL-terminated so we need to do a bit of converting
+        ANSI_STRING narrowSrc = { 0, (USHORT)RtlUnicodeStringToAnsiSize(&sourceIPv4), NULL };
+        // conversion makes room for NULL terminator
+        if (!NT_SUCCESS(ntStatus = RtlUnicodeStringToAnsiString(&narrowSrc, &sourceIPv4, TRUE))) {
+            TraceError(
+                TRACE_COMMON,
+                "RtlUnicodeStringToAnsiString failed with status %!STATUS!",
+                ntStatus
+            );
+            EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringToAnsiString", ntStatus);
+        }
+        else {
+            PCSTR terminator = NULL;
+            // converts and validates string to valid IP address
+            if (!NT_SUCCESS(ntStatus = RtlIpv4StringToAddressA(
+                narrowSrc.Buffer,
+                TRUE,
+                &terminator,
+                &m_Settings.SourceAddress.sin_addr
+            ))) {
+                TraceError(
+                    TRACE_COMMON,
+                    "RtlIpv4StringToAddressA failed with status %!STATUS!",
+                    ntStatus
+                );
+                EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlIpv4StringToAddressA", ntStatus);
+            }
+
+            if (narrowSrc.Buffer)
+                ExFreePool(narrowSrc.Buffer);
+        }
+    }
+    // use defaults
+    else {
+        PCSTR terminator = NULL;
+        (void)RtlIpv4StringToAddressA(
+            DEFAULTS_SRC_IPV4,
+            TRUE,
+            &terminator,
+            &m_Settings.SourceAddress.sin_addr
+        );
+    }
 
     // TODO: implement me
 
 exit:
+    if (sourceIPv4.Buffer)
+        ExFreePool(sourceIPv4.Buffer);
+
+    if (destinationIPv4.Buffer)
+        ExFreePool(destinationIPv4.Buffer);
 
     FuncExit(TRACE_COMMON, "ntStatus=%!STATUS!", ntStatus);
 
