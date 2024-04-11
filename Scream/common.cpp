@@ -17,6 +17,8 @@ Abstract:
 #include "ivshmemsavedata.h"
 #include "common.tmh"
 
+#include <ntstrsafe.h>
+
 //-----------------------------------------------------------------------------
 // Externals
 //-----------------------------------------------------------------------------
@@ -41,6 +43,8 @@ private:
     UINT32                  m_SlotIndex;
     DEVICE_POWER_STATE      m_PowerState;        
     PCVirtualAudioDevice    m_pHW;          // Virtual MSVAD HW object
+    ADAPTER_COMMON_SETTINGS m_Settings;
+
     //
     // Holds information about occupied device slots
     // 
@@ -48,6 +52,9 @@ private:
     static LONG SetSlot(UINT32 SlotIndex);
     static BOOLEAN TestSlot(UINT32 SlotIndex);
     static LONG ClearSlot(UINT32 SlotIndex);
+
+    _IRQL_requires_max_(PASSIVE_LEVEL)
+    NTSTATUS QueryAdapterRegistrySettings();
 
 public:
     //=====================================================================
@@ -84,7 +91,8 @@ public:
     STDMETHODIMP_(LONG)     MixerVolumeRead(IN ULONG Index, IN LONG Channel);
     STDMETHODIMP_(void)     MixerVolumeWrite(IN ULONG Index, IN LONG Channel, IN LONG Value);
 
-    STDMETHODIMP_(UINT32)   GetDeviceIndex(void);
+    STDMETHODIMP_(UINT32)                   GetDeviceIndex(void);
+    STDMETHODIMP_(ADAPTER_COMMON_SETTINGS)  GetAdapterSettings(void);
 
     //=====================================================================
     // friends
@@ -236,6 +244,7 @@ Return Value:
     
     m_pDeviceObject = DeviceObject;
     m_PowerState = PowerDeviceD0;
+    RtlZeroMemory(&m_Settings, sizeof(m_Settings));
 
     // Initialize HW.
     m_pHW = new(NonPagedPool, SCREAM_POOLTAG) CVirtualAudioDevice;
@@ -298,6 +307,82 @@ LONG CAdapterCommon::ClearSlot(UINT32 SlotIndex) {
     const UINT32 bits = sizeof(m_Slots);
 
     return InterlockedAnd(&m_Slots[SlotIndex / bits], ~(1 << (SlotIndex % bits)));
+}
+
+//
+// Query the registry settings for this adapter instance, if any
+//
+_IRQL_requires_max_(PASSIVE_LEVEL)
+NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
+    FuncEntry(TRACE_COMMON);
+
+    NTSTATUS ntStatus;
+
+    DECLARE_UNICODE_STRING_SIZE(keyPath, 128);
+
+    ntStatus = RtlUnicodeStringPrintf(
+        &keyPath,
+        L"\\Registry\\Machine\\SOFTWARE\\Nefarius Software Solutions e.U.\\Scream Audio Streaming Driver\\Device\\%04d",
+        m_SlotIndex
+    );
+    if (!NT_SUCCESS(ntStatus)) {
+        TraceError(TRACE_COMMON, "RtlUnicodeStringPrintf failed with status %!STATUS!", ntStatus);
+        EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringPrintf", ntStatus);
+        goto exit;
+    }
+
+    UNICODE_STRING sourceIPv4;
+    DWORD sourcePort = 0;
+    UNICODE_STRING destinationIPv4;
+    DWORD destinationPort = 0;
+    DWORD useMulticast = 1;
+
+    RtlZeroMemory(&destinationIPv4, sizeof(UNICODE_STRING));
+    RtlZeroMemory(&sourceIPv4, sizeof(UNICODE_STRING));
+
+    DWORD useIVSHMEM = 0;
+    DWORD DSCP = 0;
+    DWORD TTL = 0;
+    DWORD silenceThreshold = 0;
+
+    RTL_QUERY_REGISTRY_TABLE paramTable[] = {
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourceIPv4", &sourceIPv4, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourcePort", &sourcePort, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DestinationIPv4", &destinationIPv4, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DestinationPort", &destinationPort, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"UseMulticast", &useMulticast, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"UseIVSHMEM", &useIVSHMEM, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DSCP", &DSCP, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"TTL", &TTL, REG_NONE, NULL, 0 },
+        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SilenceThreshold", &silenceThreshold, REG_NONE, NULL, 0 },
+        // end of list indicator
+        { NULL, 0, NULL, NULL, 0, NULL, 0 }
+    };
+
+    ntStatus = RtlQueryRegistryValues(
+        RTL_REGISTRY_ABSOLUTE | RTL_REGISTRY_OPTIONAL,
+        keyPath.Buffer,
+        &paramTable[0],
+        NULL,
+        NULL
+    );
+
+    if (!NT_SUCCESS(ntStatus)) {
+        TraceWarning(TRACE_COMMON, "RtlQueryRegistryValues failed with status %!STATUS!", ntStatus);
+        EventWriteQueryRegistrySettingsFailed(NULL, keyPath.Buffer);
+        // continue using defaults
+    }
+
+    m_Settings.SourceAddress.sin_family = AF_INET;
+    m_Settings.DestinationAddress.sin_family = AF_INET;    
+
+    // TODO: implement me
+
+exit:
+
+    FuncExit(TRACE_COMMON, "ntStatus=%!STATUS!", ntStatus);
+
+    return ntStatus;
 }
 
 //=============================================================================
@@ -667,6 +752,10 @@ Return Value:
 
 STDMETHODIMP_(UINT32) CAdapterCommon::GetDeviceIndex() {
     return m_SlotIndex;
+}
+
+STDMETHODIMP_(ADAPTER_COMMON_SETTINGS) CAdapterCommon::GetAdapterSettings() {
+    return m_Settings;
 }
 
 //=============================================================================
