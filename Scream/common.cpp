@@ -321,9 +321,9 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
     DECLARE_UNICODE_STRING_SIZE(keyPath, 128);
 
     UNICODE_STRING sourceIPv4 = {};
-    DWORD sourcePort = 0;
+    DWORD sourcePort = DEFAULTS_SRC_PORT;
     UNICODE_STRING destinationIPv4 = {};
-    DWORD destinationPort = 0;
+    DWORD destinationPort = DEFAULTS_DST_PORT;
     DWORD useMulticast = 1;
 
     DWORD useIVSHMEM = 0;
@@ -379,7 +379,9 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
     }
 
     m_Settings.SourceAddress.sin_family = AF_INET;
-    m_Settings.DestinationAddress.sin_family = AF_INET;    
+    m_Settings.SourceAddress.sin_port = RtlUshortByteSwap(sourcePort);
+    m_Settings.DestinationAddress.sin_family = AF_INET;
+    m_Settings.DestinationAddress.sin_port = RtlUshortByteSwap(destinationPort);
     
     //
     // Source address value found
@@ -427,6 +429,55 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
             TRUE,
             &terminator,
             &m_Settings.SourceAddress.sin_addr
+        );
+    }
+
+    //
+    // Destination address value found
+    // 
+    if (destinationIPv4.Length > 0 && destinationIPv4.Buffer) {
+        // this value is _not_ guaranteed to be NULL-terminated so we need to do a bit of converting
+        ANSI_STRING narrowDst = { 0, (USHORT)RtlUnicodeStringToAnsiSize(&destinationIPv4), NULL };
+        // conversion makes room for NULL terminator
+        if (!NT_SUCCESS(ntStatus = RtlUnicodeStringToAnsiString(&narrowDst, &destinationIPv4, TRUE))) {
+            TraceError(
+                TRACE_COMMON,
+                "RtlUnicodeStringToAnsiString failed with status %!STATUS!",
+                ntStatus
+            );
+            EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringToAnsiString", ntStatus);
+        }
+        else {
+            TraceInformation(TRACE_COMMON, "Got destination IPv4: %Z", &narrowDst);
+            PCSTR terminator = NULL;
+            // converts and validates string to valid IP address
+            if (!NT_SUCCESS(ntStatus = RtlIpv4StringToAddressA(
+                narrowDst.Buffer,
+                TRUE,
+                &terminator,
+                &m_Settings.DestinationAddress.sin_addr
+            ))) {
+                TraceError(
+                    TRACE_COMMON,
+                    "RtlIpv4StringToAddressA failed with status %!STATUS!",
+                    ntStatus
+                );
+                EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlIpv4StringToAddressA", ntStatus);
+            }
+
+            if (narrowDst.Buffer)
+                ExFreePool(narrowDst.Buffer);
+        }
+    }
+    // use defaults
+    else {
+        PCSTR terminator = NULL;
+        TraceInformation(TRACE_COMMON, "Using default destination IPv4: %s", DEFAULTS_DST_IPV4);
+        (void)RtlIpv4StringToAddressA(
+            DEFAULTS_DST_IPV4,
+            TRUE,
+            &terminator,
+            &m_Settings.DestinationAddress.sin_addr
         );
     }
 

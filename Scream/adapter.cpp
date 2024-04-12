@@ -623,8 +623,7 @@ Return Value:
             }
         }
     }
-
-    exit:
+    
     // Release the adapter common object.  It either has other references,
     // or we need to delete it anyway.
     if (pAdapterCommon) {
