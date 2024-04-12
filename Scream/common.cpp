@@ -320,6 +320,17 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
 
     DECLARE_UNICODE_STRING_SIZE(keyPath, 128);
 
+    UNICODE_STRING sourceIPv4 = {};
+    DWORD sourcePort = 0;
+    UNICODE_STRING destinationIPv4 = {};
+    DWORD destinationPort = 0;
+    DWORD useMulticast = 1;
+
+    DWORD useIVSHMEM = 0;
+    DWORD DSCP = 0;
+    DWORD TTL = 0;
+    DWORD silenceThreshold = 0;
+
     ntStatus = RtlUnicodeStringPrintf(
         &keyPath,
         L"\\Registry\\Machine\\SOFTWARE\\Nefarius Software Solutions e.U.\\Scream Audio Streaming Driver\\Device\\%04d",
@@ -334,20 +345,6 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
         EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringPrintf", ntStatus);
         goto exit;
     }
-
-    UNICODE_STRING sourceIPv4;
-    DWORD sourcePort = 0;
-    UNICODE_STRING destinationIPv4;
-    DWORD destinationPort = 0;
-    DWORD useMulticast = 1;
-
-    RtlZeroMemory(&destinationIPv4, sizeof(UNICODE_STRING));
-    RtlZeroMemory(&sourceIPv4, sizeof(UNICODE_STRING));
-
-    DWORD useIVSHMEM = 0;
-    DWORD DSCP = 0;
-    DWORD TTL = 0;
-    DWORD silenceThreshold = 0;
 
     RTL_QUERY_REGISTRY_TABLE paramTable[] = {
         { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourceIPv4", &sourceIPv4, REG_NONE, NULL, 0 },
@@ -400,6 +397,7 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
             EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringToAnsiString", ntStatus);
         }
         else {
+            TraceInformation(TRACE_COMMON, "Got source IPv4: %Z", &narrowSrc);
             PCSTR terminator = NULL;
             // converts and validates string to valid IP address
             if (!NT_SUCCESS(ntStatus = RtlIpv4StringToAddressA(
@@ -423,6 +421,7 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
     // use defaults
     else {
         PCSTR terminator = NULL;
+        TraceInformation(TRACE_COMMON, "Using default source IPv4: %s", DEFAULTS_SRC_IPV4);
         (void)RtlIpv4StringToAddressA(
             DEFAULTS_SRC_IPV4,
             TRUE,
