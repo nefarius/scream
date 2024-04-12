@@ -334,6 +334,7 @@ void CAdapterCommon::QueryAdapterRegistrySettings() {
     DWORD silenceThreshold = 0;
 
     // this might not exist, which is fine
+    // Expands to e.g.: HKEY_LOCAL_MACHINE\SOFTWARE\Nefarius Software Solutions e.U.\Scream Audio Streaming Driver\Device\0001
     ntStatus = RtlUnicodeStringPrintf(&keyPath, SETTING_REG_PATH_FMT, m_SlotIndex);
 
     if (NT_SUCCESS(ntStatus)) {
