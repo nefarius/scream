@@ -11,7 +11,7 @@ Abstract:
 #ifndef _MSVAD_COMMON_H_
 #define _MSVAD_COMMON_H_
 
-#include <wsk.h>
+#include <ws2def.h>
 
 //=============================================================================
 // Defines
