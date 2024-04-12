@@ -29,6 +29,9 @@ DEFINE_GUID(IID_IAdapterCommon,
 #define DEFAULTS_SRC_IPV4   "0.0.0.0" // any
 #define DEFAULTS_DST_IPV4   "239.255.77.77"
 
+//
+// Adapter settings
+// 
 typedef struct
 {
     SOCKADDR_IN SourceAddress;
