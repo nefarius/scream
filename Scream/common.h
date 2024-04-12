@@ -52,7 +52,7 @@ typedef struct
     UINT8 UseIVSHMEM;
     DWORD TTL;
     DWORD SilenceThreshold;
-} ADAPTER_COMMON_SETTINGS, *PADAPTER_COMMON_SETTINGS;
+} ADAPTER_COMMON_SETTINGS;
 
 
 //=============================================================================
