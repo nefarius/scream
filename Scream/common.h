@@ -21,6 +21,15 @@ DEFINE_GUID(IID_IAdapterCommon,
 0x5134ddbb, 0xefcb, 0x49c8, 0x98, 0x14, 0x30, 0x70, 0xd7, 0x74, 0x1a, 0x5f);
 
 //
+// Format string for registry key to load adapter settings from
+// 
+#define SETTING_REG_PATH_FMT \
+    L"\\Registry\\Machine\\SOFTWARE\\" \
+    L"Nefarius Software Solutions e.U.\\" \
+    L"Scream Audio Streaming Driver\\" \
+    L"Device\\%04d"
+
+//
 // Default settings for each adapter
 // 
 

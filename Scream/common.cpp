@@ -321,7 +321,7 @@ void CAdapterCommon::QueryAdapterRegistrySettings() {
 
     NTSTATUS ntStatus;
 
-    DECLARE_UNICODE_STRING_SIZE(keyPath, 128);
+    DECLARE_UNICODE_STRING_SIZE(keyPath, (sizeof(SETTING_REG_PATH_FMT) / sizeof(WCHAR)));
 
     UNICODE_STRING sourceIPv4 = {};
     DWORD sourcePort = DEFAULTS_SRC_PORT;
@@ -330,15 +330,15 @@ void CAdapterCommon::QueryAdapterRegistrySettings() {
     DWORD useMulticast = 1;
 
     DWORD useIVSHMEM = 0;
-    DWORD TTL = 0;
+    DWORD TTL = 0; // default: do not apply
     DWORD silenceThreshold = 0;
 
-    ntStatus = RtlUnicodeStringPrintf(
-        &keyPath,
-        L"\\Registry\\Machine\\SOFTWARE\\Nefarius Software Solutions e.U.\\Scream Audio Streaming Driver\\Device\\%04d",
-        m_SlotIndex
-    );
+    // this might not exist, which is fine
+    ntStatus = RtlUnicodeStringPrintf(&keyPath, SETTING_REG_PATH_FMT, m_SlotIndex);
+
     if (NT_SUCCESS(ntStatus)) {
+        TraceVerbose(TRACE_COMMON, "Checking registry path: %wZ", &keyPath);
+
         RTL_QUERY_REGISTRY_TABLE paramTable[] = {
             { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourceIPv4", &sourceIPv4, REG_NONE, NULL, 0 },
             { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourcePort", &sourcePort, REG_NONE, NULL, 0 },
