@@ -18,6 +18,7 @@ Abstract:
 #include "common.tmh"
 
 #include <ntstrsafe.h>
+#include <limits.h>
 
 //-----------------------------------------------------------------------------
 // Externals
@@ -54,7 +55,7 @@ private:
     static LONG ClearSlot(UINT32 SlotIndex);
 
     _IRQL_requires_max_(PASSIVE_LEVEL)
-    NTSTATUS QueryAdapterRegistrySettings();
+    void QueryAdapterRegistrySettings();
 
 public:
     //=====================================================================
@@ -211,20 +212,18 @@ Return Value:
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
 
-    UINT32 slotIndex;
-
     //
     // Get next free slot
     // 
-    for (slotIndex = 1; slotIndex <= MAX_DEVICES; slotIndex++) {
-        if (!TestSlot(slotIndex)) {
-            SetSlot(slotIndex);
+    for (m_SlotIndex = 1; m_SlotIndex <= MAX_DEVICES; m_SlotIndex++) {
+        if (!TestSlot(m_SlotIndex)) {
+            SetSlot(m_SlotIndex);
             ntStatus = STATUS_SUCCESS;
 
             TraceVerbose(
                 TRACE_COMMON,
                 "Claimed device slot: %d",
-                slotIndex
+                m_SlotIndex
             );
 
             break;
@@ -234,7 +233,7 @@ Return Value:
     //
     // We've reached the maximum allowed without any success
     // 
-    if (slotIndex > MAX_DEVICES) {
+    if (m_SlotIndex > MAX_DEVICES) {
         ntStatus = STATUS_NO_MORE_ENTRIES;
     }
 
@@ -244,8 +243,12 @@ Return Value:
     
     m_pDeviceObject = DeviceObject;
     m_PowerState = PowerDeviceD0;
-    RtlZeroMemory(&m_Settings, sizeof(m_Settings));
 
+    //
+    // (Re-)load settings for this adapter instance
+    // 
+    QueryAdapterRegistrySettings();
+    
     // Initialize HW.
     m_pHW = new(NonPagedPool, SCREAM_POOLTAG) CVirtualAudioDevice;
     if (!m_pHW) {
@@ -313,7 +316,7 @@ LONG CAdapterCommon::ClearSlot(UINT32 SlotIndex) {
 // Query the registry settings for this adapter instance, if any
 //
 _IRQL_requires_max_(PASSIVE_LEVEL)
-NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
+void CAdapterCommon::QueryAdapterRegistrySettings() {
     FuncEntry(TRACE_COMMON);
 
     NTSTATUS ntStatus;
@@ -327,7 +330,6 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
     DWORD useMulticast = 1;
 
     DWORD useIVSHMEM = 0;
-    DWORD DSCP = 0;
     DWORD TTL = 0;
     DWORD silenceThreshold = 0;
 
@@ -336,53 +338,46 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
         L"\\Registry\\Machine\\SOFTWARE\\Nefarius Software Solutions e.U.\\Scream Audio Streaming Driver\\Device\\%04d",
         m_SlotIndex
     );
-    if (!NT_SUCCESS(ntStatus)) {
-        TraceError(
-            TRACE_COMMON, 
-            "RtlUnicodeStringPrintf failed with status %!STATUS!",
-            ntStatus
+    if (NT_SUCCESS(ntStatus)) {
+        RTL_QUERY_REGISTRY_TABLE paramTable[] = {
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourceIPv4", &sourceIPv4, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourcePort", &sourcePort, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DestinationIPv4", &destinationIPv4, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DestinationPort", &destinationPort, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"UseMulticast", &useMulticast, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"UseIVSHMEM", &useIVSHMEM, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"TTL", &TTL, REG_NONE, NULL, 0 },
+            { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SilenceThreshold", &silenceThreshold, REG_NONE, NULL, 0 },
+            // end of list indicator
+            { NULL, 0, NULL, NULL, 0, NULL, 0 }
+        };
+
+        ntStatus = RtlQueryRegistryValues(
+            RTL_REGISTRY_ABSOLUTE | RTL_REGISTRY_OPTIONAL,
+            keyPath.Buffer,
+            &paramTable[0],
+            NULL,
+            NULL
         );
-        EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"RtlUnicodeStringPrintf", ntStatus);
-        goto exit;
+
+        if (!NT_SUCCESS(ntStatus)) {
+            TraceWarning(
+                TRACE_COMMON,
+                "RtlQueryRegistryValues failed with status %!STATUS!",
+                ntStatus
+            );
+            EventWriteQueryRegistrySettingsFailed(NULL, keyPath.Buffer);
+            // continue using defaults
+        }
     }
 
-    RTL_QUERY_REGISTRY_TABLE paramTable[] = {
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourceIPv4", &sourceIPv4, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SourcePort", &sourcePort, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DestinationIPv4", &destinationIPv4, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DestinationPort", &destinationPort, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"UseMulticast", &useMulticast, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"UseIVSHMEM", &useIVSHMEM, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"DSCP", &DSCP, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"TTL", &TTL, REG_NONE, NULL, 0 },
-        { NULL, RTL_QUERY_REGISTRY_DIRECT, L"SilenceThreshold", &silenceThreshold, REG_NONE, NULL, 0 },
-        // end of list indicator
-        { NULL, 0, NULL, NULL, 0, NULL, 0 }
-    };
-
-    ntStatus = RtlQueryRegistryValues(
-        RTL_REGISTRY_ABSOLUTE | RTL_REGISTRY_OPTIONAL,
-        keyPath.Buffer,
-        &paramTable[0],
-        NULL,
-        NULL
-    );
-
-    if (!NT_SUCCESS(ntStatus)) {
-        TraceWarning(
-            TRACE_COMMON, 
-            "RtlQueryRegistryValues failed with status %!STATUS!",
-            ntStatus
-        );
-        EventWriteQueryRegistrySettingsFailed(NULL, keyPath.Buffer);
-        // continue using defaults
-    }
+    RtlZeroMemory(&m_Settings, sizeof(m_Settings));
 
     m_Settings.SourceAddress.sin_family = AF_INET;
     m_Settings.SourceAddress.sin_port = RtlUshortByteSwap(sourcePort);
     m_Settings.DestinationAddress.sin_family = AF_INET;
     m_Settings.DestinationAddress.sin_port = RtlUshortByteSwap(destinationPort);
-    
+
     //
     // Source address value found
     // 
@@ -481,18 +476,17 @@ NTSTATUS CAdapterCommon::QueryAdapterRegistrySettings() {
         );
     }
 
-    // TODO: implement me
+    m_Settings.UseIVSHMEM = useIVSHMEM < _UI8_MAX ? (UINT8)useIVSHMEM : 0;
+    m_Settings.TTL = TTL;
+    m_Settings.SilenceThreshold = silenceThreshold;
 
-exit:
     if (sourceIPv4.Buffer)
         ExFreePool(sourceIPv4.Buffer);
 
     if (destinationIPv4.Buffer)
         ExFreePool(destinationIPv4.Buffer);
 
-    FuncExit(TRACE_COMMON, "ntStatus=%!STATUS!", ntStatus);
-
-    return ntStatus;
+    FuncExitNoReturn(TRACE_COMMON);
 }
 
 //=============================================================================

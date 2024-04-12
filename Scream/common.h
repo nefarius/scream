@@ -37,6 +37,12 @@ typedef struct
     SOCKADDR_IN SourceAddress;
     SOCKADDR_IN DestinationAddress;
     BOOLEAN UseMulticast;
+    //
+    // 0 = false, otherwise it's value is the size in MiB of the IVSHMEM we want to use
+    // 
+    UINT8 UseIVSHMEM;
+    DWORD TTL;
+    DWORD SilenceThreshold;
 } ADAPTER_COMMON_SETTINGS, *PADAPTER_COMMON_SETTINGS;
 
 
