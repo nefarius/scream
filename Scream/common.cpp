@@ -92,8 +92,8 @@ public:
     STDMETHODIMP_(LONG)     MixerVolumeRead(IN ULONG Index, IN LONG Channel);
     STDMETHODIMP_(void)     MixerVolumeWrite(IN ULONG Index, IN LONG Channel, IN LONG Value);
 
-    STDMETHODIMP_(UINT32)                   GetDeviceIndex(void);
-    STDMETHODIMP_(ADAPTER_COMMON_SETTINGS)  GetAdapterSettings(void);
+    STDMETHODIMP_(UINT32)                           GetDeviceIndex(void);
+    STDMETHODIMP_(CONST ADAPTER_COMMON_SETTINGS*)   GetAdapterSettings(void) CONST;
 
     //=====================================================================
     // friends
@@ -859,8 +859,8 @@ STDMETHODIMP_(UINT32) CAdapterCommon::GetDeviceIndex() {
     return m_SlotIndex;
 }
 
-STDMETHODIMP_(ADAPTER_COMMON_SETTINGS) CAdapterCommon::GetAdapterSettings() {
-    return m_Settings;
+STDMETHODIMP_(CONST ADAPTER_COMMON_SETTINGS*) CAdapterCommon::GetAdapterSettings() CONST {
+    return &m_Settings;
 }
 
 //=============================================================================
