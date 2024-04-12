@@ -506,7 +506,7 @@
       <DisableSpecificWarnings>4228;4603;4627;4986;4987;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>POOL_NX_OPTIN=1;_WIN64;_AMD64_;AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WppEnabled>true</WppEnabled>
-      <WppRecorderEnabled>true</WppRecorderEnabled>
+      <WppRecorderEnabled>false</WppRecorderEnabled>
       <WppScanConfigurationData>Trace.h</WppScanConfigurationData>
     </ClCompile>
     <DriverSign>
@@ -543,7 +543,7 @@
       <DisableSpecificWarnings>4228;4603;4627;4986;4987;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>POOL_NX_OPTIN=1;_ARM_;ARM;_USE_DECLSPECS_FOR_SAL=1;STD_CALL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WppEnabled>true</WppEnabled>
-      <WppRecorderEnabled>true</WppRecorderEnabled>
+      <WppRecorderEnabled>false</WppRecorderEnabled>
       <WppScanConfigurationData>Trace.h</WppScanConfigurationData>
     </ClCompile>
     <Inf>
@@ -559,7 +559,7 @@
       <DisableSpecificWarnings>4228;4603;4627;4986;4987;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>POOL_NX_OPTIN=1;_ARM64_;ARM64;_USE_DECLSPECS_FOR_SAL=1;STD_CALL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WppEnabled>true</WppEnabled>
-      <WppRecorderEnabled>true</WppRecorderEnabled>
+      <WppRecorderEnabled>false</WppRecorderEnabled>
       <WppScanConfigurationData>Trace.h</WppScanConfigurationData>
     </ClCompile>
     <Inf>
@@ -586,7 +586,7 @@
     <ClCompile>
       <PreprocessorDefinitions>POOL_NX_OPTIN=1;_X86_=1;i386=1;STD_CALL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WppEnabled>true</WppEnabled>
-      <WppRecorderEnabled>true</WppRecorderEnabled>
+      <WppRecorderEnabled>false</WppRecorderEnabled>
       <WppScanConfigurationData>Trace.h</WppScanConfigurationData>
     </ClCompile>
     <Inf>
