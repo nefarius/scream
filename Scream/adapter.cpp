@@ -34,6 +34,10 @@ NTSTATUS CreateMiniportWaveCyclicScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNO
 NTSTATUS CreateMiniportTopologyScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN, IN  POOL_TYPE);
 
 
+//
+// TODO: get rid of all global variables for settings
+// 
+
 PCHAR g_UnicastSrcIPv4;
 DWORD g_UnicastSrcPort;
 

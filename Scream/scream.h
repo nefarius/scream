@@ -130,6 +130,9 @@ extern NTSTATUS PropertyHandler_WaveFilter(IN PPCPROPERTY_REQUEST PropertyReques
 
 #define MAX_DEVICES 255
 
+//
+// TODO: get rid of all global variables for settings
+// 
 
 extern PCHAR g_UnicastIPv4;
 extern DWORD g_UnicastPort;
