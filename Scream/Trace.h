@@ -17,7 +17,7 @@
         WPP_DEFINE_BIT(TRACE_MINSTREAM)                                 \
         WPP_DEFINE_BIT(TRACE_MINTOPO)                                   \
         WPP_DEFINE_BIT(TRACE_MINWAVE)                                   \
-        WPP_DEFINE_BIT(TRACE_SAVEDATA)                                  \
+        WPP_DEFINE_BIT(TRACE_NETSINK)                                   \
         )                             
 
 #define WPP_FLAG_LEVEL_LOGGER(flag, level)                                  \

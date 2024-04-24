@@ -3,7 +3,7 @@
 #include "scream.h"
 #include <ntstrsafe.h>
 #include "netsink.h"
-#include "savedata.tmh"
+#include "netsink.tmh"
 
 //=============================================================================
 // Defines
@@ -30,7 +30,7 @@ const WSK_CLIENT_DISPATCH WskClientDispatch = {
 //=============================================================================
 // IRP completion routine used for synchronously waiting for completion
 NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP Irp, __in PVOID Context) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PKEVENT compEvent = (PKEVENT)Context;
 
@@ -39,7 +39,7 @@ NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP 
 
     KeSetEvent(compEvent, 2, FALSE);
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
@@ -51,7 +51,7 @@ NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP 
 
 //=============================================================================
 CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
     
@@ -78,12 +78,12 @@ CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendO
         WskRegister(&wskClientNpi, &m_wskRegistration);
     }
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 } // CSaveData
 
 //=============================================================================
 CNetSink::~CNetSink() {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
 
@@ -118,12 +118,12 @@ CNetSink::~CNetSink() {
         }
     }
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 } // CSaveData
 
 //=============================================================================
 void CNetSink::DestroyWorkItems(void) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
         
@@ -132,23 +132,23 @@ void CNetSink::DestroyWorkItems(void) {
         m_pWorkItem = NULL;
     }
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 } // DestroyWorkItems
 
 //=============================================================================
 void CNetSink::Disable(BOOL fDisable) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
 
     m_fWriteDisabled = fDisable;
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 } // Disable
 
 //=============================================================================
 NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
 
@@ -156,18 +156,18 @@ NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     
     m_pDeviceObject = DeviceObject;
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 
     return STATUS_SUCCESS;
 }
 
 //=============================================================================
 PDEVICE_OBJECT CNetSink::GetDeviceObject(void) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
 
-    FuncExit(TRACE_SAVEDATA, "devObj=0x%p", m_pDeviceObject);
+    FuncExit(TRACE_NETSINK, "devObj=0x%p", m_pDeviceObject);
 
     return m_pDeviceObject;
 }
@@ -176,7 +176,7 @@ PDEVICE_OBJECT CNetSink::GetDeviceObject(void) {
 
 NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
     FuncEntryArguments(
-        TRACE_SAVEDATA,
+        TRACE_NETSINK,
         "nSamplesPerSec=%lu,wBitsPerSample=%d,nChannels=%d,dwChannelMask=%lu",
         nSamplesPerSec,
         wBitsPerSample,
@@ -198,7 +198,7 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
     if (NT_SUCCESS(ntStatus)) {
         m_pBuffer = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, BUFFER_SIZE, SCREAM_POOLTAG);
         if (!m_pBuffer) {
-            TraceError(TRACE_SAVEDATA, "Could not allocate memory for sending data");
+            TraceError(TRACE_NETSINK, "Could not allocate memory for sending data");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }
@@ -207,7 +207,7 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
     if (NT_SUCCESS(ntStatus)) {
         m_pMdl = IoAllocateMdl(m_pBuffer, BUFFER_SIZE, FALSE, FALSE, NULL);
         if (m_pMdl == NULL) {
-            TraceError(TRACE_SAVEDATA, "Failed to allocate MDL");
+            TraceError(TRACE_NETSINK, "Failed to allocate MDL");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
         else {
@@ -215,13 +215,13 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
         }
     }
 
-    FuncExit(TRACE_SAVEDATA, "ntStatus=%!STATUS!", ntStatus);
+    FuncExit(TRACE_NETSINK, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
 
 VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     UNREFERENCED_PARAMETER(pDeviceObject);
 
@@ -240,7 +240,7 @@ VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
 
     KeSetEvent(&(pParam->EventDone), 0, FALSE);
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 }
 
 // Prototype for the control socket IoCompletion routine
@@ -254,7 +254,7 @@ ControlSocketComplete(
 
 // Function to set socket options
 NTSTATUS SetSockOpt(PWSK_SOCKET Socket, ULONG level, ULONG option_name, ULONG option_value) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PWSK_PROVIDER_BASIC_DISPATCH Dispatch;
     PIRP Irp;
@@ -296,7 +296,7 @@ NTSTATUS SetSockOpt(PWSK_SOCKET Socket, ULONG level, ULONG option_name, ULONG op
         Irp
     );
 
-    FuncExit(TRACE_SAVEDATA, "ntStatus=%!STATUS!", ntStatus);
+    FuncExit(TRACE_NETSINK, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -310,7 +310,7 @@ ControlSocketComplete(
 	PVOID Context
 )
 {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
 	UNREFERENCED_PARAMETER(DeviceObject);
 	UNREFERENCED_PARAMETER(Context);
@@ -318,7 +318,7 @@ ControlSocketComplete(
 	// Free the IRP
 	IoFreeIrp(Irp);
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 
 	// Always return STATUS_MORE_PROCESSING_REQUIRED to
 	// terminate the completion processing of the IRP.
@@ -330,7 +330,7 @@ ControlSocketComplete(
 //=============================================================================
 _IRQL_requires_max_(PASSIVE_LEVEL)
 void CNetSink::CreateSocket(void) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     NTSTATUS status;
     WSK_PROVIDER_NPI pronpi;
@@ -341,8 +341,8 @@ void CNetSink::CreateSocket(void) {
     // capture WSK provider
     status = WskCaptureProviderNPI(&m_wskRegistration, WSK_INFINITE_WAIT, &pronpi);
     if (!NT_SUCCESS(status)) {
-        TraceError(TRACE_SAVEDATA, "WskCaptureProviderNPI failed with status %!STATUS!", status);
-        FuncExitNoReturn(TRACE_SAVEDATA);
+        TraceError(TRACE_NETSINK, "WskCaptureProviderNPI failed with status %!STATUS!", status);
+        FuncExitNoReturn(TRACE_NETSINK);
         return;
     }
 
@@ -368,7 +368,7 @@ void CNetSink::CreateSocket(void) {
     KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
     
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
-        TraceError(TRACE_SAVEDATA, "Socket creation failed with status %!STATUS!", m_irp->IoStatus.Status);
+        TraceError(TRACE_NETSINK, "Socket creation failed with status %!STATUS!", m_irp->IoStatus.Status);
 
         if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
@@ -380,7 +380,7 @@ void CNetSink::CreateSocket(void) {
         // release the provider again, as we are finished with it
         WskReleaseProviderNPI(&m_wskRegistration);
 
-        FuncExitNoReturn(TRACE_SAVEDATA);
+        FuncExitNoReturn(TRACE_NETSINK);
         return;
     }
 
@@ -409,7 +409,7 @@ void CNetSink::CreateSocket(void) {
     DPF(D_TERSE, ("WskBind: %x", m_irp->IoStatus.Status));
 
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
-        TraceError(TRACE_SAVEDATA, "Socket bind failed with status %!STATUS!", m_irp->IoStatus.Status);
+        TraceError(TRACE_NETSINK, "Socket bind failed with status %!STATUS!", m_irp->IoStatus.Status);
         if (m_socket) {
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
             IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
@@ -417,11 +417,11 @@ void CNetSink::CreateSocket(void) {
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
         }
 
-        FuncExitNoReturn(TRACE_SAVEDATA);
+        FuncExitNoReturn(TRACE_NETSINK);
         return;
     }
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 }
 
 //
@@ -429,7 +429,7 @@ void CNetSink::CreateSocket(void) {
 // 
 _IRQL_requires_max_(PASSIVE_LEVEL)
 void CNetSink::SendData() {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     WSK_BUF wskbuf;
 
@@ -458,7 +458,7 @@ void CNetSink::SendData() {
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
             
             if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
-                TraceError(TRACE_SAVEDATA, "WskSendTo failed with status %!STATUS!", m_irp->IoStatus.Status);
+                TraceError(TRACE_NETSINK, "WskSendTo failed with status %!STATUS!", m_irp->IoStatus.Status);
                 EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"WskSendTo", m_irp->IoStatus.Status);
             }
 
@@ -467,25 +467,25 @@ void CNetSink::SendData() {
         }
     }
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 }
 
 #pragma code_seg("PAGE")
 //=============================================================================
 void CNetSink::WaitAllWorkItems(void) {
-    FuncEntry(TRACE_SAVEDATA);
+    FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
 
     KeWaitForSingleObject(&(m_pWorkItem->EventDone), Executive, KernelMode, FALSE, NULL);
 
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 } // WaitAllWorkItems
 #pragma code_seg()
 
 //=============================================================================
 void CNetSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
-    FuncEntryArguments(TRACE_SAVEDATA, "ulByteCount=%lu", ulByteCount);
+    FuncEntryArguments(TRACE_NETSINK, "ulByteCount=%lu", ulByteCount);
 
     ASSERT(pBuffer);
 
@@ -548,5 +548,5 @@ void CNetSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     }
 
 exit:
-    FuncExitNoReturn(TRACE_SAVEDATA);
+    FuncExitNoReturn(TRACE_NETSINK);
 } // WriteData
