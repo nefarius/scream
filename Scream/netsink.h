@@ -1,5 +1,4 @@
-#ifndef _MSVAD_SAVEDATA_H
-#define _MSVAD_SAVEDATA_H
+#pragma once
 
 #pragma warning(push)
 #pragma warning(disable:4201) // nameless struct/union
@@ -15,15 +14,8 @@
 
 #pragma warning(pop)
 
-//-----------------------------------------------------------------------------
-//  Forward declaration
-//-----------------------------------------------------------------------------
 class CNetSink;
 typedef CNetSink *PCNetSink;
-
-//-----------------------------------------------------------------------------
-//  Structs
-//-----------------------------------------------------------------------------
 
 // Parameter to workitem.
 #include <pshpack1.h>
@@ -35,14 +27,7 @@ typedef struct _SAVEWORKER_PARAM {
 typedef SAVEWORKER_PARAM *PSAVEWORKER_PARAM;
 #include <poppack.h>
 
-//-----------------------------------------------------------------------------
-//  Classes
-//-----------------------------------------------------------------------------
 
-///////////////////////////////////////////////////////////////////////////////
-// CSaveData
-//   Saves the wave data to disk.
-//
 IO_WORKITEM_ROUTINE SendDataWorkerCallback;
 
 class CNetSink {
@@ -97,5 +82,3 @@ private:
     friend VOID                 SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context);
 };
 typedef CNetSink *PCNetSink;
-
-#endif
