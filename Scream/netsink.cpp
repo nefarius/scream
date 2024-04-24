@@ -343,9 +343,6 @@ void CNetSink::CreateSocket(void) {
 
     NTSTATUS status;
     WSK_PROVIDER_NPI pronpi;
-    LPCTSTR terminator;
-    SOCKADDR_IN locaddr4 = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastSrcPort), 0, 0 };
-    SOCKADDR_IN sockaddr = { AF_INET, RtlUshortByteSwap((USHORT)g_UnicastPort), 0, 0 };
     
     // capture WSK provider
     status = WskCaptureProviderNPI(&m_wskRegistration, WSK_INFINITE_WAIT, &pronpi);
@@ -354,17 +351,13 @@ void CNetSink::CreateSocket(void) {
         FuncExitNoReturn(TRACE_NETSINK);
         return;
     }
-
-    RtlIpv4StringToAddress(g_UnicastSrcIPv4, true, &terminator, &(locaddr4.sin_addr));
-    RtlIpv4StringToAddress(g_UnicastIPv4, true, &terminator, &(sockaddr.sin_addr));
-    RtlCopyMemory(&m_sServerAddr, &sockaddr, sizeof(SOCKADDR_IN));
-
+    
     // create socket
     IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
     IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
     pronpi.Dispatch->WskSocket(
         pronpi.Client,
-        m_sServerAddr.ss_family,
+        m_pAdapterSettings->DestinationAddress.sin_family,
         SOCK_DGRAM,
         IPPROTO_UDP,
         WSK_FLAG_DATAGRAM_SOCKET,
@@ -412,7 +405,12 @@ void CNetSink::CreateSocket(void) {
 
 // if (g_DSCP) status = SetSockOpt(m_socket, IPPROTO_IP, IP_TOS, (g_DSCP << 2) & 0xff);  // no support in kernel - raw socket and IP_HDRINCL?
 
-    status = ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskBind(m_socket, (PSOCKADDR)(&locaddr4), 0, m_irp);
+    status = ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskBind(
+        m_socket, 
+        (PSOCKADDR)(&m_pAdapterSettings->SourceAddress), 
+        0, 
+        m_irp
+    );
     KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
 
     DPF(D_TERSE, ("WskBind: %x", m_irp->IoStatus.Status));
@@ -463,7 +461,15 @@ void CNetSink::SendData() {
             wskbuf.Offset = m_ulSendOffset;
             IoReuseIrp(m_irp, STATUS_UNSUCCESSFUL);
             IoSetCompletionRoutine(m_irp, SocketRequestCompletionRoutine, &m_syncEvent, TRUE, TRUE, TRUE);
-            ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskSendTo(m_socket, &wskbuf, 0, (PSOCKADDR)&m_sServerAddr, 0, NULL, m_irp);
+            ((PWSK_PROVIDER_DATAGRAM_DISPATCH)(m_socket->Dispatch))->WskSendTo(
+                m_socket, 
+                &wskbuf,
+                0, 
+                (PSOCKADDR)&m_pAdapterSettings->DestinationAddress,
+                0, 
+                NULL,
+                m_irp
+            );
             KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
             
             if (!NT_SUCCESS(m_irp->IoStatus.Status)) {

@@ -48,8 +48,6 @@ protected:
     static PSAVEWORKER_PARAM    m_pWorkItem;
 
     BOOL                        m_fWriteDisabled;
-    
-    SOCKADDR_STORAGE            m_sServerAddr;
 
     BYTE                        m_bSamplingFreqMarker;
     BYTE                        m_bBitsPerSampleMarker;
