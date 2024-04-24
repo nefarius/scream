@@ -173,27 +173,30 @@ PDEVICE_OBJECT CNetSink::GetDeviceObject(void) {
 }
 
 #pragma code_seg("PAGE")
-//=============================================================================
+
 NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
     FuncEntryArguments(
-        TRACE_SAVEDATA, 
+        TRACE_SAVEDATA,
         "nSamplesPerSec=%lu,wBitsPerSample=%d,nChannels=%d,dwChannelMask=%lu",
-        nSamplesPerSec, wBitsPerSample, nChannels, dwChannelMask
+        nSamplesPerSec,
+        wBitsPerSample,
+        nChannels,
+        dwChannelMask
     );
 
     PAGED_CODE();
 
-    NTSTATUS          ntStatus = STATUS_SUCCESS;
-    
+    NTSTATUS ntStatus = STATUS_SUCCESS;
+
     // Only multiples of 44100 and 48000 are supported
-    m_bSamplingFreqMarker  = (BYTE)((nSamplesPerSec % 44100) ? (0 + (nSamplesPerSec / 48000)) : (128 + (nSamplesPerSec / 44100)));
+    m_bSamplingFreqMarker = (BYTE)((nSamplesPerSec % 44100) ? (0 + (nSamplesPerSec / 48000)) : (128 + (nSamplesPerSec / 44100)));
     m_bBitsPerSampleMarker = (BYTE)(wBitsPerSample);
     m_bChannels = (BYTE)nChannels;
     m_wChannelMask = (WORD)dwChannelMask;
 
     // Allocate memory for data buffer.
     if (NT_SUCCESS(ntStatus)) {
-        m_pBuffer = (PBYTE) ExAllocatePoolWithTag(NonPagedPool, BUFFER_SIZE, SCREAM_POOLTAG);
+        m_pBuffer = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, BUFFER_SIZE, SCREAM_POOLTAG);
         if (!m_pBuffer) {
             TraceError(TRACE_SAVEDATA, "Could not allocate memory for sending data");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
@@ -206,7 +209,8 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
         if (m_pMdl == NULL) {
             TraceError(TRACE_SAVEDATA, "Failed to allocate MDL");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
-        } else {
+        }
+        else {
             MmBuildMdlForNonPagedPool(m_pMdl);
         }
     }
@@ -214,9 +218,8 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
     FuncExit(TRACE_SAVEDATA, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // Initialize
+}
 
-//=============================================================================
 VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
     FuncEntry(TRACE_SAVEDATA);
 
@@ -226,7 +229,7 @@ VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
 
     ASSERT(Context);
 
-    const PSAVEWORKER_PARAM pParam = (PSAVEWORKER_PARAM) Context;
+    const PSAVEWORKER_PARAM pParam = (PSAVEWORKER_PARAM)Context;
 
     ASSERT(pParam->pSaveData);
 
@@ -238,7 +241,7 @@ VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
     KeSetEvent(&(pParam->EventDone), 0, FALSE);
 
     FuncExitNoReturn(TRACE_SAVEDATA);
-} // SendDataWorkerCallback
+}
 
 // Prototype for the control socket IoCompletion routine
 static
