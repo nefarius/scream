@@ -419,8 +419,10 @@ void CAdapterCommon::QueryAdapterRegistrySettings() {
             &terminator,
             &m_Settings.DestinationAddress.sin_addr
         );
+        useMulticast = TRUE;
     }
 
+    m_Settings.UseMulticast = (BOOLEAN)useMulticast;
     m_Settings.UseIVSHMEM = useIVSHMEM < _UI8_MAX ? (UINT8)useIVSHMEM : 0;
     m_Settings.TTL = TTL;
     m_Settings.SilenceThreshold = silenceThreshold;
