@@ -74,6 +74,7 @@ CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendO
         // Register with WSK.
         wskClientNpi.ClientContext = NULL;
         wskClientNpi.Dispatch = &WskClientDispatch;
+        // TODO: check return value and maybe move out of constructor
         WskRegister(&wskClientNpi, &m_wskRegistration);
     }
 
