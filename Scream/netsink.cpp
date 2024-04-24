@@ -49,7 +49,6 @@ NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP 
 // CSaveData
 //=============================================================================
 
-//=============================================================================
 CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
     FuncEntry(TRACE_NETSINK);
 
@@ -79,9 +78,8 @@ CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendO
     }
 
     FuncExitNoReturn(TRACE_NETSINK);
-} // CSaveData
+}
 
-//=============================================================================
 CNetSink::~CNetSink() {
     FuncEntry(TRACE_NETSINK);
 
@@ -119,9 +117,8 @@ CNetSink::~CNetSink() {
     }
 
     FuncExitNoReturn(TRACE_NETSINK);
-} // CSaveData
+}
 
-//=============================================================================
 void CNetSink::DestroyWorkItems(void) {
     FuncEntry(TRACE_NETSINK);
 
@@ -133,9 +130,8 @@ void CNetSink::DestroyWorkItems(void) {
     }
 
     FuncExitNoReturn(TRACE_NETSINK);
-} // DestroyWorkItems
+}
 
-//=============================================================================
 void CNetSink::Disable(BOOL fDisable) {
     FuncEntry(TRACE_NETSINK);
 
@@ -144,9 +140,8 @@ void CNetSink::Disable(BOOL fDisable) {
     m_fWriteDisabled = fDisable;
 
     FuncExitNoReturn(TRACE_NETSINK);
-} // Disable
+}
 
-//=============================================================================
 NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     FuncEntry(TRACE_NETSINK);
 
@@ -161,7 +156,6 @@ NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     return STATUS_SUCCESS;
 }
 
-//=============================================================================
 PDEVICE_OBJECT CNetSink::GetDeviceObject(void) {
     FuncEntry(TRACE_NETSINK);
 
@@ -327,7 +321,6 @@ ControlSocketComplete(
 
 #pragma code_seg()
 
-//=============================================================================
 _IRQL_requires_max_(PASSIVE_LEVEL)
 void CNetSink::CreateSocket(void) {
     FuncEntry(TRACE_NETSINK);
@@ -471,7 +464,7 @@ void CNetSink::SendData() {
 }
 
 #pragma code_seg("PAGE")
-//=============================================================================
+
 void CNetSink::WaitAllWorkItems(void) {
     FuncEntry(TRACE_NETSINK);
 
@@ -480,10 +473,10 @@ void CNetSink::WaitAllWorkItems(void) {
     KeWaitForSingleObject(&(m_pWorkItem->EventDone), Executive, KernelMode, FALSE, NULL);
 
     FuncExitNoReturn(TRACE_NETSINK);
-} // WaitAllWorkItems
+}
+
 #pragma code_seg()
 
-//=============================================================================
 void CNetSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     FuncEntryArguments(TRACE_NETSINK, "ulByteCount=%lu", ulByteCount);
 
