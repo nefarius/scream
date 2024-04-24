@@ -622,6 +622,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="netsink.h" />
     <ClInclude Include="scream.h" />
+    <ClInclude Include="settings.h" />
     <ClInclude Include="toptable.h" />
     <ClInclude Include="Trace.h" />
     <ClInclude Include="wavtable.h" />

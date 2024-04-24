@@ -11,7 +11,7 @@ Abstract:
 #ifndef _MSVAD_COMMON_H_
 #define _MSVAD_COMMON_H_
 
-#include <ws2def.h>
+#include "settings.h"
 
 //=============================================================================
 // Defines
@@ -19,40 +19,6 @@ Abstract:
 // {5134DDBB-EFCB-49C8-9814-3070D7741A5F}
 DEFINE_GUID(IID_IAdapterCommon, 
 0x5134ddbb, 0xefcb, 0x49c8, 0x98, 0x14, 0x30, 0x70, 0xd7, 0x74, 0x1a, 0x5f);
-
-//
-// Format string for registry key to load adapter settings from
-// 
-#define SETTING_REG_PATH_FMT \
-    L"\\Registry\\Machine\\SOFTWARE\\" \
-    L"Nefarius Software Solutions e.U.\\" \
-    L"Scream Audio Streaming Driver\\" \
-    L"Device\\%04d"
-
-//
-// Default settings for each adapter
-// 
-
-#define DEFAULTS_SRC_PORT   0 // any
-#define DEFAULTS_DST_PORT   4010
-#define DEFAULTS_SRC_IPV4   "0.0.0.0" // any
-#define DEFAULTS_DST_IPV4   "239.255.77.77"
-
-//
-// Adapter settings
-// 
-typedef struct
-{
-    SOCKADDR_IN SourceAddress;
-    SOCKADDR_IN DestinationAddress;
-    BOOLEAN UseMulticast;
-    //
-    // 0 = false, otherwise it's value is the size in MiB of the IVSHMEM we want to use
-    // 
-    UINT8 UseIVSHMEM;
-    DWORD TTL;
-    DWORD SilenceThreshold;
-} ADAPTER_COMMON_SETTINGS;
 
 
 //=============================================================================

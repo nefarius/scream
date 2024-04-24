@@ -49,7 +49,12 @@ NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP 
 // CSaveData
 //=============================================================================
 
-CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
+CNetSink::CNetSink() : m_socket(NULL),
+                       m_pBuffer(NULL),
+                       m_ulOffset(0),
+                       m_ulSendOffset(0),
+                       m_fWriteDisabled(FALSE),
+                       m_pAdapterSettings(NULL) {
     FuncEntry(TRACE_NETSINK);
 
     PAGED_CODE();
@@ -118,6 +123,9 @@ CNetSink::~CNetSink() {
 
     FuncExitNoReturn(TRACE_NETSINK);
 }
+void CNetSink::SetAdapterSettings(const ADAPTER_COMMON_SETTINGS * Settings) {
+    m_pAdapterSettings = Settings;
+}
 
 void CNetSink::DestroyWorkItems(void) {
     FuncEntry(TRACE_NETSINK);
@@ -182,6 +190,13 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
 
+    // make sure SetAdapterSettings was called before
+    if (m_pAdapterSettings == NULL) {
+        TraceError(TRACE_NETSINK, "Adapter settings missing");
+        ntStatus = STATUS_INVALID_DEVICE_STATE;
+        goto exit;
+    }
+
     // Only multiples of 44100 and 48000 are supported
     m_bSamplingFreqMarker = (BYTE)((nSamplesPerSec % 44100) ? (0 + (nSamplesPerSec / 48000)) : (128 + (nSamplesPerSec / 44100)));
     m_bBitsPerSampleMarker = (BYTE)(wBitsPerSample);
@@ -209,6 +224,7 @@ NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nC
         }
     }
 
+    exit:
     FuncExit(TRACE_NETSINK, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;

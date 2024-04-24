@@ -11,6 +11,7 @@
 
 #include <ntddk.h>
 #include <wsk.h>
+#include "settings.h"
 
 #pragma warning(pop)
 
@@ -55,10 +56,13 @@ protected:
     BYTE                        m_bChannels;
     WORD                        m_wChannelMask;
 
+    CONST ADAPTER_COMMON_SETTINGS*  m_pAdapterSettings;
+
 public:
     CNetSink();
     ~CNetSink();
 
+    void SetAdapterSettings(CONST ADAPTER_COMMON_SETTINGS* Settings);
     NTSTATUS                    Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask);
     void                        Disable(BOOL fDisable);
     

@@ -149,6 +149,7 @@ Return Value:
         m_pDpc                            = NULL;
         m_pTimer                          = NULL;
         m_pvDmaBuffer                     = NULL;
+
         // If this is not the capture stream, create the output file.
         if (!m_fCapture) {
             if (NT_SUCCESS(ntStatus)) {
@@ -161,6 +162,7 @@ Return Value:
                     ntStatus = m_IVSHMEMSaveData.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
                 }
                 else {
+                    m_NetSink.SetAdapterSettings(Miniport_->m_AdapterCommon->GetAdapterSettings());
                     ntStatus = m_NetSink.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
                 }
             }

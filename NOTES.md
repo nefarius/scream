@@ -13,7 +13,7 @@ DriverEntry
         └ CAdapterCommon
           └ CMiniportWaveCyclic
             └ CMiniportWaveCyclicStream
-              └ CSaveData
+              └ CNetSink
 ```
 
 ```c
