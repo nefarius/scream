@@ -2,20 +2,29 @@
 [*]
 
 # ReSharper properties
+resharper_align_ternary = none
 resharper_blank_lines_around_function_definition = 0
 resharper_continuous_line_indent = none
 resharper_cpp_invocable_declaration_braces = end_of_line
 resharper_cpp_max_line_length = 150
 resharper_cpp_other_braces = end_of_line
 resharper_cpp_remove_blank_lines_near_braces_in_code = false
+resharper_cpp_type_declaration_braces = end_of_line
 resharper_cpp_use_indent_from_vs = false
 resharper_cpp_wrap_arguments_style = chop_if_long
 resharper_cpp_wrap_parameters_style = chop_if_long
 resharper_disable_space_changes_before_trailing_comment = true
+resharper_function_declaration_return_type_style = on_single_line
 resharper_indent_comment = false
+resharper_int_align_declaration_names = true
 resharper_line_break_after_colon_in_member_initializer_lists = on_single_line
 resharper_member_initializer_list_style = on_single_line
 resharper_simple_block_style = line_break
+resharper_simple_case_statement_style = line_break
+resharper_simple_embedded_statement_style = line_break
+resharper_space_before_ptr_in_abstract_decl = true
+resharper_space_before_ptr_in_data_member = true
 resharper_space_within_initializer_braces = true
 resharper_toplevel_function_declaration_return_type_style = line_break
+resharper_toplevel_function_definition_return_type_style = on_single_line
 

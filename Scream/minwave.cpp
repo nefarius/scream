@@ -347,13 +347,13 @@ Return Value:
     // Check if we have enough streams.
     if (Capture) {
         if (m_fCaptureAllocated) {
-            DPF(D_TERSE, ("[Only one capture stream supported]"));
+            TraceWarning(TRACE_MINWAVE, "[Only one capture stream supported]");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }
     else {
         if (m_fRenderAllocated) {
-            DPF(D_TERSE, ("[Only one render stream supported]"));
+            TraceWarning(TRACE_MINWAVE, "[Only one render stream supported]");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }
