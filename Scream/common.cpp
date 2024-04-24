@@ -23,9 +23,11 @@ Abstract:
 //-----------------------------------------------------------------------------
 // Externals
 //-----------------------------------------------------------------------------
+// TODO: get rid of those!
 PSAVEWORKER_PARAM CSaveData::m_pWorkItem = NULL;
 PDEVICE_OBJECT    CSaveData::m_pDeviceObject = NULL;
 
+// TODO: get rid of those!
 PIVSHMEM_SAVEWORKER_PARAM    CIVSHMEMSaveData::m_pWorkItem = NULL;
 PDEVICE_OBJECT               CIVSHMEMSaveData::m_pDeviceObject = NULL;
 
