@@ -161,7 +161,7 @@ Return Value:
                     ntStatus = m_IVSHMEMSaveData.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
                 }
                 else {
-                    ntStatus = m_SaveData.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
+                    ntStatus = m_NetSink.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
                 }
             }
         }
@@ -479,7 +479,7 @@ Return Value:
                         m_IVSHMEMSaveData.WaitAllWorkItems();
                     }
                     else {
-                        m_SaveData.WaitAllWorkItems();
+                        m_NetSink.WaitAllWorkItems();
                     }
                 }
                 break;
@@ -692,7 +692,7 @@ Return Value:
                             // State transition: Gap -> Silent
 
                             // Need to write out whatever has occurred so far
-                            m_SaveData.WriteData(((PBYTE)Source + start_copy_byte), ((i / m_bChannels) * m_bChannels * bytes_per_sample) - start_copy_byte);
+                            m_NetSink.WriteData(((PBYTE)Source + start_copy_byte), ((i / m_bChannels) * m_bChannels * bytes_per_sample) - start_copy_byte);
                         }
                     }
                     else {
@@ -712,7 +712,7 @@ Return Value:
 
         // Finished checking; if we are in Silence we should not write out, but Gap or Not Silent should be written out
         if (m_silenceState <= g_silenceThreshold) {
-            m_SaveData.WriteData(((PBYTE)Source + start_copy_byte), ByteCount - start_copy_byte);
+            m_NetSink.WriteData(((PBYTE)Source + start_copy_byte), ByteCount - start_copy_byte);
         }
     }
 } // CopyTo
