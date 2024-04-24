@@ -48,7 +48,7 @@
     <ClCompile Include="minwave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="savedata.cpp">
+    <ClCompile Include="netsink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,7 +77,7 @@
     <ClInclude Include="minwave.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="savedata.h">
+    <ClInclude Include="netsink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scream.h">

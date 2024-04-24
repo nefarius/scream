@@ -14,7 +14,7 @@ Abstract:
 #include "scream.h"
 #include "common.h"
 #include "hw.h"
-#include "savedata.h"
+#include "netsink.h"
 #include "ivshmemsavedata.h"
 #include "common.tmh"
 
@@ -25,8 +25,8 @@ Abstract:
 // Externals
 //-----------------------------------------------------------------------------
 // TODO: get rid of those!
-PSAVEWORKER_PARAM CSaveData::m_pWorkItem = NULL;
-PDEVICE_OBJECT    CSaveData::m_pDeviceObject = NULL;
+PSAVEWORKER_PARAM CNetSink::m_pWorkItem = NULL;
+PDEVICE_OBJECT    CNetSink::m_pDeviceObject = NULL;
 
 // TODO: get rid of those!
 PIVSHMEM_SAVEWORKER_PARAM CIVSHMEMSaveData::m_pWorkItem = NULL;
@@ -136,7 +136,7 @@ CAdapterCommon::~CAdapterCommon(void) {
         CIVSHMEMSaveData::DestroyWorkItems();
     }
     else {
-        CSaveData::DestroyWorkItems();
+        CNetSink::DestroyWorkItems();
     }
 
     if (m_pPortWave) {
@@ -218,7 +218,7 @@ NTSTATUS CAdapterCommon::Init(IN PDEVICE_OBJECT DeviceObject) {
         CIVSHMEMSaveData::SetDeviceObject(DeviceObject); //device object is needed by CIVSHMEMSaveData
     }
     else {
-        CSaveData::SetDeviceObject(DeviceObject); //device object is needed by CSaveData
+        CNetSink::SetDeviceObject(DeviceObject); //device object is needed by CSaveData
     }
 
 exit:

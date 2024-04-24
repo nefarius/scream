@@ -609,7 +609,7 @@
     <ClCompile Include="minstream.cpp" />
     <ClCompile Include="mintopo.cpp" />
     <ClCompile Include="minwave.cpp" />
-    <ClCompile Include="savedata.cpp" />
+    <ClCompile Include="netsink.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -620,7 +620,7 @@
     <ClInclude Include="mintopo.h" />
     <ClInclude Include="minwave.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="savedata.h" />
+    <ClInclude Include="netsink.h" />
     <ClInclude Include="scream.h" />
     <ClInclude Include="toptable.h" />
     <ClInclude Include="Trace.h" />

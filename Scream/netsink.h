@@ -18,8 +18,8 @@
 //-----------------------------------------------------------------------------
 //  Forward declaration
 //-----------------------------------------------------------------------------
-class CSaveData;
-typedef CSaveData *PCSaveData;
+class CNetSink;
+typedef CNetSink *PCNetSink;
 
 //-----------------------------------------------------------------------------
 //  Structs
@@ -29,7 +29,7 @@ typedef CSaveData *PCSaveData;
 #include <pshpack1.h>
 typedef struct _SAVEWORKER_PARAM {
     PIO_WORKITEM     WorkItem;
-    PCSaveData       pSaveData;
+    PCNetSink       pSaveData;
     KEVENT           EventDone;
 } SAVEWORKER_PARAM;
 typedef SAVEWORKER_PARAM *PSAVEWORKER_PARAM;
@@ -45,7 +45,7 @@ typedef SAVEWORKER_PARAM *PSAVEWORKER_PARAM;
 //
 IO_WORKITEM_ROUTINE SendDataWorkerCallback;
 
-class CSaveData {
+class CNetSink {
 protected:
     WSK_REGISTRATION            m_wskRegistration;
     PWSK_SOCKET                 m_socket;
@@ -71,8 +71,8 @@ protected:
     WORD                        m_wChannelMask;
 
 public:
-    CSaveData();
-    ~CSaveData();
+    CNetSink();
+    ~CNetSink();
 
     NTSTATUS                    Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask);
     void                        Disable(BOOL fDisable);
@@ -96,6 +96,6 @@ private:
     void                        SendData();
     friend VOID                 SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context);
 };
-typedef CSaveData *PCSaveData;
+typedef CNetSink *PCNetSink;
 
 #endif

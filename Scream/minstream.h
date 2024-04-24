@@ -11,7 +11,7 @@ Abstract:
 #ifndef _MSVAD_MINSTREAM_H_
 #define _MSVAD_MINSTREAM_H_
 
-#include "savedata.h"
+#include "netsink.h"
 #include "ivshmemsavedata.h"
 
 //=============================================================================
@@ -48,7 +48,7 @@ protected:
     ULONGLONG                   m_ullElapsedTimeCarryForward;       // Time to carry forward in position calc.
     ULONG                       m_ulByteDisplacementCarryForward;   // Bytes to carry forward to next calc.
 
-    CSaveData                   m_SaveData;                         // Object to save settings.
+    CNetSink                   m_SaveData;                         // Object to save settings.
     CIVSHMEMSaveData            m_IVSHMEMSaveData;                  // Object to save settings if we are using IVSHMEM.
 
     ULONGLONG                   m_silenceState = 0;                 // 0 = Not Silent, >g_silenceThreshold=Silent,

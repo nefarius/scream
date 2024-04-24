@@ -2,14 +2,12 @@
 
 #include "scream.h"
 #include <ntstrsafe.h>
-#include "savedata.h"
+#include "netsink.h"
 #include "savedata.tmh"
 
 //=============================================================================
 // Defines
 //=============================================================================
-#define MULTICAST_TARGET    "239.255.77.77"
-#define MULTICAST_PORT      4010
 #define PCM_PAYLOAD_SIZE    1152                        // PCM payload size (divisible by 2, 3 and 4 bytes per sample * 2 channels)
 #define HEADER_SIZE         5                           // m_bSamplingFreqMarker, m_bBitsPerSampleMarker, m_bChannels, m_wChannelMask
 #define CHUNK_SIZE          (PCM_PAYLOAD_SIZE + HEADER_SIZE)      // Add two bytes so we can send a small header with bytes/sample and sampling freq markers
@@ -52,7 +50,7 @@ NTSTATUS SocketRequestCompletionRoutine(__in PDEVICE_OBJECT Reserved, __in PIRP 
 //=============================================================================
 
 //=============================================================================
-CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
+CNetSink::CNetSink() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -83,7 +81,7 @@ CSaveData::CSaveData() : m_socket(NULL), m_pBuffer(NULL), m_ulOffset(0), m_ulSen
 } // CSaveData
 
 //=============================================================================
-CSaveData::~CSaveData() {
+CNetSink::~CNetSink() {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -123,7 +121,7 @@ CSaveData::~CSaveData() {
 } // CSaveData
 
 //=============================================================================
-void CSaveData::DestroyWorkItems(void) {
+void CNetSink::DestroyWorkItems(void) {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -137,7 +135,7 @@ void CSaveData::DestroyWorkItems(void) {
 } // DestroyWorkItems
 
 //=============================================================================
-void CSaveData::Disable(BOOL fDisable) {
+void CNetSink::Disable(BOOL fDisable) {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -148,7 +146,7 @@ void CSaveData::Disable(BOOL fDisable) {
 } // Disable
 
 //=============================================================================
-NTSTATUS CSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
+NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -163,7 +161,7 @@ NTSTATUS CSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
 }
 
 //=============================================================================
-PDEVICE_OBJECT CSaveData::GetDeviceObject(void) {
+PDEVICE_OBJECT CNetSink::GetDeviceObject(void) {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -175,7 +173,7 @@ PDEVICE_OBJECT CSaveData::GetDeviceObject(void) {
 
 #pragma code_seg("PAGE")
 //=============================================================================
-NTSTATUS CSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
+NTSTATUS CNetSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
     FuncEntryArguments(
         TRACE_SAVEDATA, 
         "nSamplesPerSec=%lu,wBitsPerSample=%d,nChannels=%d,dwChannelMask=%lu",
@@ -232,7 +230,7 @@ VOID SendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
     ASSERT(pParam->pSaveData);
 
     if (pParam->WorkItem) {
-        const PCSaveData pSaveData = pParam->pSaveData;
+        const PCNetSink pSaveData = pParam->pSaveData;
         pSaveData->SendData();
     }
 
@@ -327,7 +325,7 @@ ControlSocketComplete(
 
 //=============================================================================
 _IRQL_requires_max_(PASSIVE_LEVEL)
-void CSaveData::CreateSocket(void) {
+void CNetSink::CreateSocket(void) {
     FuncEntry(TRACE_SAVEDATA);
 
     NTSTATUS status;
@@ -426,7 +424,7 @@ void CSaveData::CreateSocket(void) {
 // Sends network packets until the ring buffer runs dry
 // 
 _IRQL_requires_max_(PASSIVE_LEVEL)
-void CSaveData::SendData() {
+void CNetSink::SendData() {
     FuncEntry(TRACE_SAVEDATA);
 
     WSK_BUF wskbuf;
@@ -470,7 +468,7 @@ void CSaveData::SendData() {
 
 #pragma code_seg("PAGE")
 //=============================================================================
-void CSaveData::WaitAllWorkItems(void) {
+void CNetSink::WaitAllWorkItems(void) {
     FuncEntry(TRACE_SAVEDATA);
 
     PAGED_CODE();
@@ -482,7 +480,7 @@ void CSaveData::WaitAllWorkItems(void) {
 #pragma code_seg()
 
 //=============================================================================
-void CSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
+void CNetSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     FuncEntryArguments(TRACE_SAVEDATA, "ulByteCount=%lu", ulByteCount);
 
     ASSERT(pBuffer);
