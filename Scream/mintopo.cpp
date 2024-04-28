@@ -28,11 +28,11 @@ PHYSICALCONNECTIONTABLE TopologyPhysicalConnections =
 
 #pragma code_seg("PAGE")
 
-NTSTATUS CreateMiniportTopologyScream (
-    OUT PUNKNOWN* Unknown,
-    IN  REFCLSID,
-    IN  PUNKNOWN  UnknownOuter OPTIONAL,
-    IN  POOL_TYPE PoolType 
+NTSTATUS CreateMiniportTopologyScream(
+    OUT PUNKNOWN * Unknown,
+    IN REFCLSID,
+    IN PUNKNOWN  UnknownOuter OPTIONAL,
+    IN POOL_TYPE PoolType
 )
 /*++
 Routine Description:
@@ -94,13 +94,13 @@ Return Value:
     }
 }
 
-NTSTATUS CMiniportTopology::DataRangeIntersection( 
-    IN  ULONG        PinId,
-    IN  PKSDATARANGE ClientDataRange,
-    IN  PKSDATARANGE MyDataRange,
-    IN  ULONG        OutputBufferLength,
-    OUT PVOID        ResultantFormat OPTIONAL,
-    OUT PULONG       ResultantFormatLength 
+NTSTATUS CMiniportTopology::DataRangeIntersection(
+    IN ULONG        PinId,
+    IN PKSDATARANGE ClientDataRange,
+    IN PKSDATARANGE MyDataRange,
+    IN ULONG        OutputBufferLength,
+    OUT PVOID       ResultantFormat OPTIONAL,
+    OUT PULONG      ResultantFormatLength
 )
 /*++
 Routine Description:
@@ -165,10 +165,10 @@ Return Value:
     return (STATUS_SUCCESS);
 }
 
-STDMETHODIMP CMiniportTopology::Init( 
+STDMETHODIMP CMiniportTopology::Init(
     IN PUNKNOWN      UnknownAdapter,
     IN PRESOURCELIST ResourceList,
-    IN PPORTTOPOLOGY Port_ 
+    IN PPORTTOPOLOGY Port_
 )
 /*++
 Routine Description:
@@ -199,11 +199,12 @@ Return Value:
 
     NTSTATUS ntStatus;
 
-    ntStatus = UnknownAdapter->QueryInterface(IID_IAdapterCommon, (PVOID *) &m_AdapterCommon);
+    ntStatus = UnknownAdapter->QueryInterface(IID_IAdapterCommon, (PVOID *)&m_AdapterCommon);
     if (NT_SUCCESS(ntStatus)) {
         m_AdapterCommon->MixerReset();
         m_FilterDescriptor = &MiniportFilterDescriptor;
-    } else {
+    }
+    else {
         // clean up AdapterCommon
         if (m_AdapterCommon) {
             m_AdapterCommon->Release();
@@ -214,9 +215,9 @@ Return Value:
     return ntStatus;
 }
 
-STDMETHODIMP CMiniportTopology::NonDelegatingQueryInterface( 
-    IN  REFIID Interface,
-    OUT PVOID* Object 
+STDMETHODIMP CMiniportTopology::NonDelegatingQueryInterface(
+    IN REFIID   Interface,
+    OUT PVOID * Object
 )
 /*++
 Routine Description:
@@ -236,21 +237,24 @@ Return Value:
 
     if (IsEqualGUIDAligned(Interface, IID_IUnknown)) {
         *Object = PVOID(PUNKNOWN(this));
-    } else if (IsEqualGUIDAligned(Interface, IID_IMiniport)) {
+    }
+    else if (IsEqualGUIDAligned(Interface, IID_IMiniport)) {
         *Object = PVOID(PMINIPORT(this));
-    } else if (IsEqualGUIDAligned(Interface, IID_IMiniportTopology)) {
+    }
+    else if (IsEqualGUIDAligned(Interface, IID_IMiniportTopology)) {
         *Object = PVOID(PMINIPORTTOPOLOGY(this));
-    } else {
+    }
+    else {
         *Object = NULL;
     }
 
     if (*Object) {
         // We reference the interface for the caller.
         PUNKNOWN(*Object)->AddRef();
-        return(STATUS_SUCCESS);
+        return (STATUS_SUCCESS);
     }
 
-    return(STATUS_INVALID_PARAMETER);
+    return (STATUS_INVALID_PARAMETER);
 }
 
 NTSTATUS CMiniportTopology::PropertyHandlerBasicSupportVolume(IN PPCPROPERTY_REQUEST PropertyRequest)
@@ -272,42 +276,45 @@ Return Value:
 
     if (PropertyRequest->ValueSize >= (sizeof(KSPROPERTY_DESCRIPTION))) {
         PKSPROPERTY_DESCRIPTION PropDesc = PKSPROPERTY_DESCRIPTION(PropertyRequest->Value);
-        PropDesc->AccessFlags       = KSPROPERTY_TYPE_ALL;
-        PropDesc->DescriptionSize   = cbFullProperty;
-        PropDesc->PropTypeSet.Set   = KSPROPTYPESETID_General;
-        PropDesc->PropTypeSet.Id    = VT_I4;
+        PropDesc->AccessFlags = KSPROPERTY_TYPE_ALL;
+        PropDesc->DescriptionSize = cbFullProperty;
+        PropDesc->PropTypeSet.Set = KSPROPTYPESETID_General;
+        PropDesc->PropTypeSet.Id = VT_I4;
         PropDesc->PropTypeSet.Flags = 0;
-        PropDesc->MembersListCount  = 1;
-        PropDesc->Reserved          = 0;
+        PropDesc->MembersListCount = 1;
+        PropDesc->Reserved = 0;
 
         // if return buffer can also hold a range description, return it too
-        if(PropertyRequest->ValueSize >= cbFullProperty) {
+        if (PropertyRequest->ValueSize >= cbFullProperty) {
             // fill in the members header
             PKSPROPERTY_MEMBERSHEADER Members = PKSPROPERTY_MEMBERSHEADER(PropDesc + 1);
-            Members->MembersFlags   = KSPROPERTY_MEMBER_STEPPEDRANGES;
-            Members->MembersSize    = sizeof(KSPROPERTY_STEPPING_LONG);
-            Members->MembersCount   = 1;
-            Members->Flags          = KSPROPERTY_MEMBER_FLAG_BASICSUPPORT_MULTICHANNEL;
+            Members->MembersFlags = KSPROPERTY_MEMBER_STEPPEDRANGES;
+            Members->MembersSize = sizeof(KSPROPERTY_STEPPING_LONG);
+            Members->MembersCount = 1;
+            Members->Flags = KSPROPERTY_MEMBER_FLAG_BASICSUPPORT_MULTICHANNEL;
 
             // fill in the stepped range
             PKSPROPERTY_STEPPING_LONG Range = PKSPROPERTY_STEPPING_LONG(Members + 1);
             Range->Bounds.SignedMaximum = 0x00000000;      //   0 dB
             Range->Bounds.SignedMinimum = -96 * 0x10000;   // -96 dB
-            Range->SteppingDelta        = 0x08000;         //  .5 dB
-            Range->Reserved             = 0;
+            Range->SteppingDelta = 0x08000;         //  .5 dB
+            Range->Reserved = 0;
 
             // set the return value size
             PropertyRequest->ValueSize = cbFullProperty;
-        } else {
+        }
+        else {
             PropertyRequest->ValueSize = sizeof(KSPROPERTY_DESCRIPTION);
         }
-    } else if(PropertyRequest->ValueSize >= sizeof(ULONG)) {
+    }
+    else if (PropertyRequest->ValueSize >= sizeof(ULONG)) {
         // if return buffer can hold a ULONG, return the access flags
         PULONG AccessFlags = PULONG(PropertyRequest->Value);
 
         PropertyRequest->ValueSize = sizeof(ULONG);
         *AccessFlags = KSPROPERTY_TYPE_ALL;
-    } else {
+    }
+    else {
         PropertyRequest->ValueSize = 0;
         ntStatus = STATUS_BUFFER_TOO_SMALL;
     }
@@ -335,7 +342,8 @@ Return Value:
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
         ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_GET | KSPROPERTY_TYPE_BASICSUPPORT, VT_ILLEGAL);
-    } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
+    }
+    else if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
         ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(ULONG));
         if (NT_SUCCESS(ntStatus)) {
             *(PLONG(PropertyRequest->Value)) = KSAUDIO_CPU_RESOURCES_HOST_CPU;
@@ -363,28 +371,28 @@ Return Value:
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
     switch (PropertyRequest->PropertyItem->Id) {
-        case KSPROPERTY_AUDIO_VOLUMELEVEL:
-            ntStatus = PropertyHandlerVolume(PropertyRequest);
-            break;
-        
-        case KSPROPERTY_AUDIO_CPU_RESOURCES:
-            ntStatus = PropertyHandlerCpuResources(PropertyRequest);
-            break;
+    case KSPROPERTY_AUDIO_VOLUMELEVEL:
+        ntStatus = PropertyHandlerVolume(PropertyRequest);
+        break;
 
-        case KSPROPERTY_AUDIO_MUTE:
-            ntStatus = PropertyHandlerMute(PropertyRequest);
-            break;
+    case KSPROPERTY_AUDIO_CPU_RESOURCES:
+        ntStatus = PropertyHandlerCpuResources(PropertyRequest);
+        break;
 
-        case KSPROPERTY_AUDIO_MUX_SOURCE:
-            ntStatus = PropertyHandlerMuxSource(PropertyRequest);
-            break;
+    case KSPROPERTY_AUDIO_MUTE:
+        ntStatus = PropertyHandlerMute(PropertyRequest);
+        break;
 
-        case KSPROPERTY_AUDIO_DEV_SPECIFIC:
-            ntStatus = PropertyHandlerDevSpecific(PropertyRequest);
-            break;
+    case KSPROPERTY_AUDIO_MUX_SOURCE:
+        ntStatus = PropertyHandlerMuxSource(PropertyRequest);
+        break;
 
-        default:
-            DPF(D_TERSE, ("[PropertyHandlerGeneric: Invalid Device Request]"));
+    case KSPROPERTY_AUDIO_DEV_SPECIFIC:
+        ntStatus = PropertyHandlerDevSpecific(PropertyRequest);
+        break;
+
+    default:
+        DPF(D_TERSE, ("[PropertyHandlerGeneric: Invalid Device Request]"));
     }
 
     return ntStatus;
@@ -412,19 +420,22 @@ Return Value:
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
         ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_ALL, VT_BOOL);
-    } else {
+    }
+    else {
         ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(BOOL), sizeof(LONG));
         if (NT_SUCCESS(ntStatus)) {
-            lChannel = * PLONG (PropertyRequest->Instance);
-            pfMute   = PBOOL (PropertyRequest->Value);
+            lChannel = *PLONG(PropertyRequest->Instance);
+            pfMute = PBOOL(PropertyRequest->Value);
 
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
                 *pfMute = m_AdapterCommon->MixerMuteRead(PropertyRequest->Node);
                 PropertyRequest->ValueSize = sizeof(BOOL);
-            } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
+            }
+            else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
                 m_AdapterCommon->MixerMuteWrite(PropertyRequest->Node, *pfMute);
             }
-        } else {
+        }
+        else {
             DPF(D_TERSE, ("[%s - ntStatus=0x%08x]", __FUNCTION__, ntStatus));
         }
     }
@@ -458,25 +469,28 @@ Return Value:
     {
         if (PropertyRequest->ValueSize >= sizeof(ULONG)) {
             PULONG pulMuxValue = PULONG(PropertyRequest->Value);
-            
+
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
                 *pulMuxValue = m_AdapterCommon->MixerMuxRead();
                 PropertyRequest->ValueSize = sizeof(ULONG);
                 ntStatus = STATUS_SUCCESS;
-            } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
+            }
+            else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
                 m_AdapterCommon->MixerMuxWrite(*pulMuxValue);
                 ntStatus = STATUS_SUCCESS;
-            } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
+            }
+            else if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
                 ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_ALL, VT_I4);
             }
-        } else {
+        }
+        else {
             DPF(D_TERSE, ("[PropertyHandlerMuxSource - Invalid parameter]"));
             ntStatus = STATUS_INVALID_PARAMETER;
         }
     }
 
     return ntStatus;
-} 
+}
 
 NTSTATUS CMiniportTopology::PropertyHandlerVolume(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
@@ -500,26 +514,29 @@ Return Value:
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
         ntStatus = PropertyHandlerBasicSupportVolume(PropertyRequest);
-    } else {
+    }
+    else {
         // volume value is a ULONG, instance is the channel number
         ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(ULONG), sizeof(LONG));
         if (NT_SUCCESS(ntStatus)) {
-            lChannel  = * (PLONG (PropertyRequest->Instance));
-            pulVolume = PULONG (PropertyRequest->Value);
+            lChannel = *(PLONG(PropertyRequest->Instance));
+            pulVolume = PULONG(PropertyRequest->Value);
 
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
                 *pulVolume = m_AdapterCommon->MixerVolumeRead(PropertyRequest->Node, lChannel);
-                PropertyRequest->ValueSize = sizeof(ULONG);                
-            } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
+                PropertyRequest->ValueSize = sizeof(ULONG);
+            }
+            else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
                 m_AdapterCommon->MixerVolumeWrite(PropertyRequest->Node, lChannel, *pulVolume);
             }
-        } else {
+        }
+        else {
             DPF(D_TERSE, ("[%s - ntStatus=0x%08x]",__FUNCTION__,ntStatus));
         }
     }
 
     return ntStatus;
-} 
+}
 
 NTSTATUS CMiniportTopology::PropertyHandlerDevSpecific(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
@@ -540,140 +557,155 @@ Return Value:
     NTSTATUS ntStatus = STATUS_SUCCESS;
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
-        if (DEV_SPECIFIC_VT_BOOL == PropertyRequest->Node ) {
-            ntStatus = PropertyHandler_BasicSupport(PropertyRequest,KSPROPERTY_TYPE_ALL,VT_BOOL);
-        } else {
-            ULONG ExpectedSize = sizeof( KSPROPERTY_DESCRIPTION ) + sizeof( KSPROPERTY_MEMBERSHEADER ) + sizeof( KSPROPERTY_BOUNDS_LONG );
+        if (DEV_SPECIFIC_VT_BOOL == PropertyRequest->Node) {
+            ntStatus = PropertyHandler_BasicSupport(PropertyRequest,KSPROPERTY_TYPE_ALL, VT_BOOL);
+        }
+        else {
+            ULONG ExpectedSize = sizeof(KSPROPERTY_DESCRIPTION) + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_BOUNDS_LONG);
             DWORD ulPropTypeSetId;
 
-            if( DEV_SPECIFIC_VT_I4 == PropertyRequest->Node ) {
+            if (DEV_SPECIFIC_VT_I4 == PropertyRequest->Node) {
                 ulPropTypeSetId = VT_I4;
-            } else if ( DEV_SPECIFIC_VT_UI4 == PropertyRequest->Node ) {
+            }
+            else if (DEV_SPECIFIC_VT_UI4 == PropertyRequest->Node) {
                 ulPropTypeSetId = VT_UI4;
-            } else {
+            }
+            else {
                 ulPropTypeSetId = VT_ILLEGAL;
                 ntStatus = STATUS_INVALID_PARAMETER;
             }
 
-            if( NT_SUCCESS(ntStatus)) {
-                if ( !PropertyRequest->ValueSize ) {
+            if (NT_SUCCESS(ntStatus)) {
+                if (!PropertyRequest->ValueSize) {
                     PropertyRequest->ValueSize = ExpectedSize;
                     ntStatus = STATUS_BUFFER_OVERFLOW;
-                } else if (PropertyRequest->ValueSize >= sizeof(KSPROPERTY_DESCRIPTION)) {
+                }
+                else if (PropertyRequest->ValueSize >= sizeof(KSPROPERTY_DESCRIPTION)) {
                     // if return buffer can hold a KSPROPERTY_DESCRIPTION, return it
                     //
                     PKSPROPERTY_DESCRIPTION PropDesc = PKSPROPERTY_DESCRIPTION(PropertyRequest->Value);
-                    PropDesc->AccessFlags       = KSPROPERTY_TYPE_ALL;
-                    PropDesc->DescriptionSize   = ExpectedSize;
-                    PropDesc->PropTypeSet.Set   = KSPROPTYPESETID_General;
-                    PropDesc->PropTypeSet.Id    = ulPropTypeSetId;
+                    PropDesc->AccessFlags = KSPROPERTY_TYPE_ALL;
+                    PropDesc->DescriptionSize = ExpectedSize;
+                    PropDesc->PropTypeSet.Set = KSPROPTYPESETID_General;
+                    PropDesc->PropTypeSet.Id = ulPropTypeSetId;
                     PropDesc->PropTypeSet.Flags = 0;
-                    PropDesc->MembersListCount  = 0;
-                    PropDesc->Reserved          = 0;
+                    PropDesc->MembersListCount = 0;
+                    PropDesc->Reserved = 0;
 
-                    if ( PropertyRequest->ValueSize >= ExpectedSize ) {
+                    if (PropertyRequest->ValueSize >= ExpectedSize) {
                         // Extra information to return
-                        PropDesc->MembersListCount  = 1;
+                        PropDesc->MembersListCount = 1;
 
-                        PKSPROPERTY_MEMBERSHEADER MembersHeader = ( PKSPROPERTY_MEMBERSHEADER )( PropDesc + 1);
+                        PKSPROPERTY_MEMBERSHEADER MembersHeader = (PKSPROPERTY_MEMBERSHEADER)(PropDesc + 1);
                         MembersHeader->MembersFlags = KSPROPERTY_MEMBER_RANGES;
-                        MembersHeader->MembersCount  = 1;
-                        MembersHeader->MembersSize   = sizeof( KSPROPERTY_BOUNDS_LONG );
+                        MembersHeader->MembersCount = 1;
+                        MembersHeader->MembersSize = sizeof(KSPROPERTY_BOUNDS_LONG);
                         MembersHeader->Flags = 0;
 
-                        PKSPROPERTY_BOUNDS_LONG PeakMeterBounds = (PKSPROPERTY_BOUNDS_LONG)( MembersHeader + 1);
-                        if(VT_I4 == ulPropTypeSetId ) {
+                        PKSPROPERTY_BOUNDS_LONG PeakMeterBounds = (PKSPROPERTY_BOUNDS_LONG)(MembersHeader + 1);
+                        if (VT_I4 == ulPropTypeSetId) {
                             PeakMeterBounds->SignedMinimum = 0;
                             PeakMeterBounds->SignedMaximum = 0x7fffffff;
-                        } else {
+                        }
+                        else {
                             PeakMeterBounds->UnsignedMinimum = 0;
                             PeakMeterBounds->UnsignedMaximum = 0xffffffff;
                         }
 
                         // set the return value size
                         PropertyRequest->ValueSize = ExpectedSize;
-                    } else {
+                    }
+                    else {
                         // No extra information to return.
                         PropertyRequest->ValueSize = sizeof(KSPROPERTY_DESCRIPTION);
                     }
 
                     ntStatus = STATUS_SUCCESS;
-                } else if (PropertyRequest->ValueSize >= sizeof(ULONG)) {
+                }
+                else if (PropertyRequest->ValueSize >= sizeof(ULONG)) {
                     // if return buffer can hold a ULONG, return the access flags
                     //
                     *(PULONG(PropertyRequest->Value)) = KSPROPERTY_TYPE_ALL;
 
                     PropertyRequest->ValueSize = sizeof(ULONG);
-                    ntStatus = STATUS_SUCCESS;                    
-                } else {
+                    ntStatus = STATUS_SUCCESS;
+                }
+                else {
                     PropertyRequest->ValueSize = 0;
                     ntStatus = STATUS_BUFFER_TOO_SMALL;
                 }
             }
         }
-    } else {
+    }
+    else {
         // switch on node id
-        switch( PropertyRequest->Node ) {
-            case DEV_SPECIFIC_VT_BOOL:
-                PBOOL pbDevSpecific;
+        switch (PropertyRequest->Node) {
+        case DEV_SPECIFIC_VT_BOOL:
+            PBOOL pbDevSpecific;
 
-                ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(BOOL), 0);
+            ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(BOOL), 0);
 
-                if (NT_SUCCESS(ntStatus)) {
-                    pbDevSpecific = PBOOL (PropertyRequest->Value);
+            if (NT_SUCCESS(ntStatus)) {
+                pbDevSpecific = PBOOL(PropertyRequest->Value);
 
-                    if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
-                        *pbDevSpecific = m_AdapterCommon->bDevSpecificRead();
-                        PropertyRequest->ValueSize = sizeof(BOOL);
-                    } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
-                        m_AdapterCommon->bDevSpecificWrite(*pbDevSpecific);
-                    } else {
-                        ntStatus = STATUS_INVALID_PARAMETER;
-                    }
+                if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
+                    *pbDevSpecific = m_AdapterCommon->bDevSpecificRead();
+                    PropertyRequest->ValueSize = sizeof(BOOL);
                 }
-                break;
-            case DEV_SPECIFIC_VT_I4:
-                INT* piDevSpecific;
-
-                ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(int), 0);
-
-                if (NT_SUCCESS(ntStatus)) {
-                    piDevSpecific = PINT (PropertyRequest->Value);
-
-                    if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
-                        *piDevSpecific = m_AdapterCommon->iDevSpecificRead();
-                        PropertyRequest->ValueSize = sizeof(int);
-                    } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
-                        m_AdapterCommon->iDevSpecificWrite(*piDevSpecific);
-                    } else {
-                        ntStatus = STATUS_INVALID_PARAMETER;
-                    }
+                else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
+                    m_AdapterCommon->bDevSpecificWrite(*pbDevSpecific);
                 }
-                break;
-            case DEV_SPECIFIC_VT_UI4:
-                UINT* puiDevSpecific;
-
-                ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(UINT), 0);
-
-                if (NT_SUCCESS(ntStatus)) {
-                    puiDevSpecific = PUINT (PropertyRequest->Value);
-
-                    if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
-                        *puiDevSpecific = m_AdapterCommon->uiDevSpecificRead();
-                        PropertyRequest->ValueSize = sizeof(UINT);
-                    } else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
-                        m_AdapterCommon->uiDevSpecificWrite(*puiDevSpecific);
-                    } else {
-                        ntStatus = STATUS_INVALID_PARAMETER;
-                    }
+                else {
+                    ntStatus = STATUS_INVALID_PARAMETER;
                 }
-                break;
-            default:
-                ntStatus = STATUS_INVALID_PARAMETER;
-                break;
+            }
+            break;
+        case DEV_SPECIFIC_VT_I4:
+            INT * piDevSpecific;
+
+            ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(int), 0);
+
+            if (NT_SUCCESS(ntStatus)) {
+                piDevSpecific = PINT(PropertyRequest->Value);
+
+                if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
+                    *piDevSpecific = m_AdapterCommon->iDevSpecificRead();
+                    PropertyRequest->ValueSize = sizeof(int);
+                }
+                else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
+                    m_AdapterCommon->iDevSpecificWrite(*piDevSpecific);
+                }
+                else {
+                    ntStatus = STATUS_INVALID_PARAMETER;
+                }
+            }
+            break;
+        case DEV_SPECIFIC_VT_UI4:
+            UINT * puiDevSpecific;
+
+            ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(UINT), 0);
+
+            if (NT_SUCCESS(ntStatus)) {
+                puiDevSpecific = PUINT(PropertyRequest->Value);
+
+                if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
+                    *puiDevSpecific = m_AdapterCommon->uiDevSpecificRead();
+                    PropertyRequest->ValueSize = sizeof(UINT);
+                }
+                else if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
+                    m_AdapterCommon->uiDevSpecificWrite(*puiDevSpecific);
+                }
+                else {
+                    ntStatus = STATUS_INVALID_PARAMETER;
+                }
+            }
+            break;
+        default:
+            ntStatus = STATUS_INVALID_PARAMETER;
+            break;
         }
 
-        if( !NT_SUCCESS(ntStatus)) {
+        if (!NT_SUCCESS(ntStatus)) {
             DPF(D_TERSE, ("[%s - ntStatus=0x%08x]",__FUNCTION__,ntStatus));
         }
     }
@@ -700,7 +732,7 @@ Return Value:
     DPF_ENTER(("[PropertyHandlerJackDescription]"));
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
-    ULONG    nPinId   = (ULONG)-1;
+    ULONG    nPinId = (ULONG)-1;
 
     if (PropertyRequest->InstanceSize >= sizeof(ULONG)) {
         nPinId = *(PULONG(PropertyRequest->Instance));
@@ -708,18 +740,21 @@ Return Value:
         if ((nPinId < ARRAYSIZE(JackDescriptions)) && (JackDescriptions[nPinId] != NULL)) {
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
                 ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_GET, VT_ILLEGAL);
-            } else {
+            }
+            else {
                 ULONG cbNeeded = sizeof(KSMULTIPLE_ITEM) + sizeof(KSJACK_DESCRIPTION);
 
                 if (PropertyRequest->ValueSize == 0) {
                     PropertyRequest->ValueSize = cbNeeded;
                     ntStatus = STATUS_BUFFER_OVERFLOW;
-                } else if (PropertyRequest->ValueSize < cbNeeded) {
+                }
+                else if (PropertyRequest->ValueSize < cbNeeded) {
                     ntStatus = STATUS_BUFFER_TOO_SMALL;
-                } else {
+                }
+                else {
                     if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
-                        PKSMULTIPLE_ITEM pMI = (PKSMULTIPLE_ITEM)PropertyRequest->Value;
-                        PKSJACK_DESCRIPTION pDesc = (PKSJACK_DESCRIPTION)(pMI+1);
+                        PKSMULTIPLE_ITEM    pMI = (PKSMULTIPLE_ITEM)PropertyRequest->Value;
+                        PKSJACK_DESCRIPTION pDesc = (PKSJACK_DESCRIPTION)(pMI + 1);
 
                         pMI->Size = cbNeeded;
                         pMI->Count = 1;
@@ -756,10 +791,11 @@ Return Value:
     // PropertryRequest structure is filled by portcls. 
     // MajorTarget is a pointer to miniport object for miniports.
     //
-    NTSTATUS            ntStatus = STATUS_INVALID_DEVICE_REQUEST;
-    PCMiniportTopology  pMiniport = (PCMiniportTopology)PropertyRequest->MajorTarget;
+    NTSTATUS           ntStatus = STATUS_INVALID_DEVICE_REQUEST;
+    PCMiniportTopology pMiniport = (PCMiniportTopology)PropertyRequest->MajorTarget;
 
-    if (IsEqualGUIDAligned(*PropertyRequest->PropertyItem->Set, KSPROPSETID_Jack) && (PropertyRequest->PropertyItem->Id == KSPROPERTY_JACK_DESCRIPTION)) {
+    if (IsEqualGUIDAligned(*PropertyRequest->PropertyItem->Set, KSPROPSETID_Jack) && (PropertyRequest->PropertyItem->Id ==
+        KSPROPERTY_JACK_DESCRIPTION)) {
         ntStatus = pMiniport->PropertyHandlerJackDescription(PropertyRequest);
     }
 
@@ -787,8 +823,7 @@ Return Value:
     // PropertryRequest structure is filled by portcls. 
     // MajorTarget is a pointer to miniport object for miniports.
     //
-    return ((PCMiniportTopology) (PropertyRequest->MajorTarget))->PropertyHandlerGeneric(PropertyRequest);
+    return ((PCMiniportTopology)(PropertyRequest->MajorTarget))->PropertyHandlerGeneric(PropertyRequest);
 }
 
 #pragma code_seg()
-
