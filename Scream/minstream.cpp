@@ -68,9 +68,7 @@ Return Value:
     FuncEntry(TRACE_MINSTREAM);
 
     // PAGED_CODE();
-
-    DPF_ENTER(("[CMiniportWaveCyclicStream::~CMiniportWaveCyclicStream]"));
-
+    
     if (m_pTimer) {
         KeCancelTimer(m_pTimer);
         ExFreePoolWithTag(m_pTimer, SCREAM_POOLTAG);
@@ -120,13 +118,14 @@ Return Value:
     ASSERT(Miniport_);
     ASSERT(DataFormat_);
 
+    FuncEntry(TRACE_MINSTREAM);
 
     NTSTATUS      ntStatus = STATUS_SUCCESS;
     PWAVEFORMATEX pWfx;
 
     pWfx = GetWaveFormatEx(DataFormat_);
     if (!pWfx) {
-        DPF(D_TERSE, ("Invalid DataFormat param in NewStream"));
+        TraceError(TRACE_MINSTREAM, "Invalid data format provided");
         ntStatus = STATUS_INVALID_PARAMETER;
     }
 
@@ -208,6 +207,8 @@ Return Value:
         KeInitializeDpc(m_pDpc, TimerNotify, m_pMiniport);
         KeInitializeTimerEx(m_pTimer, NotificationTimer);
     }
+
+    FuncExit(TRACE_MINSTREAM, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 } 
@@ -348,7 +349,7 @@ Return Value:
 
     ASSERT(Format);
 
-    DPF_ENTER(("[CMiniportWaveCyclicStream::SetFormat]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     NTSTATUS      ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     PWAVEFORMATEX pWfx;
@@ -363,13 +364,19 @@ Return Value:
                 m_fFormat16Bit = (pWfx->wBitsPerSample == 16);
                 m_pMiniport->m_SamplingFrequency = pWfx->nSamplesPerSec;
                 m_ulDmaMovementRate = pWfx->nAvgBytesPerSec;
-
-                DPF(D_TERSE, ("New Format - SpS: %d - BpS: %d - aBypS: %d - C: %d", pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nAvgBytesPerSec, pWfx->nChannels));
+                
+                TraceVerbose(
+                    TRACE_MINSTREAM, 
+                    "New Format - SpS: %d - BpS: %d - aBypS: %d - C: %d",
+                    pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nAvgBytesPerSec, pWfx->nChannels
+                );
             }
 
             KeReleaseMutex(&m_pMiniport->m_SampleRateSync, FALSE);
         }
     }
+
+    FuncExit(TRACE_MINSTREAM, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -424,7 +431,7 @@ Return Value:
 {
     // PAGED_CODE();
 
-    DPF_ENTER(("[CMiniportWaveCyclicStream::SetState]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
 
@@ -437,13 +444,13 @@ Return Value:
     if (m_ksState != NewState) {
         switch(NewState) {
             case KSSTATE_PAUSE:
-                DPF(D_TERSE, ("KSSTATE_PAUSE"));
+                TraceVerbose(TRACE_MINSTREAM, "KSSTATE_PAUSE");
                 
                 m_fDmaActive = FALSE;
                 break;
 
             case KSSTATE_RUN:
-                DPF(D_TERSE, ("KSSTATE_RUN"));
+                TraceVerbose(TRACE_MINSTREAM, "KSSTATE_RUN");
 
                 LARGE_INTEGER   delay;
 
@@ -458,7 +465,7 @@ Return Value:
                 break;
 
             case KSSTATE_STOP:
-                DPF(D_TERSE, ("KSSTATE_STOP"));
+                TraceVerbose(TRACE_MINSTREAM, "KSSTATE_STOP");
     
                 m_fDmaActive                      = FALSE;
                 m_ulDmaPosition                   = 0;
@@ -481,6 +488,8 @@ Return Value:
 
         m_ksState = NewState;
     }
+    
+    FuncExit(TRACE_MINSTREAM, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -535,7 +544,7 @@ Return Value:
 
     // PAGED_CODE();
 
-    DPF_ENTER(("[CMiniportWaveCyclicStream::AllocateBuffer]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
 
@@ -548,6 +557,8 @@ Return Value:
     } else {
         m_ulDmaBufferSize = BufferSize;
     }
+
+    FuncExit(TRACE_MINSTREAM, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -720,12 +731,14 @@ Return Value:
 {
     // PAGED_CODE();
 
-    DPF_ENTER(("[CMiniportWaveCyclicStream::FreeBuffer]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     if ( m_pvDmaBuffer ) {
         ExFreePoolWithTag( m_pvDmaBuffer, SCREAM_POOLTAG );
         m_ulDmaBufferSize = 0;
     }
+
+    FuncExitNoReturn(TRACE_MINSTREAM);
 }
 #pragma code_seg()
 
@@ -741,10 +754,12 @@ Return Value:
   PADAPTER_OBJECT - The return value is the object's internal adapter object.
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclicStream::GetAdapterObject]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     // MSVAD does not have need a physical DMA channel. Therefore it
     // does not have physical DMA structure.
+
+    FuncExitNoReturn(TRACE_MINSTREAM);
 
     return NULL;
 }
@@ -759,7 +774,9 @@ Return Value:
   NT status code.
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclicStream::MaximumBufferSize]"));
+    FuncEntry(TRACE_MINSTREAM);
+
+    FuncExit(TRACE_MINSTREAM, "MaximumBufferSize=%d", m_pMiniport->m_MaxDmaBufferSize);
 
     return m_pMiniport->m_MaxDmaBufferSize;
 }
@@ -778,10 +795,12 @@ Return Value:
                      buffer this DMA object is configured to support.
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclicStream::PhysicalAddress]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     PHYSICAL_ADDRESS pAddress;
     pAddress.QuadPart = (LONGLONG) m_pvDmaBuffer;
+
+    FuncExit(TRACE_MINSTREAM, "PhysicalAddress=%I64d", pAddress.QuadPart);
 
     return pAddress;
 }
@@ -804,13 +823,15 @@ Return Value:
   void
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclicStream::SetBufferSize]"));
+    FuncEntry(TRACE_MINSTREAM);
 
     if ( BufferSize <= m_ulDmaBufferSize ) {
         m_ulDmaBufferSize = BufferSize;
     } else {
-        DPF(D_ERROR, ("Tried to enlarge dma buffer size"));
+        TraceError(TRACE_MINSTREAM, "Tried to enlarge dma buffer size");
     }
+
+    FuncExitNoReturn(TRACE_MINSTREAM);
 }
 
 STDMETHODIMP_(PVOID) CMiniportWaveCyclicStream::SystemAddress(void)
@@ -843,7 +864,9 @@ Return Value:
           being transferred.
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclicStream::TransferCount]"));
+    FuncEntry(TRACE_MINSTREAM);
+
+    FuncExit(TRACE_MINSTREAM, "TransferCount=%d", m_ulDmaBufferSize);
 
     return m_ulDmaBufferSize;
 }
