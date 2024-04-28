@@ -28,7 +28,6 @@ PHYSICALCONNECTIONTABLE TopologyPhysicalConnections =
 
 #pragma code_seg("PAGE")
 
-//=============================================================================
 NTSTATUS CreateMiniportTopologyScream (
     OUT PUNKNOWN* Unknown,
     IN  REFCLSID,
@@ -54,9 +53,8 @@ Return Value:
     ASSERT(Unknown);
 
     STD_CREATE_BODY(CMiniportTopology, Unknown, UnknownOuter, PoolType);
-} // CreateMiniportTopologyScream
+}
 
-//=============================================================================
 CMiniportTopology::CMiniportTopology(PUNKNOWN outer) : CUnknown(outer)
 /*++
 Routine Description:
@@ -74,7 +72,7 @@ Return Value:
 
     m_AdapterCommon = NULL;
     m_FilterDescriptor = NULL;
-} // CMiniportTopology
+}
 
 CMiniportTopology::~CMiniportTopology(void)
 /*++
@@ -94,9 +92,8 @@ Return Value:
     if (m_AdapterCommon) {
         m_AdapterCommon->Release();
     }
-} // ~CMiniportTopology
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::DataRangeIntersection( 
     IN  ULONG        PinId,
     IN  PKSDATARANGE ClientDataRange,
@@ -140,9 +137,8 @@ Return Value:
     DPF_ENTER(("[%s]",__FUNCTION__));
 
     return (STATUS_NOT_IMPLEMENTED);
-} // DataRangeIntersection
+}
 
-//=============================================================================
 STDMETHODIMP CMiniportTopology::GetDescription(OUT PPCFILTER_DESCRIPTOR * OutFilterDescriptor)
 /*++
 Routine Description:
@@ -167,9 +163,8 @@ Return Value:
     *OutFilterDescriptor = m_FilterDescriptor;
 
     return (STATUS_SUCCESS);
-} // GetDescription
+}
 
-//=============================================================================
 STDMETHODIMP CMiniportTopology::Init( 
     IN PUNKNOWN      UnknownAdapter,
     IN PRESOURCELIST ResourceList,
@@ -217,9 +212,8 @@ Return Value:
     }
 
     return ntStatus;
-} // Init
+}
 
-//=============================================================================
 STDMETHODIMP CMiniportTopology::NonDelegatingQueryInterface( 
     IN  REFIID Interface,
     OUT PVOID* Object 
@@ -257,9 +251,8 @@ Return Value:
     }
 
     return(STATUS_INVALID_PARAMETER);
-} // NonDelegatingQueryInterface
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerBasicSupportVolume(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -320,9 +313,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerBasicSupportVolume
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerCpuResources(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -352,9 +344,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerCpuResources
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerGeneric(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -397,9 +388,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerGeneric
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerMute(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -440,9 +430,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerMute
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerMuxSource(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -487,9 +476,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerMuxSource
+} 
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerVolume(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -531,9 +519,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerVolume
+} 
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerDevSpecific(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -692,9 +679,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandlerDevSpecific
+}
 
-//=============================================================================
 NTSTATUS CMiniportTopology::PropertyHandlerJackDescription(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -749,7 +735,6 @@ Return Value:
     return ntStatus;
 }
 
-//=============================================================================
 NTSTATUS PropertyHandler_TopoFilter(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -779,9 +764,8 @@ Return Value:
     }
 
     return ntStatus;
-} // PropertyHandler_TopoFilter
+}
 
-//=============================================================================
 NTSTATUS PropertyHandler_Topology(IN PPCPROPERTY_REQUEST PropertyRequest)
 /*++
 Routine Description:
@@ -804,7 +788,7 @@ Return Value:
     // MajorTarget is a pointer to miniport object for miniports.
     //
     return ((PCMiniportTopology) (PropertyRequest->MajorTarget))->PropertyHandlerGeneric(PropertyRequest);
-} // PropertyHandler_Topology
+}
 
 #pragma code_seg()
 
