@@ -68,10 +68,12 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     m_AdapterCommon = NULL;
     m_FilterDescriptor = NULL;
+
+    FuncExitNoReturn(TRACE_MINTOPO);
 }
 
 CMiniportTopology::~CMiniportTopology(void)
@@ -87,11 +89,13 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     if (m_AdapterCommon) {
         m_AdapterCommon->Release();
     }
+
+    FuncExitNoReturn(TRACE_MINTOPO);
 }
 
 NTSTATUS CMiniportTopology::DataRangeIntersection(
@@ -134,7 +138,9 @@ Return Value:
 
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
+
+    FuncExitNoReturn(TRACE_MINTOPO);
 
     return (STATUS_NOT_IMPLEMENTED);
 }
@@ -158,9 +164,11 @@ Return Value:
 
     ASSERT(OutFilterDescriptor);
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     *OutFilterDescriptor = m_FilterDescriptor;
+
+    FuncExitNoReturn(TRACE_MINTOPO);
 
     return (STATUS_SUCCESS);
 }
@@ -195,7 +203,7 @@ Return Value:
     ASSERT(UnknownAdapter);
     ASSERT(Port_);
 
-    DPF_ENTER(("[CMiniportTopology::Init]"));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus;
 
@@ -211,6 +219,8 @@ Return Value:
             m_AdapterCommon = NULL;
         }
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -271,6 +281,8 @@ Return Value:
 {
     PAGED_CODE();
 
+    FuncEntry(TRACE_MINTOPO);
+
     NTSTATUS ntStatus = STATUS_SUCCESS;
     ULONG    cbFullProperty = sizeof(KSPROPERTY_DESCRIPTION) + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_STEPPING_LONG);
 
@@ -319,6 +331,8 @@ Return Value:
         ntStatus = STATUS_BUFFER_TOO_SMALL;
     }
 
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
+
     return ntStatus;
 }
 
@@ -336,7 +350,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
@@ -350,6 +364,8 @@ Return Value:
             PropertyRequest->ValueSize = sizeof(LONG);
         }
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -367,6 +383,8 @@ Return Value:
 --*/
 {
     PAGED_CODE();
+
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
@@ -392,8 +410,10 @@ Return Value:
         break;
 
     default:
-        DPF(D_TERSE, ("[PropertyHandlerGeneric: Invalid Device Request]"));
+        TraceWarning(TRACE_MINTOPO, "Invalid device request");
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -412,7 +432,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus;
     LONG     lChannel;
@@ -436,9 +456,11 @@ Return Value:
             }
         }
         else {
-            DPF(D_TERSE, ("[%s - ntStatus=0x%08x]", __FUNCTION__, ntStatus));
+            TraceWarning(TRACE_MINTOPO, "ValidatePropertyParams failed with status %!STATUS!", ntStatus);
         }
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -457,7 +479,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
@@ -484,10 +506,12 @@ Return Value:
             }
         }
         else {
-            DPF(D_TERSE, ("[PropertyHandlerMuxSource - Invalid parameter]"));
+            TraceWarning(TRACE_MINTOPO, "Invalid parameter");
             ntStatus = STATUS_INVALID_PARAMETER;
         }
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -506,7 +530,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     LONG     lChannel;
@@ -531,9 +555,11 @@ Return Value:
             }
         }
         else {
-            DPF(D_TERSE, ("[%s - ntStatus=0x%08x]",__FUNCTION__,ntStatus));
+            TraceWarning(TRACE_MINTOPO, "ValidatePropertyParams failed with status %!STATUS!", ntStatus);
         }
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -552,7 +578,7 @@ Return Value:
 {
     PAGED_CODE();
 
-    DPF_ENTER(("[%s]",__FUNCTION__));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
 
@@ -706,9 +732,11 @@ Return Value:
         }
 
         if (!NT_SUCCESS(ntStatus)) {
-            DPF(D_TERSE, ("[%s - ntStatus=0x%08x]",__FUNCTION__,ntStatus));
+            TraceWarning(TRACE_MINTOPO, "ValidatePropertyParams failed with status %!STATUS!", ntStatus);
         }
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -729,7 +757,7 @@ Return Value:
 
     ASSERT(PropertyRequest);
 
-    DPF_ENTER(("[PropertyHandlerJackDescription]"));
+    FuncEntry(TRACE_MINTOPO);
 
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     ULONG    nPinId = (ULONG)-1;
@@ -767,6 +795,8 @@ Return Value:
         }
     }
 
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
+
     return ntStatus;
 }
 
@@ -786,7 +816,7 @@ Return Value:
 
     ASSERT(PropertyRequest);
 
-    DPF_ENTER(("[PropertyHandler_TopoFilter]"));
+    FuncEntry(TRACE_MINTOPO);
 
     // PropertryRequest structure is filled by portcls. 
     // MajorTarget is a pointer to miniport object for miniports.
@@ -798,6 +828,8 @@ Return Value:
         KSPROPERTY_JACK_DESCRIPTION)) {
         ntStatus = pMiniport->PropertyHandlerJackDescription(PropertyRequest);
     }
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
 }
@@ -818,12 +850,16 @@ Return Value:
 
     ASSERT(PropertyRequest);
 
-    DPF_ENTER(("[PropertyHandler_Topology]"));
+    FuncEntry(TRACE_MINTOPO);
 
     // PropertryRequest structure is filled by portcls. 
     // MajorTarget is a pointer to miniport object for miniports.
     //
-    return ((PCMiniportTopology)(PropertyRequest->MajorTarget))->PropertyHandlerGeneric(PropertyRequest);
+    NTSTATUS ntStatus = ((PCMiniportTopology)(PropertyRequest->MajorTarget))->PropertyHandlerGeneric(PropertyRequest);
+
+    FuncExit(TRACE_MINTOPO, "ntStatus=%!STATUS!", ntStatus);
+
+    return ntStatus;
 }
 
 #pragma code_seg()
