@@ -64,7 +64,7 @@ NTSTATUS StartDevice(IN PDEVICE_OBJECT, IN PIRP, IN PRESOURCELIST);
 
 #pragma code_seg("INIT")
 
-[[deprecated("Move to per-device registry querying")]]
+__declspec(deprecated("Move to per-device registry querying"))
 __drv_requiresIRQL(PASSIVE_LEVEL)
 NTSTATUS
 GetRegistrySettings(
@@ -362,10 +362,9 @@ ScreamDriverUnload(
     WPP_CLEANUP(DriverObject);
 }
 
-//=============================================================================
-NTSTATUS AddDevice ( 
-    IN  PDRIVER_OBJECT          DriverObject,
-    IN  PDEVICE_OBJECT          PhysicalDeviceObject 
+NTSTATUS AddDevice(
+    IN PDRIVER_OBJECT DriverObject,
+    IN PDEVICE_OBJECT PhysicalDeviceObject
 )
 /*++
 Routine Description:
@@ -402,9 +401,9 @@ Return Value:
 
     // Tell the class driver to add the device.
     ntStatus = PcAddAdapterDevice(
-        DriverObject, 
-        PhysicalDeviceObject, 
-        PCPFNSTARTDEVICE(StartDevice), 
+        DriverObject,
+        PhysicalDeviceObject,
+        PCPFNSTARTDEVICE(StartDevice),
         MAX_MINIPORTS,
         0
     );
@@ -412,21 +411,20 @@ Return Value:
     FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // AddDevice
+}
 
-//=============================================================================
-NTSTATUS InstallSubdevice( 
-    __in        PDEVICE_OBJECT    DeviceObject,
-    __in        PIRP              Irp,
-    __in        PWSTR             Name,
-    __in        REFGUID           PortClassId,
-    __in        REFGUID           MiniportClassId,
-    __in_opt    PFNCREATEINSTANCE MiniportCreate,
-    __in_opt    PUNKNOWN          UnknownAdapter,
-    __in_opt    PRESOURCELIST     ResourceList,
-    __in        REFGUID           PortInterfaceId,
-    __out_opt   PUNKNOWN *        OutPortInterface,
-    __out_opt   PUNKNOWN *        OutPortUnknown
+NTSTATUS InstallSubdevice(
+    __in PDEVICE_OBJECT        DeviceObject,
+    __in PIRP                  Irp,
+    __in PWSTR                 Name,
+    __in REFGUID               PortClassId,
+    __in REFGUID               MiniportClassId,
+    __in_opt PFNCREATEINSTANCE MiniportCreate,
+    __in_opt PUNKNOWN          UnknownAdapter,
+    __in_opt PRESOURCELIST     ResourceList,
+    __in REFGUID               PortInterfaceId,
+    __out_opt PUNKNOWN *       OutPortInterface,
+    __out_opt PUNKNOWN *       OutPortUnknown
 )
 /*++
 Routine Description:
@@ -465,7 +463,7 @@ Return Value:
     ASSERT(Name);
 
     NTSTATUS ntStatus;
-    PPORT port = NULL;
+    PPORT    port = NULL;
     PUNKNOWN miniport = NULL;
 
     // Create the port driver object
@@ -477,7 +475,7 @@ Return Value:
             ntStatus = MiniportCreate(&miniport, MiniportClassId, NULL, NonPagedPool);
         }
         else {
-            ntStatus = PcNewMiniport((PMINIPORT*)&miniport, MiniportClassId);
+            ntStatus = PcNewMiniport((PMINIPORT *)&miniport, MiniportClassId);
         }
     }
 
@@ -498,11 +496,11 @@ Return Value:
     // Deposit the port interfaces if it's needed.
     if (NT_SUCCESS(ntStatus)) {
         if (OutPortUnknown) {
-            ntStatus = port->QueryInterface(IID_IUnknown, (PVOID*)OutPortUnknown);
+            ntStatus = port->QueryInterface(IID_IUnknown, (PVOID *)OutPortUnknown);
         }
 
         if (OutPortInterface) {
-            ntStatus = port->QueryInterface(PortInterfaceId, (PVOID*)OutPortInterface);
+            ntStatus = port->QueryInterface(PortInterfaceId, (PVOID *)OutPortInterface);
         }
     }
 
@@ -513,14 +511,13 @@ Return Value:
     FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // InstallSubDevice
+}
 
-//=============================================================================
 NTSTATUS StartDevice(
-    IN  PDEVICE_OBJECT          DeviceObject,     
-    IN  PIRP                    Irp,              
-    IN  PRESOURCELIST           ResourceList      
-)  
+    IN PDEVICE_OBJECT DeviceObject,
+    IN PIRP           Irp,
+    IN PRESOURCELIST  ResourceList
+)
 /*++
 Routine Description:
   This function is called by the operating system when the device is 
@@ -548,16 +545,16 @@ Return Value:
     ASSERT(Irp);
     ASSERT(ResourceList);
 
-    NTSTATUS ntStatus = STATUS_SUCCESS;
-    PUNKNOWN unknownTopology = NULL;
-    PUNKNOWN unknownWave = NULL;
+    NTSTATUS       ntStatus = STATUS_SUCCESS;
+    PUNKNOWN       unknownTopology = NULL;
+    PUNKNOWN       unknownWave = NULL;
     PADAPTERCOMMON pAdapterCommon = NULL;
-    PUNKNOWN pUnknownCommon = NULL;
+    PUNKNOWN       pUnknownCommon = NULL;
 
     // create a new adapter common object
     ntStatus = NewAdapterCommon(&pUnknownCommon, IID_IAdapterCommon, NULL, NonPagedPool);
     if (NT_SUCCESS(ntStatus)) {
-        ntStatus = pUnknownCommon->QueryInterface(IID_IAdapterCommon, (PVOID*)&pAdapterCommon);
+        ntStatus = pUnknownCommon->QueryInterface(IID_IAdapterCommon, (PVOID *)&pAdapterCommon);
         if (NT_SUCCESS(ntStatus)) {
             ntStatus = pAdapterCommon->Init(DeviceObject);
             if (NT_SUCCESS(ntStatus)) {
@@ -627,7 +624,7 @@ Return Value:
             }
         }
     }
-    
+
     // Release the adapter common object.  It either has other references,
     // or we need to delete it anyway.
     if (pAdapterCommon) {
@@ -649,5 +646,5 @@ Return Value:
     FuncExit(TRACE_ADAPTER, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // StartDevice
+}
 #pragma code_seg()
