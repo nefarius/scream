@@ -173,7 +173,7 @@ Return Value:
     return (STATUS_SUCCESS);
 }
 
-STDMETHODIMP CMiniportTopology::Init(
+STDMETHODIMP_(NTSTATUS) CMiniportTopology::Init(
     IN PUNKNOWN      UnknownAdapter,
     IN PRESOURCELIST ResourceList,
     IN PPORTTOPOLOGY Port_

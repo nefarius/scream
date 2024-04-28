@@ -35,8 +35,6 @@ public:
 
     IMP_IMiniportTopology;
 
-    NTSTATUS Init(IN PUNKNOWN UnknownAdapter, IN PPORTTOPOLOGY Port_);
-
     // PropertyHandlers.
     NTSTATUS PropertyHandlerJackDescription(IN PPCPROPERTY_REQUEST PropertyRequest);
     NTSTATUS PropertyHandlerBasicSupportVolume(IN PPCPROPERTY_REQUEST PropertyRequest);
