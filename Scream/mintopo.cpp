@@ -824,8 +824,8 @@ Return Value:
     NTSTATUS           ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     PCMiniportTopology pMiniport = (PCMiniportTopology)PropertyRequest->MajorTarget;
 
-    if (IsEqualGUIDAligned(*PropertyRequest->PropertyItem->Set, KSPROPSETID_Jack) && (PropertyRequest->PropertyItem->Id ==
-        KSPROPERTY_JACK_DESCRIPTION)) {
+    if (IsEqualGUIDAligned(*PropertyRequest->PropertyItem->Set, KSPROPSETID_Jack)
+        && (PropertyRequest->PropertyItem->Id == KSPROPERTY_JACK_DESCRIPTION)) {
         ntStatus = pMiniport->PropertyHandlerJackDescription(PropertyRequest);
     }
 
