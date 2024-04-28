@@ -1,4 +1,3 @@
-
 /*++
 
 Copyright (c) 1997-2000  Microsoft Corporation All Rights Reserved
@@ -25,10 +24,9 @@ Abstract:
 //   
 
 class CMiniportTopology : public IMiniportTopology, public CUnknown {
-
 protected:
-	PADAPTERCOMMON              m_AdapterCommon;    // Adapter common object.
-	PPCFILTER_DESCRIPTOR        m_FilterDescriptor; // Filter descriptor.
+    PADAPTERCOMMON       m_AdapterCommon;    // Adapter common object.
+    PPCFILTER_DESCRIPTOR m_FilterDescriptor; // Filter descriptor.
 
 public:
     DECLARE_STD_UNKNOWN();
@@ -37,10 +35,10 @@ public:
 
     IMP_IMiniportTopology;
 
-	NTSTATUS Init(IN PUNKNOWN UnknownAdapter, IN PPORTTOPOLOGY Port_);
+    NTSTATUS Init(IN PUNKNOWN UnknownAdapter, IN PPORTTOPOLOGY Port_);
 
     // PropertyHandlers.
-	NTSTATUS PropertyHandlerJackDescription(IN PPCPROPERTY_REQUEST PropertyRequest);
+    NTSTATUS PropertyHandlerJackDescription(IN PPCPROPERTY_REQUEST PropertyRequest);
     NTSTATUS PropertyHandlerBasicSupportVolume(IN PPCPROPERTY_REQUEST PropertyRequest);
     NTSTATUS PropertyHandlerCpuResources(IN PPCPROPERTY_REQUEST PropertyRequest);
     NTSTATUS PropertyHandlerGeneric(IN PPCPROPERTY_REQUEST PropertyRequest);
@@ -49,9 +47,10 @@ public:
     NTSTATUS PropertyHandlerVolume(IN PPCPROPERTY_REQUEST PropertyRequest);
     NTSTATUS PropertyHandlerDevSpecific(IN PPCPROPERTY_REQUEST PropertyRequest);
 };
-typedef CMiniportTopology *PCMiniportTopology;
 
-extern NTSTATUS PropertyHandler_TopoFilter(IN PPCPROPERTY_REQUEST PropertyRequest);
+typedef CMiniportTopology * PCMiniportTopology;
+
+extern NTSTATUS
+PropertyHandler_TopoFilter(IN PPCPROPERTY_REQUEST PropertyRequest);
 
 #endif
-
