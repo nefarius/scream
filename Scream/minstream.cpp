@@ -54,7 +54,6 @@ CMiniportWaveCyclicStream::CMiniportWaveCyclicStream(PUNKNOWN other) : CUnknown(
     FuncExitNoReturn(TRACE_MINSTREAM);
 }
 
-//=============================================================================
 CMiniportWaveCyclicStream::~CMiniportWaveCyclicStream(void)
 /*++
 Routine Description:
@@ -93,9 +92,8 @@ Return Value:
     }
 
     FuncExitNoReturn(TRACE_MINSTREAM);
-} // ~CMiniportWaveCyclicStream
+}
 
-//=============================================================================
 NTSTATUS CMiniportWaveCyclicStream::Init( 
     IN PCMiniportWaveCyclic         Miniport_,
     IN ULONG                        Pin_,
@@ -212,9 +210,8 @@ Return Value:
     }
 
     return ntStatus;
-} // Init
+} 
 
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclicStream::NonDelegatingQueryInterface( 
     IN  REFIID  Interface,
     OUT PVOID * Object 
@@ -251,9 +248,8 @@ Return Value:
     }
 
     return STATUS_INVALID_PARAMETER;
-} // NonDelegatingQueryInterface
+}
 
-//=============================================================================
 STDMETHODIMP CMiniportWaveCyclicStream::GetPosition(
     OUT PULONG                  Position
 )
@@ -306,9 +302,8 @@ Return Value:
     }
 
     return STATUS_SUCCESS;
-} // GetPosition
+}
 
-//=============================================================================
 STDMETHODIMP CMiniportWaveCyclicStream::NormalizePhysicalPosition(
     IN OUT PLONGLONG            PhysicalPosition
 )
@@ -331,9 +326,8 @@ Return Value:
     *PhysicalPosition = (_100NS_UNITS_PER_SECOND / m_usBlockAlign * *PhysicalPosition) / m_pMiniport->m_SamplingFrequency;
     
     return STATUS_SUCCESS;
-} // NormalizePhysicalPosition
+}
 
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclicStream::SetFormat(
     IN  PKSDATAFORMAT           Format
 )
@@ -378,9 +372,8 @@ Return Value:
     }
 
     return ntStatus;
-} // SetFormat
+}
 
-//=============================================================================
 STDMETHODIMP_(ULONG) CMiniportWaveCyclicStream::SetNotificationFreq(
     IN  ULONG                   Interval,
     OUT PULONG                  FramingSize
@@ -412,9 +405,8 @@ Return Value:
     *FramingSize = m_usBlockAlign * m_pMiniport->m_SamplingFrequency * Interval / 1000;
 
     return m_pMiniport->m_NotificationInterval;
-} // SetNotificationFreq
+}
 
-//=============================================================================
 STDMETHODIMP CMiniportWaveCyclicStream::SetState(
     IN  KSSTATE                 NewState
 )
@@ -491,9 +483,8 @@ Return Value:
     }
 
     return ntStatus;
-} // SetState
+}
 
-//=============================================================================
 STDMETHODIMP_(void) CMiniportWaveCyclicStream::Silence(
     __out_bcount(ByteCount) PVOID Buffer,
     IN ULONG                    ByteCount
@@ -513,11 +504,8 @@ Return Value:
 --*/
 {
     RtlFillMemory(Buffer, ByteCount, m_fFormat16Bit ? 0 : 0x80);
-} // Silence
-
-
+}
 // #pragma code_seg("PAGE")
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclicStream::AllocateBuffer(
     IN ULONG                    BufferSize,
     IN PPHYSICAL_ADDRESS        PhysicalAddressConstraint OPTIONAL
@@ -562,10 +550,9 @@ Return Value:
     }
 
     return ntStatus;
-} // AllocateBuffer
+}
 #pragma code_seg()
 
-//=============================================================================
 STDMETHODIMP_(ULONG) CMiniportWaveCyclicStream::AllocatedBufferSize(void)
 /*++
 Routine Description:
@@ -583,7 +570,6 @@ Return Value:
     return m_ulDmaBufferSize;
 } // AllocatedBufferSize
 
-//=============================================================================
 STDMETHODIMP_(ULONG) CMiniportWaveCyclicStream::BufferSize(void)
 /*++
 Routine Description:
@@ -603,7 +589,6 @@ Return Value:
     return m_ulDmaBufferSize;
 } // BufferSize
 
-//=============================================================================
 STDMETHODIMP_(void) CMiniportWaveCyclicStream::CopyFrom(
     IN  PVOID                   Destination,
     IN  PVOID                   Source,
@@ -628,7 +613,6 @@ Return Value:
     UNREFERENCED_PARAMETER(ByteCount);
 } // CopyFrom
 
-//=============================================================================
 STDMETHODIMP_(void) CMiniportWaveCyclicStream::CopyTo(
     IN  PVOID                   Destination,
     IN  PVOID                   Source,
@@ -717,9 +701,8 @@ Return Value:
             m_NetSink.WriteData(((PBYTE)Source + start_copy_byte), ByteCount - start_copy_byte);
         }
     }
-} // CopyTo
+}
 
-//=============================================================================
 // #pragma code_seg("PAGE")
 STDMETHODIMP_(void) CMiniportWaveCyclicStream::FreeBuffer(void)
 /*++
@@ -743,10 +726,9 @@ Return Value:
         ExFreePoolWithTag( m_pvDmaBuffer, SCREAM_POOLTAG );
         m_ulDmaBufferSize = 0;
     }
-} // FreeBuffer
+}
 #pragma code_seg()
 
-//=============================================================================
 STDMETHODIMP_(PADAPTER_OBJECT) CMiniportWaveCyclicStream::GetAdapterObject(void)
 /*++
 Routine Description:
@@ -765,9 +747,8 @@ Return Value:
     // does not have physical DMA structure.
 
     return NULL;
-} // GetAdapterObject
+}
 
-//=============================================================================
 STDMETHODIMP_(ULONG) CMiniportWaveCyclicStream::MaximumBufferSize(void)
 /*++
 Routine Description:
@@ -781,9 +762,8 @@ Return Value:
     DPF_ENTER(("[CMiniportWaveCyclicStream::MaximumBufferSize]"));
 
     return m_pMiniport->m_MaxDmaBufferSize;
-} // MaximumBufferSize
+}
 
-//=============================================================================
 STDMETHODIMP_(PHYSICAL_ADDRESS) CMiniportWaveCyclicStream::PhysicalAddress(void)
 /*++
 Routine Description:
@@ -804,9 +784,8 @@ Return Value:
     pAddress.QuadPart = (LONGLONG) m_pvDmaBuffer;
 
     return pAddress;
-} // PhysicalAddress
+}
 
-//=============================================================================
 STDMETHODIMP_(void) CMiniportWaveCyclicStream::SetBufferSize(
     IN ULONG                    BufferSize
 )
@@ -832,9 +811,8 @@ Return Value:
     } else {
         DPF(D_ERROR, ("Tried to enlarge dma buffer size"));
     }
-} // SetBufferSize
+}
 
-//=============================================================================
 STDMETHODIMP_(PVOID) CMiniportWaveCyclicStream::SystemAddress(void)
 /*++
 Routine Description:
@@ -849,9 +827,8 @@ Return Value:
 --*/
 {
     return m_pvDmaBuffer;
-} // SystemAddress
+}
 
-//=============================================================================
 STDMETHODIMP_(ULONG) CMiniportWaveCyclicStream::TransferCount(void)
 /*++
 Routine Description:
