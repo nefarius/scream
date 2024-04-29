@@ -105,7 +105,8 @@ public:
 
     NTSTATUS                    Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask);
     void                        Disable(BOOL fDisable);
-    
+
+    __declspec(deprecated("Move to instance member function"))
     static void                 DestroyWorkItems(void);
     void                        WaitAllWorkItems(void);
 
@@ -117,6 +118,7 @@ public:
     void                        WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount);
 
 private:
+    __declspec(deprecated("Move to instance member function"))
     static NTSTATUS             InitializeWorkItem(IN PDEVICE_OBJECT DeviceObject);
 
     void                        IVSHMEMSendData();

@@ -212,7 +212,7 @@ CIVSHMEMSaveData::~CIVSHMEMSaveData() {
     }
 } // CIVSHMEMSaveData
 
-//=============================================================================
+__declspec(deprecated("Move to instance member function"))
 void CIVSHMEMSaveData::DestroyWorkItems(void) {
     PAGED_CODE();
     
@@ -223,7 +223,7 @@ void CIVSHMEMSaveData::DestroyWorkItems(void) {
         m_pWorkItem = NULL;
     }
 
-} // DestroyWorkItems
+}
 
 //=============================================================================
 void CIVSHMEMSaveData::Disable(BOOL fDisable) {

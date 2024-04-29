@@ -44,7 +44,9 @@ protected:
     PMDL                        m_pMdl;
 
     // TODO: convert to member variable
+    __declspec(deprecated("Move to instance member variable"))
     static PDEVICE_OBJECT       m_pDeviceObject;
+    __declspec(deprecated("Move to instance member variable"))
     static PSAVEWORKER_PARAM    m_pWorkItem;
 
     BOOL                        m_fWriteDisabled;
@@ -63,7 +65,8 @@ public:
     void SetAdapterSettings(CONST ADAPTER_COMMON_SETTINGS* Settings);
     NTSTATUS                    Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask);
     void                        Disable(BOOL fDisable);
-    
+
+    __declspec(deprecated("Move to instance member function"))
     static void                 DestroyWorkItems(void);
     void                        WaitAllWorkItems(void);
 
@@ -77,6 +80,7 @@ public:
 
 private:
     // TODO: convert to member function
+    __declspec(deprecated("Move to instance member function"))
     static NTSTATUS             InitializeWorkItem(IN PDEVICE_OBJECT DeviceObject);
 
     _IRQL_requires_max_(PASSIVE_LEVEL)
