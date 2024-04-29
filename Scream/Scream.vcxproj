@@ -604,7 +604,7 @@
     <ClCompile Include="adapter.cpp" />
     <ClCompile Include="common.cpp" />
     <ClCompile Include="hw.cpp" />
-    <ClCompile Include="ivshmemsavedata.cpp" />
+    <ClCompile Include="ivshmemsink.cpp" />
     <ClCompile Include="kshelper.cpp" />
     <ClCompile Include="minstream.cpp" />
     <ClCompile Include="mintopo.cpp" />
@@ -614,7 +614,7 @@
   <ItemGroup>
     <ClInclude Include="common.h" />
     <ClInclude Include="hw.h" />
-    <ClInclude Include="ivshmemsavedata.h" />
+    <ClInclude Include="ivshmemsink.h" />
     <ClInclude Include="kshelper.h" />
     <ClInclude Include="minstream.h" />
     <ClInclude Include="mintopo.h" />

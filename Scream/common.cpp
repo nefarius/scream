@@ -15,7 +15,7 @@ Abstract:
 #include "common.h"
 #include "hw.h"
 #include "netsink.h"
-#include "ivshmemsavedata.h"
+#include "ivshmemsink.h"
 #include "common.tmh"
 
 #include <ntstrsafe.h>

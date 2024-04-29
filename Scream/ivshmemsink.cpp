@@ -5,8 +5,8 @@
 #pragma warning (disable : 4127)
 
 #include "scream.h"
-#include "ivshmemsavedata.h"
-#include "ivshmemsavedata.tmh"
+#include "ivshmemsink.h"
+#include "ivshmemsink.tmh"
 
 //=============================================================================
 // Defines

@@ -12,7 +12,7 @@ Abstract:
 #define _MSVAD_MINSTREAM_H_
 
 #include "netsink.h"
-#include "ivshmemsavedata.h"
+#include "ivshmemsink.h"
 
 //=============================================================================
 // Referenced Forward
