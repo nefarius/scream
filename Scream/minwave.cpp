@@ -27,26 +27,12 @@ Abstract:
 // CMiniportWaveCyclic
 //=============================================================================
 
-NTSTATUS CreateMiniportWaveCyclicScream( 
-    OUT PUNKNOWN *              Unknown,
-    IN  REFCLSID,
-    IN  PUNKNOWN                UnknownOuter OPTIONAL,
-    IN  POOL_TYPE               PoolType 
-)
-/*++
-Routine Description:
-  Create the wavecyclic miniport.
-
-Arguments:
-  Unknown - 
-  RefClsId -
-  UnknownOuter -
-  PoolType -
-
-Return Value:
-  NT status code.
---*/
-{
+NTSTATUS CreateMiniportWaveCyclicScream(
+    OUT PUNKNOWN * Unknown,
+    IN REFCLSID,
+    IN PUNKNOWN  UnknownOuter OPTIONAL,
+    IN POOL_TYPE PoolType
+) {
     ASSERT(Unknown);
 
     STD_CREATE_BODY(CMiniportWaveCyclic, Unknown, UnknownOuter, PoolType);
@@ -65,26 +51,26 @@ Return Value:
     FuncEntry(TRACE_MINWAVE);
 
     // Initialize members.
-    m_AdapterCommon        = NULL;
-    m_Port                 = NULL;
-    m_FilterDescriptor     = NULL;
+    m_AdapterCommon = NULL;
+    m_Port = NULL;
+    m_FilterDescriptor = NULL;
 
     m_NotificationInterval = 0;
-    m_SamplingFrequency    = 0;
+    m_SamplingFrequency = 0;
 
-    m_ServiceGroup         = NULL;
-    m_MaxDmaBufferSize     = DMA_BUFFER_SIZE;
+    m_ServiceGroup = NULL;
+    m_MaxDmaBufferSize = DMA_BUFFER_SIZE;
 
-    m_MaxOutputStreams     = 0;
-    m_MaxInputStreams      = 0;
-    m_MaxTotalStreams      = 0;
+    m_MaxOutputStreams = 0;
+    m_MaxInputStreams = 0;
+    m_MaxTotalStreams = 0;
 
-    m_MinChannels          = 0;
-    m_MaxChannelsPcm       = 0;
-    m_MinBitsPerSamplePcm  = 0;
-    m_MaxBitsPerSamplePcm  = 0;
-    m_MinSampleRatePcm     = 0;
-    m_MaxSampleRatePcm     = 0;
+    m_MinChannels = 0;
+    m_MaxChannelsPcm = 0;
+    m_MinBitsPerSamplePcm = 0;
+    m_MaxBitsPerSamplePcm = 0;
+    m_MinSampleRatePcm = 0;
+    m_MaxSampleRatePcm = 0;
 
     FuncExitNoReturn(TRACE_MINWAVE);
 }
@@ -103,7 +89,7 @@ Return Value:
     FuncEntry(TRACE_MINWAVE);
 
     // PAGED_CODE();
-    
+
     if (m_Port) {
         m_Port->Release();
     }
@@ -119,13 +105,13 @@ Return Value:
     FuncExitNoReturn(TRACE_MINWAVE);
 }
 
-STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::DataRangeIntersection( 
-    IN  ULONG                       PinId,
-    IN  PKSDATARANGE                ClientDataRange,
-    IN  PKSDATARANGE                MyDataRange,
-    IN  ULONG                       OutputBufferLength,
-    OUT PVOID                       ResultantFormat,
-    OUT PULONG                      ResultantFormatLength 
+STDMETHODIMP_(NTSTATUS)CMiniportWaveCyclic::DataRangeIntersection(
+    IN ULONG        PinId,
+    IN PKSDATARANGE ClientDataRange,
+    IN PKSDATARANGE MyDataRange,
+    IN ULONG        OutputBufferLength,
+    OUT PVOID       ResultantFormat,
+    OUT PULONG      ResultantFormatLength
 )
 /*++
 Routine Description:
@@ -167,8 +153,8 @@ Return Value:
     return STATUS_NOT_IMPLEMENTED;
 }
 
-STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::GetDescription( 
-    OUT PPCFILTER_DESCRIPTOR * OutFilterDescriptor 
+STDMETHODIMP_(NTSTATUS)CMiniportWaveCyclic::GetDescription(
+    OUT PPCFILTER_DESCRIPTOR * OutFilterDescriptor
 )
 /*++
 Routine Description:
@@ -201,10 +187,10 @@ Return Value:
 
 }
 
-STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::Init( 
-    IN  PUNKNOWN                UnknownAdapter_,
-    IN  PRESOURCELIST           ResourceList_,
-    IN  PPORTWAVECYCLIC         Port_ 
+STDMETHODIMP_(NTSTATUS)CMiniportWaveCyclic::Init(
+    IN PUNKNOWN        UnknownAdapter_,
+    IN PRESOURCELIST   ResourceList_,
+    IN PPORTWAVECYCLIC Port_
 )
 /*++
 Routine Description:
@@ -230,17 +216,17 @@ Return Value:
     ASSERT(UnknownAdapter_);
     ASSERT(Port_);
 
-    m_MaxOutputStreams      = MAX_OUTPUT_STREAMS;
-    m_MaxInputStreams       = MAX_INPUT_STREAMS;
-    m_MaxTotalStreams       = MAX_TOTAL_STREAMS;
+    m_MaxOutputStreams = MAX_OUTPUT_STREAMS;
+    m_MaxInputStreams = MAX_INPUT_STREAMS;
+    m_MaxTotalStreams = MAX_TOTAL_STREAMS;
 
-    m_MinChannels           = MIN_CHANNELS;
-    m_MaxChannelsPcm        = MAX_CHANNELS_PCM;
+    m_MinChannels = MIN_CHANNELS;
+    m_MaxChannelsPcm = MAX_CHANNELS_PCM;
 
-    m_MinBitsPerSamplePcm   = MIN_BITS_PER_SAMPLE_PCM;
-    m_MaxBitsPerSamplePcm   = MAX_BITS_PER_SAMPLE_PCM;
-    m_MinSampleRatePcm      = MIN_SAMPLE_RATE;
-    m_MaxSampleRatePcm      = MAX_SAMPLE_RATE;
+    m_MinBitsPerSamplePcm = MIN_BITS_PER_SAMPLE_PCM;
+    m_MaxBitsPerSamplePcm = MAX_BITS_PER_SAMPLE_PCM;
+    m_MinSampleRatePcm = MIN_SAMPLE_RATE;
+    m_MaxSampleRatePcm = MAX_SAMPLE_RATE;
 
     // AddRef() is required because we are keeping this pointer.
     m_Port = Port_;
@@ -250,7 +236,7 @@ Return Value:
     // which is given to us as a IUnknown.  The QueryInterface call gives us
     // an AddRefed pointer to the interface we want.
     //
-    NTSTATUS ntStatus = UnknownAdapter_->QueryInterface(IID_IAdapterCommon, (PVOID *) &m_AdapterCommon);
+    NTSTATUS ntStatus = UnknownAdapter_->QueryInterface(IID_IAdapterCommon, (PVOID *)&m_AdapterCommon);
 
     if (NT_SUCCESS(ntStatus)) {
         KeInitializeMutex(&m_SampleRateSync, 1);
@@ -267,7 +253,8 @@ Return Value:
 
         m_fCaptureAllocated = FALSE;
         m_fRenderAllocated = FALSE;
-    } else {
+    }
+    else {
         // clean up AdapterCommon
         if (m_AdapterCommon) {
             // clean up the service group
@@ -292,15 +279,15 @@ Return Value:
     return ntStatus;
 }
 
-STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::NewStream(
-    OUT PMINIPORTWAVECYCLICSTREAM* OutStream,
-    IN PUNKNOWN OuterUnknown,
-    IN POOL_TYPE PoolType,
-    IN ULONG Pin,
-    IN BOOLEAN Capture,
-    IN PKSDATAFORMAT DataFormat,
-    OUT PDMACHANNEL* OutDmaChannel,
-    OUT PSERVICEGROUP* OutServiceGroup
+STDMETHODIMP_(NTSTATUS)CMiniportWaveCyclic::NewStream(
+    OUT PMINIPORTWAVECYCLICSTREAM * OutStream,
+    IN PUNKNOWN                     OuterUnknown,
+    IN POOL_TYPE                    PoolType,
+    IN ULONG                        Pin,
+    IN BOOLEAN                      Capture,
+    IN PKSDATAFORMAT                DataFormat,
+    OUT PDMACHANNEL *               OutDmaChannel,
+    OUT PSERVICEGROUP *             OutServiceGroup
 )
 /*++
 Routine Description:
@@ -333,7 +320,7 @@ Return Value:
     ASSERT(OutDmaChannel);
     ASSERT(OutServiceGroup);
 
-    NTSTATUS ntStatus = STATUS_SUCCESS;
+    NTSTATUS                   ntStatus = STATUS_SUCCESS;
     PCMiniportWaveCyclicStream stream = NULL;
 
     // Check if we have enough streams.
@@ -399,9 +386,9 @@ Return Value:
     return ntStatus;
 }
 
-STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::NonDelegatingQueryInterface( 
-    IN  REFIID  Interface,
-    OUT PVOID * Object 
+STDMETHODIMP_(NTSTATUS)CMiniportWaveCyclic::NonDelegatingQueryInterface(
+    IN REFIID   Interface,
+    OUT PVOID * Object
 )
 /*++
 Routine Description:
@@ -421,11 +408,14 @@ Return Value:
 
     if (IsEqualGUIDAligned(Interface, IID_IUnknown)) {
         *Object = PVOID(PUNKNOWN(PMINIPORTWAVECYCLIC(this)));
-    } else if (IsEqualGUIDAligned(Interface, IID_IMiniport)) {
+    }
+    else if (IsEqualGUIDAligned(Interface, IID_IMiniport)) {
         *Object = PVOID(PMINIPORT(this));
-    } else if (IsEqualGUIDAligned(Interface, IID_IMiniportWaveCyclic)) {
+    }
+    else if (IsEqualGUIDAligned(Interface, IID_IMiniportWaveCyclic)) {
         *Object = PVOID(PMINIPORTWAVECYCLIC(this));
-    } else {
+    }
+    else {
         *Object = NULL;
     }
 
@@ -440,7 +430,7 @@ Return Value:
 }
 
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerComponentId(
-    IN PPCPROPERTY_REQUEST      PropertyRequest
+    IN PPCPROPERTY_REQUEST PropertyRequest
 )
 /*++
 Routine Description:
@@ -461,23 +451,25 @@ Return Value:
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {
         ntStatus = PropertyHandler_BasicSupport(PropertyRequest, KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_GET, VT_ILLEGAL);
-    } else {
+    }
+    else {
         ntStatus = ValidatePropertyParams(PropertyRequest, sizeof(KSCOMPONENTID), 0);
         if (NT_SUCCESS(ntStatus)) {
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_GET) {
-                PKSCOMPONENTID pComponentId = (PKSCOMPONENTID) PropertyRequest->Value;
+                PKSCOMPONENTID pComponentId = (PKSCOMPONENTID)PropertyRequest->Value;
 
                 INIT_MMREG_MID(&pComponentId->Manufacturer, MM_MICROSOFT);
-                pComponentId->Product   = SCREAM_PRODUCT;
-                pComponentId->Name      = SCREAM_NAME;
+                pComponentId->Product = SCREAM_PRODUCT;
+                pComponentId->Name = SCREAM_NAME;
                 pComponentId->Component = GUID_NULL; // Not used for extended caps.
-                pComponentId->Version   = SCREAM_VERSION;
-                pComponentId->Revision  = SCREAM_REVISION;
+                pComponentId->Version = SCREAM_VERSION;
+                pComponentId->Revision = SCREAM_REVISION;
 
                 PropertyRequest->ValueSize = sizeof(KSCOMPONENTID);
                 ntStatus = STATUS_SUCCESS;
             }
-        } else {
+        }
+        else {
             DPF(D_TERSE, ("[PropertyHandlerComponentId - Invalid parameter]"));
             ntStatus = STATUS_INVALID_PARAMETER;
         }
@@ -523,14 +515,16 @@ Return Value:
         }
         else {
             if (PropertyRequest->Verb & KSPROPERTY_TYPE_SET) {
-                KSDATAFORMAT_WAVEFORMATEX* pKsFormat = (KSDATAFORMAT_WAVEFORMATEX*)PropertyRequest->Value;
+                KSDATAFORMAT_WAVEFORMATEX * pKsFormat = (KSDATAFORMAT_WAVEFORMATEX *)PropertyRequest->Value;
                 ntStatus = STATUS_NO_MATCH;
-                if ((pKsFormat->DataFormat.MajorFormat == KSDATAFORMAT_TYPE_AUDIO) && (pKsFormat->DataFormat.SubFormat == KSDATAFORMAT_SUBTYPE_PCM) && (
-                    pKsFormat->DataFormat.Specifier == KSDATAFORMAT_SPECIFIER_WAVEFORMATEX)) {
-                    WAVEFORMATEX* pWfx = (WAVEFORMATEX*)&pKsFormat->WaveFormatEx;
+                if ((pKsFormat->DataFormat.MajorFormat == KSDATAFORMAT_TYPE_AUDIO) && (pKsFormat->DataFormat.SubFormat == KSDATAFORMAT_SUBTYPE_PCM) &&
+                    (
+                        pKsFormat->DataFormat.Specifier == KSDATAFORMAT_SPECIFIER_WAVEFORMATEX)) {
+                    WAVEFORMATEX * pWfx = (WAVEFORMATEX *)&pKsFormat->WaveFormatEx;
                     // We support from 1 to 8 channels at freq >= 44100, sampling size >= 16bits
                     if (((pWfx->wBitsPerSample == 16) || (pWfx->wBitsPerSample == 24) || (pWfx->wBitsPerSample == 32)) &&
-                        ((pWfx->nSamplesPerSec == 44100) || (pWfx->nSamplesPerSec == 48000) || (pWfx->nSamplesPerSec == 88200) || (pWfx->nSamplesPerSec ==
+                        ((pWfx->nSamplesPerSec == 44100) || (pWfx->nSamplesPerSec == 48000) || (pWfx->nSamplesPerSec == 88200) || (pWfx->
+                            nSamplesPerSec ==
                             96000) || (pWfx->nSamplesPerSec == 192000))) {
                         if ((pWfx->wFormatTag == WAVE_FORMAT_PCM) && (pWfx->cbSize == 0)) {
                             if ((pWfx->nChannels >= 1) && (pWfx->nChannels <= 8)) {
@@ -538,11 +532,12 @@ Return Value:
                             }
                         }
                         else if ((pWfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE) && (pWfx->cbSize == CB_EXTENSIBLE)) {
-                            WAVEFORMATEXTENSIBLE* pWfxT = (WAVEFORMATEXTENSIBLE*)pWfx;
+                            WAVEFORMATEXTENSIBLE * pWfxT = (WAVEFORMATEXTENSIBLE *)pWfx;
                             // The channel mask can be greater than 0x07FF, but only in exotic configurations.
                             // It's important that the number of channels is even, to fit in PCM_PAYLOAD_SIZE. Mono is an exception.
                             // This restriction doesn't apply if IVSHMEM is used, because the packet size is dynamic there.
-                            if ((pWfx->nChannels >= 1) && (pWfx->nChannels <= 8) && (pWfxT->dwChannelMask <= 0x07FF) && (g_UseIVSHMEM || pWfx->nChannels ==
+                            if ((pWfx->nChannels >= 1) && (pWfx->nChannels <= 8) && (pWfxT->dwChannelMask <= 0x07FF) && (g_UseIVSHMEM || pWfx->
+                                nChannels ==
                                 1 || pWfx->nChannels % 2 == 0)) {
                                 ntStatus = STATUS_SUCCESS;
                             }
@@ -602,7 +597,7 @@ Return Value:
 }
 
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerGeneric(
-    IN  PPCPROPERTY_REQUEST     PropertyRequest
+    IN PPCPROPERTY_REQUEST PropertyRequest
 )
 /*++
 Routine Description:
@@ -640,10 +635,10 @@ Return Value:
 }
 
 void TimerNotify(
-    IN  PKDPC                   Dpc,
-    IN  PVOID                   DeferredContext,
-    IN  PVOID                   SA1,
-    IN  PVOID                   SA2
+    IN PKDPC Dpc,
+    IN PVOID DeferredContext,
+    IN PVOID SA1,
+    IN PVOID SA2
 )
 /*++
 Routine Description:
@@ -667,7 +662,7 @@ Return Value:
     UNREFERENCED_PARAMETER(SA1);
     UNREFERENCED_PARAMETER(SA2);
 
-    PCMiniportWaveCyclic pMiniport = (PCMiniportWaveCyclic) DeferredContext;
+    PCMiniportWaveCyclic pMiniport = (PCMiniportWaveCyclic)DeferredContext;
 
     if (pMiniport && pMiniport->m_Port) {
         pMiniport->m_Port->Notify(pMiniport->m_ServiceGroup);
@@ -694,7 +689,7 @@ Return Value:
 
     // PAGED_CODE();
 
-    NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
+    NTSTATUS             ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     PCMiniportWaveCyclic pWave = (PCMiniportWaveCyclic)PropertyRequest->MajorTarget;
 
     switch (PropertyRequest->PropertyItem->Id) {
@@ -716,4 +711,3 @@ Return Value:
 }
 
 #pragma code_seg()
-
