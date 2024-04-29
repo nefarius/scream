@@ -470,7 +470,10 @@ Return Value:
             }
         }
         else {
-            DPF(D_TERSE, ("[PropertyHandlerComponentId - Invalid parameter]"));
+            TraceError(
+                TRACE_MINWAVE,
+                "Invalid parameter"
+            );
             ntStatus = STATUS_INVALID_PARAMETER;
         }
     }
