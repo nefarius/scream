@@ -24,8 +24,8 @@
 //-----------------------------------------------------------------------------
 //  Forward declaration
 //-----------------------------------------------------------------------------
-class CIVSHMEMSaveData;
-typedef CIVSHMEMSaveData *PCIVSHMEMSaveData;
+class CIVSHMEMSink;
+typedef CIVSHMEMSink *PCIVSHMEMSink;
 
 //-----------------------------------------------------------------------------
 //  Structs
@@ -35,7 +35,7 @@ typedef CIVSHMEMSaveData *PCIVSHMEMSaveData;
 #include <pshpack1.h>
 typedef struct _IVSHMEM_SAVEWORKER_PARAM {
     PIO_WORKITEM        WorkItem;
-    PCIVSHMEMSaveData   pSaveData;
+    PCIVSHMEMSink   pSaveData;
     KEVENT              EventDone;
 } IVSHMEM_SAVEWORKER_PARAM;
 typedef IVSHMEM_SAVEWORKER_PARAM *PIVSHMEM_SAVEWORKER_PARAM;
@@ -87,7 +87,7 @@ IVSHMEM_SCREAM_HEADER, *PIVSHMEM_SCREAM_HEADER;
 //
 IO_WORKITEM_ROUTINE IVSHMEMSendDataWorkerCallback;
 
-class CIVSHMEMSaveData {
+class CIVSHMEMSink {
 protected:
     PBYTE                       m_pBuffer;
     ULONG                       m_ulOffset;
@@ -102,8 +102,8 @@ protected:
 
     IVSHMEM_OBJECT              m_ivshmem;
 public:
-    CIVSHMEMSaveData();
-    ~CIVSHMEMSaveData();
+    CIVSHMEMSink();
+    ~CIVSHMEMSink();
 
     NTSTATUS                    Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask);
     void                        Disable(BOOL fDisable);
@@ -129,6 +129,6 @@ private:
     BOOLEAN                     RequestMMAP();
     void                        ReleaseMMAP();
 };
-typedef CIVSHMEMSaveData *PCIVSHMEMSaveData;
+typedef CIVSHMEMSink *PCIVSHMEMSink;
 
 #endif

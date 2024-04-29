@@ -156,7 +156,7 @@ Return Value:
                     dwChannelMask = pWfxT->dwChannelMask;
                 }
                 if (g_UseIVSHMEM) {
-                    ntStatus = m_IVSHMEMSaveData.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
+                    ntStatus = m_IVSHMEMSink.Initialize(pWfx->nSamplesPerSec, pWfx->wBitsPerSample, pWfx->nChannels, dwChannelMask);
                 }
                 else {
                     m_NetSink.SetAdapterSettings(Miniport_->m_AdapterCommon->GetAdapterSettings());
@@ -477,7 +477,7 @@ Return Value:
                 // Wait until all work items are completed.
                 if (!m_fCapture) {
                     if (g_UseIVSHMEM) {
-                        m_IVSHMEMSaveData.WaitAllWorkItems();
+                        m_IVSHMEMSink.WaitAllWorkItems();
                     }
                     else {
                         m_NetSink.WaitAllWorkItems();
@@ -646,7 +646,7 @@ Return Value:
     UNREFERENCED_PARAMETER(Destination);
 
     if (g_UseIVSHMEM) {
-        m_IVSHMEMSaveData.WriteData((PBYTE)Source, ByteCount);
+        m_IVSHMEMSink.WriteData((PBYTE)Source, ByteCount);
     }
     else {
         ULONG start_copy_byte = 0;

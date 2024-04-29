@@ -44,12 +44,12 @@ protected:
     PVOID                       m_pvDmaBuffer;                      // Dma buffer pointer
     ULONG                       m_ulDmaBufferSize;                  // Size of dma buffer
     ULONG                       m_ulDmaMovementRate;                // Rate of transfer specific to system
-    ULONGLONG                   m_ullDmaTimeStamp;                  // Dma time elasped 
+    ULONGLONG                   m_ullDmaTimeStamp;                  // Dma time elapsed 
     ULONGLONG                   m_ullElapsedTimeCarryForward;       // Time to carry forward in position calc.
     ULONG                       m_ulByteDisplacementCarryForward;   // Bytes to carry forward to next calc.
 
-    CNetSink                    m_NetSink;                         // Object to save settings.
-    CIVSHMEMSaveData            m_IVSHMEMSaveData;                  // Object to save settings if we are using IVSHMEM.
+    CNetSink                    m_NetSink;                          // Object to save settings.
+    CIVSHMEMSink                m_IVSHMEMSink;                      // Object to save settings if we are using IVSHMEM.
 
     ULONGLONG                   m_silenceState = 0;                 // 0 = Not Silent, >g_silenceThreshold=Silent,
                                                                     // values lower than threshold = Gap

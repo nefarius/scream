@@ -32,9 +32,9 @@ PDEVICE_OBJECT    CNetSink::m_pDeviceObject = NULL;
 
 // TODO: get rid of those!
 __declspec(deprecated("Move to instance member variable"))
-PIVSHMEM_SAVEWORKER_PARAM CIVSHMEMSaveData::m_pWorkItem = NULL;
+PIVSHMEM_SAVEWORKER_PARAM CIVSHMEMSink::m_pWorkItem = NULL;
 __declspec(deprecated("Move to instance member variable"))
-PDEVICE_OBJECT            CIVSHMEMSaveData::m_pDeviceObject = NULL;
+PDEVICE_OBJECT            CIVSHMEMSink::m_pDeviceObject = NULL;
 
 //=============================================================================
 // Classes
@@ -137,7 +137,7 @@ CAdapterCommon::~CAdapterCommon(void) {
     }
 
     if (g_UseIVSHMEM) {
-        CIVSHMEMSaveData::DestroyWorkItems();
+        CIVSHMEMSink::DestroyWorkItems();
     }
     else {
         CNetSink::DestroyWorkItems();
@@ -219,7 +219,7 @@ NTSTATUS CAdapterCommon::Init(IN PDEVICE_OBJECT DeviceObject) {
     }
 
     if (g_UseIVSHMEM) {
-        CIVSHMEMSaveData::SetDeviceObject(DeviceObject); //device object is needed by CIVSHMEMSaveData
+        CIVSHMEMSink::SetDeviceObject(DeviceObject); //device object is needed by CIVSHMEMSaveData
     }
     else {
         CNetSink::SetDeviceObject(DeviceObject); //device object is needed by CSaveData

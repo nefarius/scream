@@ -20,7 +20,7 @@
 //=============================================================================
 
 //=============================================================================
-BOOLEAN CIVSHMEMSaveData::RequestMMAP() {
+BOOLEAN CIVSHMEMSink::RequestMMAP() {
 
     PAGED_CODE();
 
@@ -58,7 +58,7 @@ BOOLEAN CIVSHMEMSaveData::RequestMMAP() {
 }
 
 //=============================================================================
-void CIVSHMEMSaveData::ReleaseMMAP() {
+void CIVSHMEMSink::ReleaseMMAP() {
 
     PAGED_CODE();
 
@@ -92,7 +92,7 @@ void CIVSHMEMSaveData::ReleaseMMAP() {
 }
 
 //=============================================================================
-CIVSHMEMSaveData::CIVSHMEMSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
+CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
     PAGED_CODE();
 
     DPF_ENTER(("[CIVSHMEMSaveData::CIVSHMEMSaveData]"));
@@ -182,7 +182,7 @@ CIVSHMEMSaveData::CIVSHMEMSaveData() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendO
 } // CIVSHMEMSaveData
 
 //=============================================================================
-CIVSHMEMSaveData::~CIVSHMEMSaveData() {
+CIVSHMEMSink::~CIVSHMEMSink() {
     PAGED_CODE();
 
     DPF_ENTER(("[CIVSHMEMSaveData::~CIVSHMEMSaveData]"));
@@ -213,7 +213,7 @@ CIVSHMEMSaveData::~CIVSHMEMSaveData() {
 } // CIVSHMEMSaveData
 
 __declspec(deprecated("Move to instance member function"))
-void CIVSHMEMSaveData::DestroyWorkItems(void) {
+void CIVSHMEMSink::DestroyWorkItems(void) {
     PAGED_CODE();
     
     DPF_ENTER(("[CIVSHMEMSaveData::DestroyWorkItems]"));
@@ -226,14 +226,14 @@ void CIVSHMEMSaveData::DestroyWorkItems(void) {
 }
 
 //=============================================================================
-void CIVSHMEMSaveData::Disable(BOOL fDisable) {
+void CIVSHMEMSink::Disable(BOOL fDisable) {
     PAGED_CODE();
 
     m_fWriteDisabled = fDisable;
 } // Disable
 
 __declspec(deprecated("Move to instance member function"))
-NTSTATUS CIVSHMEMSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
+NTSTATUS CIVSHMEMSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     PAGED_CODE();
 
     ASSERT(DeviceObject);
@@ -245,7 +245,7 @@ NTSTATUS CIVSHMEMSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
 }
 
 __declspec(deprecated("Move to instance member function"))
-PDEVICE_OBJECT CIVSHMEMSaveData::GetDeviceObject(void) {
+PDEVICE_OBJECT CIVSHMEMSink::GetDeviceObject(void) {
     PAGED_CODE();
 
     return m_pDeviceObject;
@@ -253,7 +253,7 @@ PDEVICE_OBJECT CIVSHMEMSaveData::GetDeviceObject(void) {
 
 #pragma code_seg("PAGE")
 //=============================================================================
-NTSTATUS CIVSHMEMSaveData::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
+NTSTATUS CIVSHMEMSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
     PAGED_CODE();
 
     NTSTATUS          ntStatus = STATUS_SUCCESS;
@@ -308,7 +308,7 @@ VOID IVSHMEMSendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN  PVOID  Cont
     ASSERT(Context);
     
     PIVSHMEM_SAVEWORKER_PARAM pParam = (PIVSHMEM_SAVEWORKER_PARAM) Context;
-    PCIVSHMEMSaveData        pSaveData;
+    PCIVSHMEMSink        pSaveData;
 
     ASSERT(pParam->pSaveData);
 
@@ -321,7 +321,7 @@ VOID IVSHMEMSendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN  PVOID  Cont
 } // SendDataWorkerCallback
 
 //=============================================================================
-void CIVSHMEMSaveData::IVSHMEMSendData() {
+void CIVSHMEMSink::IVSHMEMSendData() {
     ULONG storeOffset;
     PBYTE mmap = NULL;
     if (RequestMMAP()) {
@@ -354,7 +354,7 @@ void CIVSHMEMSaveData::IVSHMEMSendData() {
 
 #pragma code_seg("PAGE")
 //=============================================================================
-void CIVSHMEMSaveData::WaitAllWorkItems(void) {
+void CIVSHMEMSink::WaitAllWorkItems(void) {
     PAGED_CODE();
 
     DPF_ENTER(("[CIVSHMEMSaveData::WaitAllWorkItems]"));
@@ -366,7 +366,7 @@ void CIVSHMEMSaveData::WaitAllWorkItems(void) {
 
 #pragma code_seg()
 //=============================================================================
-void CIVSHMEMSaveData::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
+void CIVSHMEMSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     ASSERT(pBuffer);
 
     if (!m_ivshmem.initialized) {
