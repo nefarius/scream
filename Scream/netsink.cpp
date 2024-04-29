@@ -150,6 +150,7 @@ void CNetSink::Disable(BOOL fDisable) {
     FuncExitNoReturn(TRACE_NETSINK);
 }
 
+__declspec(deprecated("Move to instance member function"))
 NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     FuncEntry(TRACE_NETSINK);
 
@@ -164,6 +165,7 @@ NTSTATUS CNetSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     return STATUS_SUCCESS;
 }
 
+__declspec(deprecated("Move to instance member function"))
 PDEVICE_OBJECT CNetSink::GetDeviceObject(void) {
     FuncEntry(TRACE_NETSINK);
 

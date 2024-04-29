@@ -232,7 +232,7 @@ void CIVSHMEMSaveData::Disable(BOOL fDisable) {
     m_fWriteDisabled = fDisable;
 } // Disable
 
-//=============================================================================
+__declspec(deprecated("Move to instance member function"))
 NTSTATUS CIVSHMEMSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     PAGED_CODE();
 
@@ -244,7 +244,7 @@ NTSTATUS CIVSHMEMSaveData::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     return ntStatus;
 }
 
-//=============================================================================
+__declspec(deprecated("Move to instance member function"))
 PDEVICE_OBJECT CIVSHMEMSaveData::GetDeviceObject(void) {
     PAGED_CODE();
 

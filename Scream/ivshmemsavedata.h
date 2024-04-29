@@ -108,8 +108,10 @@ public:
     
     static void                 DestroyWorkItems(void);
     void                        WaitAllWorkItems(void);
-    
+
+    __declspec(deprecated("Move to instance member function"))
     static NTSTATUS             SetDeviceObject(IN PDEVICE_OBJECT DeviceObject);
+    __declspec(deprecated("Move to instance member function"))
     static PDEVICE_OBJECT       GetDeviceObject(void);
     
     void                        WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount);
