@@ -19,23 +19,27 @@
 // CIVSHMEMSaveData
 //=============================================================================
 
-//=============================================================================
 BOOLEAN CIVSHMEMSink::RequestMMAP() {
+
+    FuncEntry(TRACE_IVSHMEMSINK);
 
     PAGED_CODE();
 
-	if (!m_ivshmem.devObj) {
-		return FALSE;
-	}
+    if (!m_ivshmem.devObj) {
+        return FALSE;
+    }
 
+    BOOLEAN         ret = FALSE;
     IO_STATUS_BLOCK ioStatus = { 0 };
-    KEVENT event;
+    KEVENT          event;
     KeInitializeEvent(&event, NotificationEvent, FALSE);
     PIRP irp = IoBuildDeviceIoControlRequest(
         IOCTL_IVSHMEM_REQUEST_MMAP,
         m_ivshmem.devObj,
-        NULL, 0,
-        &m_ivshmem.mmap, sizeof(IVSHMEM_MMAP),
+        NULL,
+        0,
+        &m_ivshmem.mmap,
+        sizeof(IVSHMEM_MMAP),
         FALSE,
         &event,
         &ioStatus
@@ -45,35 +49,48 @@ BOOLEAN CIVSHMEMSink::RequestMMAP() {
             KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
         }
         if (ioStatus.Status == 0) {
-            return TRUE;
+            ret = TRUE;
         }
         else {
-            DPF_ENTER(("IVSHMEM: IRP for REQUEST_MMAP failed with status %u\n", ioStatus.Status));
+            TraceError(
+                TRACE_IVSHMEMSINK,
+                "IOCTL_IVSHMEM_REQUEST_MMAP failed with status %!STATUS!",
+                ioStatus.Status
+            );
         }
     }
     else {
-        DPF_ENTER(("IVSHMEM: Failed to get the IRP for REQUEST_MMAP\n"));
+        TraceError(
+            TRACE_IVSHMEMSINK,
+            "Failed to allocate IRP"
+        );
     }
-    return FALSE;
+
+    FuncExit(TRACE_IVSHMEMSINK, "ret=%d", ret);
+
+    return ret;
 }
 
-//=============================================================================
 void CIVSHMEMSink::ReleaseMMAP() {
+
+    FuncEntry(TRACE_IVSHMEMSINK);
 
     PAGED_CODE();
 
-	if (!m_ivshmem.devObj) {
-		return;
-	}
+    if (!m_ivshmem.devObj) {
+        return;
+    }
 
     IO_STATUS_BLOCK ioStatus = { 0 };
-    KEVENT event;
+    KEVENT          event;
     KeInitializeEvent(&event, NotificationEvent, FALSE);
     PIRP irp = IoBuildDeviceIoControlRequest(
         IOCTL_IVSHMEM_RELEASE_MMAP,
         m_ivshmem.devObj,
-        NULL, 0,
-        NULL, 0,
+        NULL,
+        0,
+        NULL,
+        0,
         FALSE,
         &event,
         &ioStatus
@@ -83,20 +100,28 @@ void CIVSHMEMSink::ReleaseMMAP() {
             KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
         }
         if (ioStatus.Status != 0) {
-            DPF_ENTER(("IVSHMEM: IRP for RELEASE_MMAP failed with status %u\n", ioStatus.Status));
+            TraceError(
+                TRACE_IVSHMEMSINK,
+                "IOCTL_IVSHMEM_RELEASE_MMAP failed with status %!STATUS!",
+                ioStatus.Status
+            );
         }
     }
     else {
-        DPF_ENTER(("IVSHMEM: Failed to get the IRP for RELEASE_MMAP\n"));
+        TraceError(
+            TRACE_IVSHMEMSINK,
+            "Failed to allocate IRP"
+        );
     }
+
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
 }
 
-//=============================================================================
 CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0), m_fWriteDisabled(FALSE) {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     PAGED_CODE();
 
-    DPF_ENTER(("[CIVSHMEMSaveData::CIVSHMEMSaveData]"));
-    
     if (g_UseIVSHMEM) {
         // allocate work item for this stream
         m_pWorkItem = (PIVSHMEM_SAVEWORKER_PARAM)ExAllocatePoolWithTag(NonPagedPool, sizeof(IVSHMEM_SAVEWORKER_PARAM), SCREAM_POOLTAG);
@@ -106,8 +131,8 @@ CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0)
         }
 
         // Enumerate IVSHMEM devices
-        GUID interfaceClassGuid = { 0xdf576976,0x569d,0x4672,0x95,0xa0,0xf5,0x7e,0x4e,0xa0,0xb2,0x10 };
-        PWSTR symbolicLinkList;
+        GUID     interfaceClassGuid = { 0xdf576976, 0x569d, 0x4672, 0x95, 0xa0, 0xf5, 0x7e, 0x4e, 0xa0, 0xb2, 0x10 };
+        PWSTR    symbolicLinkList;
         NTSTATUS ntStatus;
         ntStatus = IoGetDeviceInterfaces(
             &interfaceClassGuid,
@@ -117,19 +142,19 @@ CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0)
         );
 
         if (NT_SUCCESS(ntStatus) && NULL != symbolicLinkList) {
-            PFILE_OBJECT fileObj;
+            PFILE_OBJECT   fileObj;
             PDEVICE_OBJECT devObj;
             UNICODE_STRING objName;
 
-            KEVENT event;
+            KEVENT          event;
             IO_STATUS_BLOCK ioStatus = { 0 };
 
-            PIRP irp;
+            PIRP   irp;
             UINT64 ivshmemSize = 0;
-            
+
             for (PWSTR symbolicLink = symbolicLinkList;
-                symbolicLink[0] != NULL && symbolicLink[1] != NULL;
-                symbolicLink += wcslen(symbolicLink) + 1) {
+                 symbolicLink[0] != NULL && symbolicLink[1] != NULL;
+                 symbolicLink += wcslen(symbolicLink) + 1) {
                 RtlInitUnicodeString(&objName, symbolicLink);
 
                 ntStatus = IoGetDeviceObjectPointer(
@@ -147,8 +172,10 @@ CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0)
                         irp = IoBuildDeviceIoControlRequest(
                             IOCTL_IVSHMEM_REQUEST_SIZE,
                             devObj,
-                            NULL, 0,
-                            &ivshmemSize, sizeof(ivshmemSize),
+                            NULL,
+                            0,
+                            &ivshmemSize,
+                            sizeof(ivshmemSize),
                             FALSE,
                             &event,
                             &ioStatus
@@ -158,9 +185,13 @@ CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0)
                             if (ntStatus == STATUS_PENDING) {
                                 KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
                             }
-                            if (ioStatus.Status == 0 && ivshmemSize == g_UseIVSHMEM*1024*1024) { //we suppose that we are the only g_UseIVSHMEM*1MiB IVSHMEM device around
-                                DPF_ENTER(("IVSHMEM Device Detected!\n"));
-                                
+                            if (ioStatus.Status == 0 && ivshmemSize == g_UseIVSHMEM * 1024 *
+                                1024) { //we suppose that we are the only g_UseIVSHMEM*1MiB IVSHMEM device around
+                                TraceInformation(
+                                    TRACE_IVSHMEMSINK,
+                                    "IVSHMEM Device Detected"
+                                );
+
                                 RtlZeroMemory(&m_ivshmem, sizeof(IVSHMEM_OBJECT));
                                 m_ivshmem.devObj = devObj;
                                 // we have found a suitable device, we skip the others, and we DON'T dereference devObj, it will be dereferenced in the destructor
@@ -168,7 +199,11 @@ CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0)
                             }
                         }
                         else {
-                            DPF_ENTER(("IVSHMEM: Failed to get the IRP for REQUEST_SIZE\n"));
+                            TraceError(
+                                TRACE_IVSHMEMSINK,
+                                "IOCTL_IVSHMEM_REQUEST_SIZE failed with status %!STATUS!",
+                                ntStatus
+                            );
                         }
                     }
 
@@ -179,13 +214,15 @@ CIVSHMEMSink::CIVSHMEMSink() : m_pBuffer(NULL), m_ulOffset(0), m_ulSendOffset(0)
 
         ExFreePool(symbolicLinkList);
     }
-} // CIVSHMEMSaveData
 
-//=============================================================================
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
+}
+
 CIVSHMEMSink::~CIVSHMEMSink() {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     PAGED_CODE();
 
-    DPF_ENTER(("[CIVSHMEMSaveData::~CIVSHMEMSaveData]"));
     if (g_UseIVSHMEM) {
         // frees the work item
         if (m_pWorkItem->WorkItem != NULL) {
@@ -210,12 +247,16 @@ CIVSHMEMSink::~CIVSHMEMSink() {
             ExFreePoolWithTag(m_pBuffer, SCREAM_POOLTAG);
         }
     }
-} // CIVSHMEMSaveData
+
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
+}
 
 __declspec(deprecated("Move to instance member function"))
 void CIVSHMEMSink::DestroyWorkItems(void) {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     PAGED_CODE();
-    
+
     DPF_ENTER(("[CIVSHMEMSaveData::DestroyWorkItems]"));
 
     if (m_pWorkItem) {
@@ -223,14 +264,14 @@ void CIVSHMEMSink::DestroyWorkItems(void) {
         m_pWorkItem = NULL;
     }
 
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
 }
 
-//=============================================================================
 void CIVSHMEMSink::Disable(BOOL fDisable) {
     PAGED_CODE();
 
     m_fWriteDisabled = fDisable;
-} // Disable
+}
 
 __declspec(deprecated("Move to instance member function"))
 NTSTATUS CIVSHMEMSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
@@ -239,7 +280,7 @@ NTSTATUS CIVSHMEMSink::SetDeviceObject(IN PDEVICE_OBJECT DeviceObject) {
     ASSERT(DeviceObject);
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
-    
+
     m_pDeviceObject = DeviceObject;
     return ntStatus;
 }
@@ -252,15 +293,17 @@ PDEVICE_OBJECT CIVSHMEMSink::GetDeviceObject(void) {
 }
 
 #pragma code_seg("PAGE")
-//=============================================================================
+
 NTSTATUS CIVSHMEMSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WORD nChannels, DWORD dwChannelMask) {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     PAGED_CODE();
 
-    NTSTATUS          ntStatus = STATUS_SUCCESS;
+    NTSTATUS ntStatus = STATUS_SUCCESS;
 
     DPF_ENTER(("[CIVSHMEMSaveData::Initialize]"));
 
-    m_ivshmem.chunkSize = (UINT32)((wBitsPerSample>>3)*nChannels*nSamplesPerSec/50);
+    m_ivshmem.chunkSize = (UINT32)((wBitsPerSample >> 3) * nChannels * nSamplesPerSec / 50);
     if (RequestMMAP()) {
         PIVSHMEM_SCREAM_HEADER hdr = (PIVSHMEM_SCREAM_HEADER)m_ivshmem.mmap.ptr;
 
@@ -269,7 +312,7 @@ NTSTATUS CIVSHMEMSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WOR
         hdr->offset = m_ivshmem.offset = (UINT8)sizeof(IVSHMEM_SCREAM_HEADER);
         hdr->chunkSize = m_ivshmem.chunkSize;
         hdr->maxChunks = m_ivshmem.maxChunks = (UINT16)(m_ivshmem.mmap.size / m_ivshmem.chunkSize);
-        m_ivshmem.bufferSize = m_ivshmem.chunkSize*m_ivshmem.maxChunks;
+        m_ivshmem.bufferSize = m_ivshmem.chunkSize * m_ivshmem.maxChunks;
 
         // Only multiples of 44100 and 48000 are supported
         hdr->sampleRate = (UINT8)((nSamplesPerSec % 44100) ? (0 + (nSamplesPerSec / 48000)) : (128 + (nSamplesPerSec / 44100)));
@@ -294,21 +337,24 @@ NTSTATUS CIVSHMEMSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WOR
         }
     }
 
-    return ntStatus;
-} // Initialize
+    FuncExit(TRACE_IVSHMEMSINK, "ntStatus=%!STATUS!", ntStatus);
 
-//=============================================================================
+    return ntStatus;
+}
+
 IO_WORKITEM_ROUTINE IVSHMEMSendDataWorkerCallback;
 
-VOID IVSHMEMSendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN  PVOID  Context) {
+VOID IVSHMEMSendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN PVOID Context) {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     UNREFERENCED_PARAMETER(pDeviceObject);
 
     PAGED_CODE();
 
     ASSERT(Context);
-    
-    PIVSHMEM_SAVEWORKER_PARAM pParam = (PIVSHMEM_SAVEWORKER_PARAM) Context;
-    PCIVSHMEMSink        pSaveData;
+
+    PIVSHMEM_SAVEWORKER_PARAM pParam = (PIVSHMEM_SAVEWORKER_PARAM)Context;
+    PCIVSHMEMSink             pSaveData;
 
     ASSERT(pParam->pSaveData);
 
@@ -318,10 +364,13 @@ VOID IVSHMEMSendDataWorkerCallback(PDEVICE_OBJECT pDeviceObject, IN  PVOID  Cont
     }
 
     KeSetEvent(&(pParam->EventDone), 0, FALSE);
-} // SendDataWorkerCallback
 
-//=============================================================================
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
+}
+
 void CIVSHMEMSink::IVSHMEMSendData() {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     ULONG storeOffset;
     PBYTE mmap = NULL;
     if (RequestMMAP()) {
@@ -329,7 +378,7 @@ void CIVSHMEMSink::IVSHMEMSendData() {
     }
 
     PIVSHMEM_SCREAM_HEADER hdr = (PIVSHMEM_SCREAM_HEADER)m_ivshmem.mmap.ptr;
-    
+
     while (1) {
         // Read latest storeOffset. There might be new data.
         storeOffset = m_ulOffset;
@@ -347,26 +396,31 @@ void CIVSHMEMSink::IVSHMEMSendData() {
             hdr->writeIdx = m_ivshmem.writeIdx;
         }
 
-        m_ulSendOffset += m_ivshmem.chunkSize; if (m_ulSendOffset >= m_ivshmem.bufferSize) m_ulSendOffset = 0;
+        m_ulSendOffset += m_ivshmem.chunkSize;
+        if (m_ulSendOffset >= m_ivshmem.bufferSize)
+            m_ulSendOffset = 0;
     }
     ReleaseMMAP();
+
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
 }
 
 #pragma code_seg("PAGE")
-//=============================================================================
 void CIVSHMEMSink::WaitAllWorkItems(void) {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     PAGED_CODE();
 
-    DPF_ENTER(("[CIVSHMEMSaveData::WaitAllWorkItems]"));
-
-    DPF(D_VERBOSE, ("[Waiting for WorkItem]"));
     KeWaitForSingleObject(&(m_pWorkItem->EventDone), Executive, KernelMode, FALSE, NULL);
-    
-} // WaitAllWorkItems
+
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
+}
 
 #pragma code_seg()
-//=============================================================================
+
 void CIVSHMEMSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
+    FuncEntry(TRACE_IVSHMEMSINK);
+
     ASSERT(pBuffer);
 
     if (!m_ivshmem.initialized) {
@@ -374,10 +428,10 @@ void CIVSHMEMSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
     }
 
     LARGE_INTEGER timeOut = { 0 };
-    NTSTATUS ntStatus;
-    ULONG offset;
-    ULONG toWrite;
-    ULONG w;
+    NTSTATUS      ntStatus;
+    ULONG         offset;
+    ULONG         toWrite;
+    ULONG         w;
 
     if (m_fWriteDisabled) {
         return;
@@ -414,7 +468,9 @@ void CIVSHMEMSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
             RtlCopyMemory(&(m_pBuffer[offset]), &(pBuffer[ulByteCount - toWrite]), w);
         }
         toWrite -= w;
-        offset += w;  if (offset >= m_ivshmem.bufferSize) offset = 0;
+        offset += w;
+        if (offset >= m_ivshmem.bufferSize)
+            offset = 0;
     }
     m_ulOffset = offset;
 
@@ -425,4 +481,6 @@ void CIVSHMEMSink::WriteData(IN PBYTE pBuffer, IN ULONG ulByteCount) {
         KeResetEvent(&(m_pWorkItem->EventDone));
         IoQueueWorkItem(m_pWorkItem->WorkItem, IVSHMEMSendDataWorkerCallback, CriticalWorkQueue, (PVOID)m_pWorkItem);
     }
-} // WriteData
+
+    FuncExitNoReturn(TRACE_IVSHMEMSINK);
+}

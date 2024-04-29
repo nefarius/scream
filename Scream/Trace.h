@@ -12,7 +12,7 @@
         WPP_DEFINE_BIT(TRACE_ADAPTER)                                   \
         WPP_DEFINE_BIT(TRACE_COMMON)                                    \
         WPP_DEFINE_BIT(TRACE_HW)                                        \
-        WPP_DEFINE_BIT(TRACE_IVSHMEMSAVEDATA)                           \
+        WPP_DEFINE_BIT(TRACE_IVSHMEMSINK)                               \
         WPP_DEFINE_BIT(TRACE_KSHELPER)                                  \
         WPP_DEFINE_BIT(TRACE_MINSTREAM)                                 \
         WPP_DEFINE_BIT(TRACE_MINTOPO)                                   \
