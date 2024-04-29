@@ -92,8 +92,10 @@ protected:
     PBYTE                       m_pBuffer;
     ULONG                       m_ulOffset;
     ULONG                       m_ulSendOffset;
-    
+
+    __declspec(deprecated("Move to instance member variable"))
     static PDEVICE_OBJECT       m_pDeviceObject;
+    __declspec(deprecated("Move to instance member variable"))
     static PIVSHMEM_SAVEWORKER_PARAM    m_pWorkItem;
 
     BOOL                        m_fWriteDisabled;
