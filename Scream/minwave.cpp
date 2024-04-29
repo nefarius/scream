@@ -27,7 +27,6 @@ Abstract:
 // CMiniportWaveCyclic
 //=============================================================================
 
-//=============================================================================
 NTSTATUS CreateMiniportWaveCyclicScream( 
     OUT PUNKNOWN *              Unknown,
     IN  REFCLSID,
@@ -53,7 +52,6 @@ Return Value:
     STD_CREATE_BODY(CMiniportWaveCyclic, Unknown, UnknownOuter, PoolType);
 }
 
-//=============================================================================
 CMiniportWaveCyclic::CMiniportWaveCyclic(PUNKNOWN other) : CUnknown(other)
 /*++
 Routine Description:
@@ -89,9 +87,8 @@ Return Value:
     m_MaxSampleRatePcm     = 0;
 
     FuncExitNoReturn(TRACE_MINWAVE);
-} // CMiniportWaveCyclic
+}
 
-//=============================================================================
 CMiniportWaveCyclic::~CMiniportWaveCyclic(void)
 /*++
 Routine Description:
@@ -120,10 +117,8 @@ Return Value:
     }
 
     FuncExitNoReturn(TRACE_MINWAVE);
-} // ~CMiniportWaveCyclic
+}
 
-
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::DataRangeIntersection( 
     IN  ULONG                       PinId,
     IN  PKSDATARANGE                ClientDataRange,
@@ -170,9 +165,8 @@ Return Value:
     // Portcls will handle the request for us.
 
     return STATUS_NOT_IMPLEMENTED;
-} // DataRangeIntersection
+}
 
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::GetDescription( 
     OUT PPCFILTER_DESCRIPTOR * OutFilterDescriptor 
 )
@@ -205,9 +199,8 @@ Return Value:
 
     return (STATUS_SUCCESS);
 
-} // GetDescription
+}
 
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::Init( 
     IN  PUNKNOWN                UnknownAdapter_,
     IN  PRESOURCELIST           ResourceList_,
@@ -297,9 +290,8 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // Init
+}
 
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::NewStream(
     OUT PMINIPORTWAVECYCLICSTREAM* OutStream,
     IN PUNKNOWN OuterUnknown,
@@ -405,9 +397,8 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // NewStream
+}
 
-//=============================================================================
 STDMETHODIMP_(NTSTATUS) CMiniportWaveCyclic::NonDelegatingQueryInterface( 
     IN  REFIID  Interface,
     OUT PVOID * Object 
@@ -446,9 +437,8 @@ Return Value:
     }
 
     return STATUS_INVALID_PARAMETER;
-} // NonDelegatingQueryInterface
+}
 
-//=============================================================================
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerComponentId(
     IN PPCPROPERTY_REQUEST      PropertyRequest
 )
@@ -496,9 +486,8 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // PropertyHandlerComponentId
+}
 
-//=============================================================================
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerProposedFormat(
     IN PPCPROPERTY_REQUEST PropertyRequest
 )
@@ -570,9 +559,8 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // PropertyHandlerProposedFormat
+}
 
-//=============================================================================
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerCpuResources(
     IN PPCPROPERTY_REQUEST PropertyRequest
 )
@@ -611,9 +599,8 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // PropertyHandlerCpuResources
+}
 
-//=============================================================================
 NTSTATUS CMiniportWaveCyclic::PropertyHandlerGeneric(
     IN  PPCPROPERTY_REQUEST     PropertyRequest
 )
@@ -650,9 +637,8 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // PropertyHandlerGeneric
+}
 
-//=============================================================================
 void TimerNotify(
     IN  PKDPC                   Dpc,
     IN  PVOID                   DeferredContext,
@@ -688,10 +674,8 @@ Return Value:
     }
 
     FuncExitNoReturn(TRACE_MINWAVE);
-} // TimerNotify
+}
 
-
-//=============================================================================
 NTSTATUS PropertyHandler_WaveFilter(
     IN PPCPROPERTY_REQUEST PropertyRequest
 )
@@ -729,7 +713,7 @@ Return Value:
     FuncExit(TRACE_MINWAVE, "ntStatus=%!STATUS!", ntStatus);
 
     return ntStatus;
-} // PropertyHandler_WaveFilter
+}
 
 #pragma code_seg()
 
