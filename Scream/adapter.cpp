@@ -38,17 +38,26 @@ NTSTATUS CreateMiniportTopologyScream(OUT PUNKNOWN *, IN  REFCLSID, IN  PUNKNOWN
 // TODO: get rid of all global variables for settings
 // 
 
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 PCHAR g_UnicastSrcIPv4;
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 DWORD g_UnicastSrcPort;
 
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 PCHAR g_UnicastIPv4;
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 DWORD g_UnicastPort;
 //0 = false, otherwhise it's value is the size in MiB of the IVSHMEM we want to use
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 UINT8 g_UseIVSHMEM;
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 DWORD g_silenceThreshold;
 
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 DWORD g_DSCP;
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 DWORD g_TTL;
+__declspec(deprecated("Move to per-device ADAPTER_COMMON_SETTINGS"))
 DWORD g_ScreamVersion;
 
 //-----------------------------------------------------------------------------
@@ -429,7 +438,7 @@ NTSTATUS InstallSubdevice(
 /*++
 Routine Description:
     This function creates and registers a subdevice consisting of a port       
-    driver, a minport driver and a set of resources bound together.  It will   
+    driver, a miniport driver and a set of resources bound together.  It will   
     also optionally place a pointer to an interface on the port driver in a    
     specified location before initializing the port driver.  This is done so   
     that a common ISR can have access to the port driver during 

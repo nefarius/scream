@@ -25,11 +25,15 @@ Abstract:
 // Externals
 //-----------------------------------------------------------------------------
 // TODO: get rid of those!
+__declspec(deprecated("Move to instance member variable"))
 PSAVEWORKER_PARAM CNetSink::m_pWorkItem = NULL;
+__declspec(deprecated("Move to instance member variable"))
 PDEVICE_OBJECT    CNetSink::m_pDeviceObject = NULL;
 
 // TODO: get rid of those!
+__declspec(deprecated("Move to instance member variable"))
 PIVSHMEM_SAVEWORKER_PARAM CIVSHMEMSaveData::m_pWorkItem = NULL;
+__declspec(deprecated("Move to instance member variable"))
 PDEVICE_OBJECT            CIVSHMEMSaveData::m_pDeviceObject = NULL;
 
 //=============================================================================
