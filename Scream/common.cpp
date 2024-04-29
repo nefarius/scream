@@ -663,7 +663,7 @@ STDMETHODIMP_(NTSTATUS)CAdapterCommon::QueryDeviceCapabilities(
 ) {
     UNREFERENCED_PARAMETER(PowerDeviceCaps);
 
-    DPF_ENTER(("[CAdapterCommon::QueryDeviceCapabilities]"));
+    FuncEntry(TRACE_COMMON);
 
     return (STATUS_SUCCESS);
 }
@@ -673,7 +673,7 @@ STDMETHODIMP_(NTSTATUS)CAdapterCommon::QueryPowerChangeState(
 ) {
     UNREFERENCED_PARAMETER(NewStateQuery);
 
-    DPF_ENTER(("[CAdapterCommon::QueryPowerChangeState]"));
+    FuncEntry(TRACE_COMMON);
 
     return STATUS_SUCCESS;
 }

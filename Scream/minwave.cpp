@@ -177,8 +177,6 @@ Return Value:
 
     ASSERT(OutFilterDescriptor);
 
-    DPF_ENTER(("[CMiniportWaveCyclic::GetDescription]"));
-
     *OutFilterDescriptor = m_FilterDescriptor;
 
     FuncExitNoReturn(TRACE_MINWAVE);
@@ -578,9 +576,7 @@ Return Value:
     // PAGED_CODE();
 
     ASSERT(PropertyRequest);
-
-    DPF_ENTER(("[CMiniportWaveCyclic::PropertyHandlerCpuResources]"));
-
+        
     NTSTATUS ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
     if (PropertyRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT) {

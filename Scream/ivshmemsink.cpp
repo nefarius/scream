@@ -256,9 +256,7 @@ void CIVSHMEMSink::DestroyWorkItems(void) {
     FuncEntry(TRACE_IVSHMEMSINK);
 
     PAGED_CODE();
-
-    DPF_ENTER(("[CIVSHMEMSaveData::DestroyWorkItems]"));
-
+    
     if (m_pWorkItem) {
         ExFreePoolWithTag(m_pWorkItem, SCREAM_POOLTAG);
         m_pWorkItem = NULL;
@@ -300,9 +298,7 @@ NTSTATUS CIVSHMEMSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WOR
     PAGED_CODE();
 
     NTSTATUS ntStatus = STATUS_SUCCESS;
-
-    DPF_ENTER(("[CIVSHMEMSaveData::Initialize]"));
-
+    
     m_ivshmem.chunkSize = (UINT32)((wBitsPerSample >> 3) * nChannels * nSamplesPerSec / 50);
     if (RequestMMAP()) {
         PIVSHMEM_SCREAM_HEADER hdr = (PIVSHMEM_SCREAM_HEADER)m_ivshmem.mmap.ptr;

@@ -405,7 +405,7 @@ Return Value:
 
     ASSERT(FramingSize);
 
-    DPF_ENTER(("[CMiniportWaveCyclicStream::SetNotificationFreq]"));
+    FuncEntry(TRACE_IVSHMEMSINK);
 
     m_pMiniport->m_NotificationInterval = Interval;
 
@@ -576,7 +576,7 @@ Return Value:
   ULONG
 --*/
 {
-    DPF_ENTER(("[CMiniportWaveCyclicStream::AllocatedBufferSize]"));
+    FuncEntry(TRACE_IVSHMEMSINK);
 
     return m_ulDmaBufferSize;
 } // AllocatedBufferSize

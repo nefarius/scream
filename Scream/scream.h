@@ -40,7 +40,6 @@ DEFINE_GUIDSTRUCT("8CA27A4B-23F2-4BDE-92B3-A13E563C8506", PID_SCREAM);
 #define D_TERSE                     DEBUGLVL_TERSE          
 #define D_ERROR                     DEBUGLVL_ERROR          
 #define DPF                         _DbgPrintF
-#define DPF_ENTER(x)                DPF(D_FUNC, x)
 
 // Channel orientation
 #define CHAN_LEFT                   0
