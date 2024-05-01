@@ -132,7 +132,7 @@ Returns:
     };
 
 
-    DPF(D_TERSE, ("[GetRegistrySettings]"));
+    //DPF(D_TERSE, ("[GetRegistrySettings]"));
 
     PAGED_CODE();
 
@@ -162,7 +162,7 @@ Returns:
 
     if (!NT_SUCCESS(ntStatus))
     {
-        DPF(D_VERBOSE, ("RtlQueryRegistryValues failed, using default values, 0x%x", ntStatus));
+        //DPF(D_VERBOSE, ("RtlQueryRegistryValues failed, using default values, 0x%x", ntStatus));
         // Don't return error because we will operate with default values.
     }
 

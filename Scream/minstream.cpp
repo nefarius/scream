@@ -179,7 +179,7 @@ Return Value:
             m_pMiniport->m_SamplingFrequency = pWfx->nSamplesPerSec;
             KeReleaseMutex(&m_pMiniport->m_SampleRateSync, FALSE);
         } else {
-            DPF(D_TERSE, ("[SamplingFrequency Sync failed: %08X]", ntStatus));
+            TraceError(TRACE_MINSTREAM, "SamplingFrequency Sync failed with status %!STATUS!", ntStatus);
         }
     }
 
@@ -190,7 +190,7 @@ Return Value:
     if (NT_SUCCESS(ntStatus)) {
         m_pDpc = (PRKDPC) ExAllocatePoolWithTag(NonPagedPool, sizeof(KDPC), SCREAM_POOLTAG);
         if (!m_pDpc) {
-            DPF(D_TERSE, ("[Could not allocate memory for DPC]"));
+            TraceError(TRACE_MINSTREAM, "Failed to allocate memory for DPC");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }
@@ -198,7 +198,7 @@ Return Value:
     if (NT_SUCCESS(ntStatus)) {
         m_pTimer = (PKTIMER) ExAllocatePoolWithTag(NonPagedPool, sizeof(KTIMER), SCREAM_POOLTAG);
         if (!m_pTimer) {
-            DPF(D_TERSE, ("[Could not allocate memory for Timer]"));
+            TraceError(TRACE_MINSTREAM, "Failed to allocate memory for timer");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }

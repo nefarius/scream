@@ -33,14 +33,6 @@ DEFINE_GUIDSTRUCT("8CA27A4B-23F2-4BDE-92B3-A13E563C8506", PID_SCREAM);
 // Debug module name
 #define STR_MODULENAME              "Scream: "
 
-// Debug utility macros
-#define D_FUNC                      4
-#define D_BLAB                      DEBUGLVL_BLAB
-#define D_VERBOSE                   DEBUGLVL_VERBOSE        
-#define D_TERSE                     DEBUGLVL_TERSE          
-#define D_ERROR                     DEBUGLVL_ERROR          
-#define DPF                         _DbgPrintF
-
 // Channel orientation
 #define CHAN_LEFT                   0
 #define CHAN_RIGHT                  1

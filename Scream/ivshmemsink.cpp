@@ -328,7 +328,7 @@ NTSTATUS CIVSHMEMSink::Initialize(DWORD nSamplesPerSec, WORD wBitsPerSample, WOR
     if (NT_SUCCESS(ntStatus)) {
         m_pBuffer = (PBYTE)ExAllocatePoolWithTag(NonPagedPool, m_ivshmem.bufferSize, SCREAM_POOLTAG);
         if (!m_pBuffer) {
-            DPF(D_TERSE, ("[Could not allocate memory for sending data]"));
+            TraceError(TRACE_IVSHMEMSINK, "DMA buffer allocation failed");
             ntStatus = STATUS_INSUFFICIENT_RESOURCES;
         }
     }

@@ -415,7 +415,7 @@ void CNetSink::CreateSocket(void) {
     );
     KeWaitForSingleObject(&m_syncEvent, Executive, KernelMode, FALSE, NULL);
 
-    DPF(D_TERSE, ("WskBind: %x", m_irp->IoStatus.Status));
+    //DPF(D_TERSE, ("WskBind: %x", m_irp->IoStatus.Status));
 
     if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
         TraceError(TRACE_NETSINK, "Socket bind failed with status %!STATUS!", m_irp->IoStatus.Status);
