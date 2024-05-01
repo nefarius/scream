@@ -624,7 +624,7 @@ Return Value:
         break;
 
     default:
-        DPF(D_TERSE, ("[PropertyHandlerGeneric: Invalid Device Request]"));
+        TraceWarning(TRACE_MINWAVE, "Invalid Device Request");
         ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     }
 
