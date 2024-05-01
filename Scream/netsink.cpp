@@ -476,7 +476,7 @@ void CNetSink::SendData() {
             
             if (!NT_SUCCESS(m_irp->IoStatus.Status)) {
                 TraceError(TRACE_NETSINK, "WskSendTo failed with status %!STATUS!", m_irp->IoStatus.Status);
-                EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"WskSendTo", m_irp->IoStatus.Status);
+                //EventWriteFailedWithNTStatus(NULL, __FUNCTION__, L"WskSendTo", m_irp->IoStatus.Status);
             }
 
             m_ulSendOffset += CHUNK_SIZE;
